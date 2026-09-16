@@ -1,6 +1,6 @@
 <template>
   <section class="bg-[#1C368D] py-24 text-white">
-    <div class="max-w-7xl mx-auto px-6">
+    <div class="max-w-5xl mx-auto px-6">
       
       <!-- Headers -->
       <div class="text-center mb-20 flex flex-col items-center">
@@ -13,17 +13,12 @@
       </div>
 
       <!-- Steps -->
-      <div class="space-y-24">
+      <div class="space-y-12">
         
         <!-- Step 1: PLAY -->
-        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+        <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <div class="w-full lg:w-1/2">
-            <!-- Image Placeholder -->
-            <div class="w-full aspect-video bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center p-2">
-               <div class="w-full h-full bg-gray-200/20 rounded-xl flex items-center justify-center border border-dashed border-white/30">
-                  <span class="text-white/60 font-medium">Image Placeholder (PLAY)</span>
-               </div>
-            </div>
+            <img src="../assets/image_play.png" alt="Tahap Bermain AMIGO" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
           </div>
           <div class="w-full lg:w-1/2 space-y-4">
             <h3 class="text-3xl font-bold uppercase tracking-wider">PLAY</h3>
@@ -34,14 +29,9 @@
         </div>
 
         <!-- Step 2: MEASURE -->
-        <div class="flex flex-col lg:flex-row-reverse items-center gap-12 lg:gap-20">
+        <div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
           <div class="w-full lg:w-1/2">
-            <!-- Image Placeholder -->
-            <div class="w-full aspect-video bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center p-2">
-               <div class="w-full h-full bg-gray-200/20 rounded-xl flex items-center justify-center border border-dashed border-white/30">
-                  <span class="text-white/60 font-medium">Image Placeholder (MEASURE)</span>
-               </div>
-            </div>
+            <img src="../assets/image_measure.png" alt="Tahap Pengukuran Skill" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
           </div>
           <div class="w-full lg:w-1/2 space-y-4 lg:text-left">
             <h3 class="text-3xl font-bold uppercase tracking-wider">MEASURE</h3>
@@ -52,14 +42,9 @@
         </div>
 
         <!-- Step 3: APPLY -->
-        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+        <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <div class="w-full lg:w-1/2">
-            <!-- Image Placeholder -->
-            <div class="w-full aspect-video bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center p-2">
-               <div class="w-full h-full bg-gray-200/20 rounded-xl flex items-center justify-center border border-dashed border-white/30">
-                  <span class="text-white/60 font-medium">Image Placeholder (APPLY)</span>
-               </div>
-            </div>
+            <img src="../assets/image_apply.png" alt="Tahap Praktik Resolusi Konflik" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
           </div>
           <div class="w-full lg:w-1/2 space-y-4">
             <h3 class="text-3xl font-bold uppercase tracking-wider">APPLY</h3>
@@ -74,6 +59,3 @@
   </section>
 </template>
 
-<script setup lang="ts">
-// How it works logic here
-</script>

@@ -16,11 +16,11 @@ import ClosingSection from '../components/ClosingSection.vue'
     
     <main class="flex-grow">
       <HeroSection />
-      <ProblemSection />
-      <SolutionSection />
-      <HowItWorksSection />
-      <TestimonialSection />
-      <FAQSection />
+      <ProblemSection id="program" />
+      <SolutionSection id="solusi" />
+      <HowItWorksSection id="cara-kerja" />
+      <TestimonialSection id="testimoni" />
+      <FAQSection id="faq" />
       <ClosingSection />
     </main>
 

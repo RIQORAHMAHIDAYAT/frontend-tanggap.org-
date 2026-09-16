@@ -1,6 +1,6 @@
 <template>
-  <section class="bg-white py-24">
-    <div class="max-w-7xl mx-auto px-6">
+  <section class="bg-white py-24 min-h-screen flex flex-col justify-center">
+    <div class="max-w-7xl mx-auto px-6 w-full">
       <div class="flex flex-col lg:flex-row gap-16 lg:gap-24">
         
         <!-- Left: Title -->
@@ -22,15 +22,15 @@
             <!-- Accordion Header -->
             <div 
               @click="toggleFaq(index)" 
-              class="p-6 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors"
+              class="py-4 px-6 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors"
             >
-              <h3 class="font-bold text-[#0F172A] text-lg pr-4">{{ faq.q }}</h3>
+              <h3 class="font-semibold text-[#0F172A] text-base pr-4">{{ faq.q }}</h3>
               <svg 
-                class="w-6 h-6 text-[#1C368D] transform transition-transform duration-300 flex-shrink-0" 
+                class="w-5 h-5 text-[#1C368D] transform transition-transform duration-300 flex-shrink-0" 
                 :class="{ 'rotate-180': activeIndex === index }"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path>
               </svg>
             </div>
             
@@ -68,7 +68,7 @@ const faqs = [
   },
   {
     q: "Bagaimana cara mengintegrasikan AMIGO dan tanggap.org ke dalam kurikulum atau kegiatan sekolah?",
-    a: "Metode ini sangat fleksibel. AMIGO dapat dimainkan dalam sesi Layanan Bimbingan Konseling (BK), jam Pembinaan Karakter/P5, kegiatan ekstrakurikuler (seperti OSIS/Pramuka), maupun workshop komunitas. Fasilitator dapat memulai dengan permainan AMIGO selama 30–45 menit, lalu mengarahkan siswa mengakses tanggap.org via ponsel untuk mengisi asesmen dan mengunduh toolkit."
+    a: "Metode ini sangat fleksibel. AMIGO dapat dimainkan dalam sesi Layanan Bimbingan Konseling (BK), jam Pembinaan Karakter/P5, kegiatan ekstrakurikuler (seperti OSIS/Pramuka), maupun workshop komunitas. Fasilitator dapat memulai dengan permainan AMIGO selama 30-45 menit, lalu mengarahkan siswa mengakses tanggap.org via ponsel untuk mengisi asesmen dan mengunduh toolkit."
   },
   {
     q: "Apakah Guru BK atau Pendidik mendapatkan panduan untuk memfasilitasi sesi ini?",

@@ -10,7 +10,7 @@
     <div class="w-full relative flex overflow-hidden group py-4">
       
       <!-- List 1 -->
-      <div class="flex animate-marquee group-hover:[animation-play-state:paused] gap-6 md:gap-8 pr-6 md:pr-8 min-w-max">
+      <div class="flex animate-marquee gap-6 md:gap-8 pr-6 md:pr-8 min-w-max">
         <TestimonialCard 
           v-for="(item, index) in testimonials" 
           :key="'a-' + index" 
@@ -19,7 +19,7 @@
       </div>
       
       <!-- List 2 (Kloningan penyambung tanpa batas) -->
-      <div class="flex animate-marquee group-hover:[animation-play-state:paused] gap-6 md:gap-8 pr-6 md:pr-8 min-w-max" aria-hidden="true">
+      <div class="flex animate-marquee gap-6 md:gap-8 pr-6 md:pr-8 min-w-max" aria-hidden="true">
         <TestimonialCard 
           v-for="(item, index) in testimonials" 
           :key="'b-' + index" 
@@ -81,5 +81,14 @@ const testimonials = [
 
 .animate-marquee {
   animation: marquee 45s linear infinite;
+}
+
+@media (hover: hover) {
+  .group:hover .animate-marquee {
+    animation-play-state: paused;
+  }
+}
+.group:active .animate-marquee {
+  animation-play-state: paused;
 }
 </style>

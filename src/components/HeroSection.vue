@@ -1,8 +1,8 @@
 <template>
-  <section class="max-w-7xl mx-auto px-6 pt-16 pb-24">
+  <section ref="heroContentRef" class="max-w-7xl mx-auto px-6 pt-16 pb-24">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
       <!-- Left Content -->
-      <div class="space-y-8 lg:col-span-7 order-2 lg:order-1">
+      <div :class="['space-y-8 lg:col-span-7 order-2 lg:order-1 transition-all duration-1000 ease-out transform', isHeroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1C368D] leading-tight">
           Hadirkan Edukasi Resolusi<br class="hidden lg:block" />
           Konflik yang Seru,<br class="hidden lg:block" />
@@ -26,9 +26,9 @@
       </div>
 
       <!-- Right Image/Badge Placeholder -->
-      <div class="relative lg:col-span-5 order-1 lg:order-2 w-[80%] lg:w-full mx-auto mt-4 lg:mt-0">
+      <div :class="['relative lg:col-span-5 order-1 lg:order-2 w-[80%] lg:w-full mx-auto mt-4 lg:mt-0 transition-all duration-1000 delay-300 ease-out transform', isHeroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
         <!-- Glow Effect Background -->
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-gradient-to-tr from-[#1C368D]/50 to-sky-300/50 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[145%] h-[145%] bg-gradient-to-tr from-[#1C368D]/[37%] to-sky-300/[37%] rounded-full blur-3xl -z-10"></div>
         
         <!-- Hero Image -->
         <img src="../assets/placeholder_1.png" alt="Hero Image" class="w-full h-auto max-h-[500px] object-contain md:object-cover rounded-xl cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
@@ -84,7 +84,10 @@ import { ref, onMounted } from 'vue'
 const stat1 = ref(0)
 const stat2 = ref(0)
 const stat3 = ref(0)
+
 const statsRef = ref<HTMLElement | null>(null)
+const heroContentRef = ref<HTMLElement | null>(null)
+const isHeroVisible = ref(false)
 
 const animateValue = (obj: any, start: number, end: number, duration: number) => {
   let startTimestamp: number | null = null;
@@ -104,17 +107,30 @@ const animateValue = (obj: any, start: number, end: number, duration: number) =>
 }
 
 onMounted(() => {
-  const observer = new IntersectionObserver((entries) => {
+  // Observer for Stats Animation
+  const statsObserver = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
       animateValue(stat1, 0, 94, 2000)
       animateValue(stat2, 0, 88, 2000)
       animateValue(stat3, 0, 150, 2000)
-      observer.disconnect() 
+      statsObserver.disconnect() 
     }
   }, { threshold: 0.5 })
   
   if (statsRef.value) {
-    observer.observe(statsRef.value)
+    statsObserver.observe(statsRef.value)
+  }
+
+  // Observer for Hero Entrance Animation
+  const heroObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      isHeroVisible.value = true
+      heroObserver.disconnect()
+    }
+  }, { threshold: 0.1 })
+  
+  if (heroContentRef.value) {
+    heroObserver.observe(heroContentRef.value)
   }
 })
 </script>

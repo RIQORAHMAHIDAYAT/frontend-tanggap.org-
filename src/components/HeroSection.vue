@@ -32,19 +32,6 @@
         
         <!-- Hero Image -->
         <img src="../assets/placeholder_1.png" alt="Hero Image" class="w-full h-auto max-h-[500px] object-contain md:object-cover rounded-xl cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
-        
-        <!-- Green Badge Wrapper -->
-        <div class="absolute top-8 -right-14 lg:top-1/2 lg:-right-auto lg:left-0 lg:-translate-x-1/4 lg:-translate-y-1/2 z-20">
-          <!-- Green Glassmorphism Animated Badge -->
-          <div class="animate-float bg-gradient-to-br from-[#A3D22C]/75 to-[#8dbd1f]/75 backdrop-blur-md border border-white/40 text-[#0F172A] rounded-xl p-2 lg:p-4 pr-4 lg:pr-6 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex items-center gap-2 lg:gap-4 w-max lg:w-80">
-            <!-- Icon Asset -->
-            <img src="../assets/icon_badge.png" alt="Icon Badge" class="w-8 h-8 lg:w-12 lg:h-12 object-contain flex-shrink-0" />
-            <p class="text-[11px] lg:text-sm font-semibold leading-tight">
-              <span class="whitespace-nowrap">Dikembangkan oleh Ahli</span><br>
-              <span class="whitespace-nowrap">Pendidikan Sosiologi UPI dan UI</span>
-            </p>
-          </div>
-        </div>
       </div>
     </div>
 

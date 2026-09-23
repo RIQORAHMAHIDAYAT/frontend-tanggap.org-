@@ -9,6 +9,9 @@ jobs:
   build-and-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://tanggap.org
 
     steps:
       - name: 📥 Checkout repository

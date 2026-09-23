@@ -36,5 +36,11 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT }}
           local-dir: ./dist/
-          server-dir: ./public_html/tanggap.org/
+          server-dir: ./
           dangerous-clean-slate: false
+
+      - name: ✅ Smoke check live site
+        run: |
+          curl -fsSL https://tanggap.org/robots.txt | grep -q "Sitemap:" \
+            && echo "OK: robots.txt live" \
+            || (echo "FAIL: deploy salah docroot" && exit 1)

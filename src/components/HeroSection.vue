@@ -20,7 +20,7 @@
           </p>
         </div>
 
-        <button class="bg-gradient-to-b from-[#2A4CC7] to-[#15296b] shadow-[0_4px_6px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.2)] hover:from-[#3256df] hover:to-[#1a3385] text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 active:scale-95 active:shadow-none">
+        <button class="bg-[#1C368D] bg-gradient-to-b from-white/20 to-transparent text-white font-semibold py-3 px-8 rounded-xl text-sm md:text-base whitespace-nowrap shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:scale-[1.03] transition-all duration-300 active:scale-95 active:shadow-none">
           Dapatkan Proposal & Demo Kit Gratis
         </button>
       </div>
@@ -31,12 +31,12 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[145%] h-[145%] bg-gradient-to-tr from-[#1C368D]/[37%] to-sky-300/[37%] rounded-full blur-3xl -z-10"></div>
         
         <!-- Hero Image -->
-        <img src="../assets/placeholder_1.png" alt="Hero Image" class="w-full h-auto max-h-[500px] object-contain md:object-cover rounded-xl cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
+        <img src="../assets/placeholder_1.png" alt="Hero Image" class="w-full h-auto max-h-[500px] object-contain cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
       </div>
     </div>
 
     <!-- Stats Section -->
-    <div ref="statsRef" class="mt-40 md:mt-56 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x-2 divide-gray-300">
+    <div ref="statsRef" class="mt-16 md:mt-56 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x-2 divide-gray-300">
       <div class="py-6 md:py-0 px-4">
         <h3 class="text-5xl md:text-6xl font-bold text-[#1C368D] mb-4">{{ stat1 }}%</h3>
         <p class="text-gray-600 leading-relaxed text-sm">
@@ -121,18 +121,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-</style>

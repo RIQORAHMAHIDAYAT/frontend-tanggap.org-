@@ -13,7 +13,7 @@
       <p class="text-lg md:text-xl text-blue-100 font-light mb-12 max-w-2xl mx-auto leading-relaxed">
         Dukung remaja mengembangkan kemampuan komunikasi, pengelolaan emosi, dan penyelesaian konflik melalui pengalaman belajar yang seru, interaktif, dan terukur.
       </p>
-      <button class="bg-white text-[#1C3BAA] font-bold py-4 px-10 rounded-[10px] shadow-lg hover:shadow-xl transition-all duration-300">
+      <button class="bg-[#1C368D] bg-gradient-to-b from-white/20 to-transparent text-white font-bold py-4 px-10 rounded-[10px] shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:shadow-[0_24px_40px_-18px_rgba(11,21,60,0.55)] hover:scale-[1.03] transition-all duration-300">
         Dapatkan Proposal & Demo Kit Gratis
       </button>
     </div>

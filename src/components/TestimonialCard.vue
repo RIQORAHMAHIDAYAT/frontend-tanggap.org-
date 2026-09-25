@@ -7,7 +7,7 @@
       </p>
     </div>
     <div class="mt-auto flex items-center gap-3 md:gap-4 pt-3 md:pt-8 border-t border-white/10">
-      <img :src="item.image" :alt="item.name" class="w-10 h-10 md:w-16 md:h-16 rounded-full flex-shrink-0 object-cover border-2 border-white/20" />
+      <img :src="item.image" :alt="item.name" width="256" height="256" loading="lazy" decoding="async" class="w-10 h-10 md:w-16 md:h-16 rounded-full flex-shrink-0 object-cover border-2 border-white/20" />
       <div>
         <h4 class="font-bold text-sm md:text-lg leading-tight">{{ item.name }}</h4>
         <p class="text-gray-400 font-light text-[10px] md:text-sm mt-0.5 md:mt-1">{{ item.role }}</p>

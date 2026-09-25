@@ -31,7 +31,7 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[145%] h-[145%] bg-gradient-to-tr from-[#1C368D]/[37%] to-sky-300/[37%] rounded-full blur-3xl -z-10"></div>
         
         <!-- Hero Image -->
-        <img src="../assets/placeholder_1.webp" alt="Hero Image" class="w-full h-auto max-h-[500px] object-contain cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
+        <img src="../assets/placeholder_1.webp" alt="Hero Image" width="424" height="448" fetchpriority="high" class="w-full h-auto max-h-[500px] object-contain cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
       </div>
     </div>
 

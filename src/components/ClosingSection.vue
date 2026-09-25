@@ -20,13 +20,13 @@
 
     <!-- Decorative Icons -->
     <!-- Kiri Atas (Catur) -> Animasi dari Kanan -->
-    <img src="../assets/icon_catur.png" alt="Icon Catur" :class="['absolute top-8 md:top-12 left-4 md:left-24 w-12 md:w-20', isVisible ? 'roll-from-right' : 'opacity-0']" />
+    <img src="../assets/icon_catur.png" alt="Icon Catur" loading="lazy" decoding="async" :class="['absolute top-8 md:top-12 left-4 md:left-24 w-12 md:w-20', isVisible ? 'roll-from-right' : 'opacity-0']" />
     <!-- Kanan Atas (Kartu) -> Animasi dari Kiri -->
-    <img src="../assets/icon_card.png" alt="Icon Kartu" :class="['absolute top-8 md:top-12 right-4 md:right-24 w-10 md:w-16', isVisible ? 'roll-from-left' : 'opacity-0']" />
+    <img src="../assets/icon_card.png" alt="Icon Kartu" loading="lazy" decoding="async" :class="['absolute top-8 md:top-12 right-4 md:right-24 w-10 md:w-16', isVisible ? 'roll-from-left' : 'opacity-0']" />
     <!-- Kiri Bawah (Simpul / Bunga) -> Animasi dari Kanan -->
-    <img src="../assets/icon_bunga.png" alt="Icon Simpul" :class="['absolute bottom-8 md:bottom-12 left-8 md:left-32 w-10 md:w-16', isVisible ? 'roll-from-right' : 'opacity-0']" />
+    <img src="../assets/icon_bunga.png" alt="Icon Simpul" loading="lazy" decoding="async" :class="['absolute bottom-8 md:bottom-12 left-8 md:left-32 w-10 md:w-16', isVisible ? 'roll-from-right' : 'opacity-0']" />
     <!-- Kanan Bawah (TicTacToe / Kotak) -> Animasi dari Kiri -->
-    <img src="../assets/icon_kotak.png" alt="Icon TicTacToe" :class="['absolute bottom-4 md:bottom-8 right-8 md:right-32 w-12 md:w-20', isVisible ? 'roll-from-left' : 'opacity-0']" />
+    <img src="../assets/icon_kotak.png" alt="Icon TicTacToe" loading="lazy" decoding="async" :class="['absolute bottom-4 md:bottom-8 right-8 md:right-32 w-12 md:w-20', isVisible ? 'roll-from-left' : 'opacity-0']" />
   </section>
 </template>
 

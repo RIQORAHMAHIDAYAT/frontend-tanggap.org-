@@ -19,7 +19,7 @@
               <p class="text-gray-600 text-lg mb-8 flex-grow">
                 Dari cyberbullying, gesekan pertemanan, hingga komunikasi negatif di media sosial.
               </p>
-              <img src="../assets/image_konflik.png" alt="Konflik Remaja" class="w-full h-auto object-cover rounded-2xl mt-auto" />
+              <img src="../assets/image_konflik.webp" alt="Konflik Remaja" class="w-full h-auto object-cover rounded-2xl mt-auto" />
             </div>
           </div>
 
@@ -31,7 +31,7 @@
               <p class="text-gray-600 text-lg mb-8 flex-grow">
                 Sekolah seringkali kesulitan memetakan tingkat kemampuan resolusi konflik siswa secara kuantitatif.
               </p>
-              <img src="../assets/image_sulitnya.png" alt="Pengukuran Soft-Skill" class="w-full h-auto object-cover rounded-2xl mt-auto" />
+              <img src="../assets/image_sulitnya.webp" alt="Pengukuran Soft-Skill" class="w-full h-auto object-cover rounded-2xl mt-auto" />
             </div>
           </div>
 
@@ -43,7 +43,7 @@
               <p class="text-gray-600 text-lg mb-8 flex-grow">
                 Remaja usia 16+ cenderung resisten jika dinasihati atau diajar secara sepihak (menggurui).
               </p>
-              <img src="../assets/image_metode.png" alt="Metode Edukasi" class="w-full h-auto object-cover rounded-2xl mt-auto" />
+              <img src="../assets/image_metode.webp" alt="Metode Edukasi" class="w-full h-auto object-cover rounded-2xl mt-auto" />
             </div>
           </div>
           

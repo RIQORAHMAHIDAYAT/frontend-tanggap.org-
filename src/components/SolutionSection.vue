@@ -33,7 +33,7 @@
 
         <!-- Center Image (Zoom in lembut) -->
         <div :class="['w-full lg:w-1/3 flex justify-center order-first lg:order-none transition-all duration-1000 delay-100 ease-out transform', isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95']">
-          <img src="../assets/image_student.png" alt="Students playing AMIGO boardgame" class="w-full max-w-lg h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />
+          <img src="../assets/image_student.webp" alt="Students playing AMIGO boardgame" class="w-full max-w-lg h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />
         </div>
 
         <!-- Right Column (Bergeser dari kanan) -->

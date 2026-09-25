@@ -18,7 +18,7 @@
         <!-- Step 1: PLAY -->
         <div ref="step1Ref" class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <div :class="['w-full lg:w-1/2 transition-all duration-1000 ease-out transform', isStep1Visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
-            <img src="../assets/image_play.png" alt="Tahap Bermain AMIGO" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
+            <img src="../assets/image_play.webp" alt="Tahap Bermain AMIGO" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
           </div>
           <div :class="['w-full lg:w-1/2 space-y-4 transition-all duration-1000 delay-300 ease-out transform', isStep1Visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
             <h3 class="text-3xl font-bold uppercase tracking-wider">PLAY</h3>
@@ -31,7 +31,7 @@
         <!-- Step 2: MEASURE -->
         <div ref="step2Ref" class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
           <div :class="['w-full lg:w-1/2 transition-all duration-1000 ease-out transform', isStep2Visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
-            <img src="../assets/image_measure.png" alt="Tahap Pengukuran Skill" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
+            <img src="../assets/image_measure.webp" alt="Tahap Pengukuran Skill" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
           </div>
           <div :class="['w-full lg:w-1/2 space-y-4 lg:text-left transition-all duration-1000 delay-300 ease-out transform', isStep2Visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
             <h3 class="text-3xl font-bold uppercase tracking-wider">MEASURE</h3>
@@ -44,7 +44,7 @@
         <!-- Step 3: APPLY -->
         <div ref="step3Ref" class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <div :class="['w-full lg:w-1/2 transition-all duration-1000 ease-out transform', isStep3Visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
-            <img src="../assets/image_apply.png" alt="Tahap Praktik Resolusi Konflik" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
+            <img src="../assets/image_apply.webp" alt="Tahap Praktik Resolusi Konflik" class="w-full h-auto drop-shadow-xl hover:scale-[1.02] transition-transform duration-500 rounded-2xl border border-white/20" />
           </div>
           <div :class="['w-full lg:w-1/2 space-y-4 transition-all duration-1000 delay-300 ease-out transform', isStep3Visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12']">
             <h3 class="text-3xl font-bold uppercase tracking-wider">APPLY</h3>

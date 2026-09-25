@@ -35,9 +35,9 @@
 import TestimonialCard from './TestimonialCard.vue'
 import iconEndang from '../assets/icon_endang.png'
 import iconFauzy from '../assets/icon_fauzy.png'
-import iconRizky from '../assets/icon_rizky.png'
-import iconSari from '../assets/icon_sari.png'
-import iconBudi from '../assets/icon_budi.png'
+import iconRizky from '../assets/icon_rizky.webp'
+import iconSari from '../assets/icon_sari.webp'
+import iconBudi from '../assets/icon_budi.webp'
 
 const testimonials = [
   {

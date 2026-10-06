@@ -43,10 +43,13 @@
           tanggap.org
         </div>
         
-        <!-- CTA Button -->
-        <div class="flex-1 justify-end hidden md:flex">
-          <button class="bg-[#1C368D] bg-gradient-to-b from-white/20 to-transparent text-white font-semibold py-2 px-6 rounded-full text-sm shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:scale-[1.03] transition-all duration-300 active:scale-95 active:shadow-none whitespace-nowrap">
-            Dapatkan Proposal & Demo Kit Gratis
+        <!-- CTA Buttons -->
+        <div class="flex-1 justify-end hidden md:flex items-center space-x-3">
+          <button class="border border-white text-white font-semibold py-2 px-8 rounded-full text-sm hover:bg-white/10 transition-colors duration-300 whitespace-nowrap">
+            Daftar
+          </button>
+          <button class="bg-white text-[#1C368D] font-bold py-2 px-8 rounded-full text-sm hover:bg-gray-100 transition-colors duration-300 shadow-md whitespace-nowrap">
+            Masuk
           </button>
         </div>
       </nav>
@@ -84,9 +87,12 @@
           </div>
 
           <!-- Tombol Bawah -->
-          <div class="mt-8 flex justify-center">
-            <button class="bg-[#1C368D] bg-gradient-to-b from-white/20 to-transparent text-white font-bold py-2.5 px-8 rounded-full text-sm shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:scale-105 transition-all duration-300 active:scale-95 active:shadow-none whitespace-nowrap">
-              Dapatkan Proposal & Demo Kit Gratis
+          <div class="mt-8 flex flex-col items-center space-y-4 px-8">
+            <button class="w-full max-w-sm border border-white text-white font-semibold py-3 rounded-full text-sm hover:bg-white/10 transition-colors duration-300">
+              Daftar
+            </button>
+            <button class="w-full max-w-sm bg-white text-[#1C368D] font-bold py-3 rounded-full text-sm hover:bg-gray-100 transition-colors duration-300 shadow-md">
+              Masuk
             </button>
           </div>
           

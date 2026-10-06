@@ -6,11 +6,11 @@
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1C368D] leading-tight">
           Hadirkan Edukasi Resolusi<br class="hidden lg:block" />
           Konflik yang Seru,<br class="hidden lg:block" />
-          Interaktif, dan Terukur<br class="hidden lg:block" />
-          di Sekolah Anda.
+          Interaktif, dan Terukur di<br class="hidden lg:block" />
+          Sekolah Anda
         </h1>
         
-        <div class="border-l-4 border-sky-400 pl-6">
+        <div class="border-l-[6px] border-[#4CA3E8] pl-6">
           <p class="text-gray-600 text-lg md:text-xl font-medium leading-relaxed">
             Solusi Blended Learning yang<br class="hidden lg:block" />
             menggabungkan media fisik AMIGO<br class="hidden lg:block" />
@@ -20,7 +20,7 @@
           </p>
         </div>
 
-        <button class="bg-[#1C368D] bg-gradient-to-b from-white/20 to-transparent text-white font-semibold py-3 px-8 rounded-xl text-sm md:text-base whitespace-nowrap shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:scale-[1.03] transition-all duration-300 active:scale-95 active:shadow-none">
+        <button class="bg-[#1C368D] text-white font-semibold py-3 px-8 rounded-xl text-sm md:text-base whitespace-nowrap shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:bg-[#15296b] hover:scale-[1.03] transition-all duration-300 active:scale-95 active:shadow-none">
           Dapatkan Proposal & Demo Kit Gratis
         </button>
       </div>
@@ -31,7 +31,7 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[145%] h-[145%] bg-gradient-to-tr from-[#1C368D]/[37%] to-sky-300/[37%] rounded-full blur-3xl -z-10"></div>
         
         <!-- Hero Image -->
-        <img src="../assets/placeholder_1.webp" alt="Hero Image" width="424" height="448" fetchpriority="high" class="w-full h-auto max-h-[500px] object-contain cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
+        <img src="../assets/placeholder_1.webp" alt="Hero Image" width="424" height="448" fetchpriority="high" class="w-full h-auto max-h-[500px] object-cover rounded-[40px] shadow-2xl cursor-pointer transition-transform duration-200 ease-out hover:scale-[1.03] relative z-10" />
       </div>
     </div>
 

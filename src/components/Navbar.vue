@@ -45,12 +45,12 @@
         
         <!-- CTA Buttons -->
         <div class="flex-1 justify-end hidden md:flex items-center space-x-3">
-          <button class="border border-white text-white font-semibold py-2 px-8 rounded-full text-sm hover:bg-white/10 transition-colors duration-300 whitespace-nowrap">
+          <router-link to="/register" class="border border-white text-white font-semibold py-2 px-8 rounded-full text-sm hover:bg-white/10 transition-colors duration-300 whitespace-nowrap">
             Daftar
-          </button>
-          <button class="bg-white text-[#1C368D] font-bold py-2 px-8 rounded-full text-sm hover:bg-gray-100 transition-colors duration-300 shadow-md whitespace-nowrap">
+          </router-link>
+          <router-link to="/login" class="bg-white text-[#1C368D] font-bold py-2 px-8 rounded-full text-sm hover:bg-gray-100 transition-colors duration-300 shadow-md whitespace-nowrap">
             Masuk
-          </button>
+          </router-link>
         </div>
       </nav>
 
@@ -88,12 +88,12 @@
 
           <!-- Tombol Bawah -->
           <div class="mt-8 flex flex-col items-center space-y-4 px-8">
-            <button class="w-full max-w-sm border border-white text-white font-semibold py-3 rounded-full text-sm hover:bg-white/10 transition-colors duration-300">
+            <router-link to="/register" @click="isMenuOpen = false" class="w-full max-w-sm border border-white text-white font-semibold py-3 rounded-full text-sm hover:bg-white/10 transition-colors duration-300 text-center">
               Daftar
-            </button>
-            <button class="w-full max-w-sm bg-white text-[#1C368D] font-bold py-3 rounded-full text-sm hover:bg-gray-100 transition-colors duration-300 shadow-md">
+            </router-link>
+            <router-link to="/login" @click="isMenuOpen = false" class="w-full max-w-sm bg-white text-[#1C368D] font-bold py-3 rounded-full text-sm hover:bg-gray-100 transition-colors duration-300 shadow-md text-center">
               Masuk
-            </button>
+            </router-link>
           </div>
           
         </div>

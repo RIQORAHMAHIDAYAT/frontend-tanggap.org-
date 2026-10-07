@@ -20,9 +20,9 @@
           </p>
         </div>
 
-        <button class="bg-[#1C368D] text-white font-semibold py-3 px-8 rounded-xl text-sm md:text-base whitespace-nowrap shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:bg-[#15296b] hover:scale-[1.03] transition-all duration-300 active:scale-95 active:shadow-none">
+        <router-link to="/register" class="bg-[#1C368D] text-white font-semibold py-3 px-8 rounded-xl text-sm md:text-base whitespace-nowrap shadow-[0_18px_32px_-16px_rgba(11,21,60,0.45)] hover:bg-[#15296b] hover:scale-[1.03] transition-all duration-300 active:scale-95 active:shadow-none inline-block text-center">
           Dapatkan Proposal & Demo Kit Gratis
-        </button>
+        </router-link>
       </div>
 
       <!-- Right Image/Badge Placeholder -->

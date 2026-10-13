@@ -11,10 +11,10 @@ import ClosingSection from '../components/ClosingSection.vue'
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen">
+  <div class="flex flex-col min-h-screen bg-white">
     <Navbar />
     
-    <main class="flex-grow">
+    <main class="flex-grow bg-white">
       <HeroSection />
       <ProblemSection id="program" />
       <SolutionSection id="solusi" />

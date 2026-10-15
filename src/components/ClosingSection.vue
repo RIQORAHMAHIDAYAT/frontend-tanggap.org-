@@ -23,9 +23,9 @@
         </p>
 
         <!-- White Button with Blue Text (Matching Frame fix07.png) -->
-        <button class="bg-white hover:bg-slate-50 text-[#1E40AF] font-bold py-4 px-10 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 text-base md:text-lg cursor-pointer">
+        <router-link to="/pengajuan-sekolah" class="inline-block bg-white hover:bg-slate-50 text-[#1E40AF] font-bold py-4 px-10 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 text-base md:text-lg cursor-pointer">
           Dapatkan Proposal & Demo Kit Gratis
-        </button>
+        </router-link>
       </div>
 
       <!-- Decorative Icons matching Frame fix07.png -->

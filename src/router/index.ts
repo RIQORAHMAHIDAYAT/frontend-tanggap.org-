@@ -5,6 +5,11 @@ import RegisterView from '../views/auth/RegisterView.vue'
 import ForgotPasswordView from '../views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '../views/auth/ResetPasswordView.vue'
 import PengajuanSekolahView from '../views/school/PengajuanSekolahView.vue'
+import DashboardView from '../views/dashboard/DashboardView.vue'
+import AssessmentView from '../views/assessment/AssessmentView.vue'
+import AmigoView from '../views/dashboard/AmigoView.vue'
+import ActionToolkitView from '../views/dashboard/ActionToolkitView.vue'
+import PengaturanView from '../views/settings/PengaturanView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +47,36 @@ const router = createRouter({
     {
       path: '/proposal-demokit',
       redirect: '/pengajuan-sekolah'
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: DashboardView
+    },
+    {
+      path: '/assessment',
+      name: 'assessment',
+      component: AssessmentView
+    },
+    {
+      path: '/amigo',
+      name: 'amigo',
+      component: AmigoView
+    },
+    {
+      path: '/action-toolkit',
+      name: 'action-toolkit',
+      component: ActionToolkitView
+    },
+    {
+      path: '/profil',
+      name: 'profil',
+      component: PengaturanView
+    },
+    {
+      path: '/pengaturan',
+      name: 'pengaturan',
+      component: PengaturanView
     },
     {
       path: '/:pathMatch(.*)*',

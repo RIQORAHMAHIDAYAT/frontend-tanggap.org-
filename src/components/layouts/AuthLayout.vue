@@ -1,28 +1,34 @@
 <template>
-  <div class="min-h-screen flex flex-col md:flex-row bg-white font-sans overflow-hidden">
-    <!-- Banner Side -->
+  <div class="min-h-screen flex flex-col md:flex-row bg-white font-sans overflow-x-hidden">
+    <!-- Banner Side (Bentuk sama seperti sebelumnya, posisi di ATAS pada mobile: order-1) -->
     <div 
       :key="route.path + '-banner'"
       :class="[
-        'w-full md:w-5/12 bg-[#1C368D] flex flex-col items-center justify-center py-12 px-6 min-h-[250px] md:min-h-screen relative overflow-hidden transition-all duration-500',
-        'order-2',
+        'w-full md:w-5/12 bg-[#1C368D] flex flex-col items-center justify-center py-10 sm:py-12 px-6 min-h-[220px] sm:min-h-[250px] md:min-h-screen relative overflow-hidden transition-all duration-500',
+        'order-1',
         reverse ? 'md:order-1 md:rounded-r-[40px] anim-fade-in-from-left' : 'md:order-2 md:rounded-l-[40px] anim-fade-in-from-right',
-        'max-md:rounded-t-[40px]'
+        'max-md:rounded-b-[40px]'
       ]"
     >
       <div class="z-10 flex flex-col items-center">
         <!-- Logo Image -->
-        <img src="../../assets/logo_sementara.png" alt="Logo Resolusi Konflik" class="mb-6 w-32 h-auto object-contain">
-        <h2 class="text-white text-xl md:text-2xl font-medium tracking-wide text-center">Resolusi Konflik Remaja</h2>
+        <router-link to="/" class="flex flex-col items-center group cursor-pointer text-center">
+          <img 
+            src="../../assets/logo_sementara.png" 
+            alt="Logo Resolusi Konflik" 
+            class="mb-4 sm:mb-6 w-28 sm:w-32 h-auto object-contain transition-transform duration-300 group-hover:scale-105"
+          >
+          <h2 class="text-white text-xl md:text-2xl font-medium tracking-wide text-center">Resolusi Konflik Remaja</h2>
+        </router-link>
       </div>
     </div>
 
-    <!-- Form Side -->
+    <!-- Form Side (order-2 di mobile: berada di BAWAH banner) -->
     <div 
       :key="route.path + '-form'"
       :class="[
-        'w-full md:w-7/12 flex items-center justify-center p-6 md:p-12 lg:p-24 transition-all duration-500 bg-white',
-        'order-1 anim-fade-up',
+        'w-full md:w-7/12 flex-1 flex items-center justify-center p-6 sm:p-8 md:p-12 lg:p-24 transition-all duration-500 bg-white',
+        'order-2 anim-fade-up',
         reverse ? 'md:order-2' : 'md:order-1'
       ]"
     >

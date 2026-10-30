@@ -9,7 +9,17 @@ import DashboardView from '../views/dashboard/DashboardView.vue'
 import AssessmentView from '../views/assessment/AssessmentView.vue'
 import AmigoView from '../views/dashboard/AmigoView.vue'
 import ActionToolkitView from '../views/dashboard/ActionToolkitView.vue'
+import TeacherDashboardView from '../views/dashboard/TeacherDashboardView.vue'
+import TeacherMonitoringView from '../views/dashboard/TeacherMonitoringView.vue'
 import PengaturanView from '../views/settings/PengaturanView.vue'
+import AdminDashboardView from '../views/admin/AdminDashboardView.vue'
+import AdminPengajuanView from '../views/admin/AdminPengajuanView.vue'
+import AdminSekolahView from '../views/admin/AdminSekolahView.vue'
+import AdminPenggunaView from '../views/admin/AdminPenggunaView.vue'
+import AdminKelasView from '../views/admin/AdminKelasView.vue'
+import AdminAssessmentView from '../views/admin/AdminAssessmentView.vue'
+import AdminMonitoringAssessmentView from '../views/admin/AdminMonitoringAssessmentView.vue'
+import AdminKontenView from '../views/admin/AdminKontenView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +62,60 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView
+    },
+    {
+      path: '/dashboard_guru',
+      name: 'dashboard_guru',
+      component: TeacherDashboardView
+    },
+    {
+      path: '/monitoring_guru',
+      name: 'monitoring_guru',
+      component: TeacherMonitoringView
+    },
+    {
+      path: '/admin',
+      redirect: '/dashboard_admin'
+    },
+    {
+      path: '/dashboard_admin',
+      name: 'dashboard_admin',
+      component: AdminDashboardView
+    },
+    {
+      path: '/dashboard_admin/pengajuan-kerjasama',
+      name: 'admin_pengajuan',
+      component: AdminPengajuanView
+    },
+    {
+      path: '/dashboard_admin/manajemen-sekolah',
+      name: 'admin_sekolah',
+      component: AdminSekolahView
+    },
+    {
+      path: '/dashboard_admin/manajemen-pengguna',
+      name: 'admin_pengguna',
+      component: AdminPenggunaView
+    },
+    {
+      path: '/dashboard_admin/manajemen-kelas',
+      name: 'admin_kelas',
+      component: AdminKelasView
+    },
+    {
+      path: '/dashboard_admin/manajemen-assessment',
+      name: 'admin_assessment',
+      component: AdminAssessmentView
+    },
+    {
+      path: '/dashboard_admin/monitoring-assessment',
+      name: 'admin_monitoring_assessment',
+      component: AdminMonitoringAssessmentView
+    },
+    {
+      path: '/dashboard_admin/manajemen-konten',
+      name: 'admin_konten',
+      component: AdminKontenView
     },
     {
       path: '/assessment',

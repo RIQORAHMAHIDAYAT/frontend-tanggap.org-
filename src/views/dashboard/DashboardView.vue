@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout>
-    <!-- Notification Toast if School Code submitted -->
+    <!-- Notification Toast if School Code submitted or error -->
     <transition
       enter-active-class="transition duration-300 ease-out"
       enter-from-class="transform -translate-y-4 opacity-0"
@@ -19,163 +19,149 @@
           <span v-else class="text-amber-600 font-bold text-lg">ℹ</span>
           <span class="font-medium">{{ toastMessage }}</span>
         </div>
-        <button @click="toastMessage = ''" class="text-slate-400 hover:text-slate-600 p-1">✕</button>
+        <button @click="toastMessage = ''" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">✕</button>
       </div>
     </transition>
 
-    <!-- TAMPILAN DASHBOARD SISWA (Saat sudah memasukkan kode - Matching dashboard siswa.png) -->
+    <!-- TAMPILAN DASHBOARD SISWA (Saat sudah memasukkan kode kelas - Matching dashboard siswa.1.png) -->
     <StudentDashboard
       v-if="hasEnteredCode"
       :user-name="userName"
     />
 
-    <!-- TAMPILAN DASHBOARD DEFAULT (Saat belum memasukkan kode - Matching dashboard-00.png) -->
-    <div v-else>
-      <!-- Main 2-Column Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-        
-        <!-- LEFT COLUMN (Welcome Card + AMIGO Card) -->
-        <div class="lg:col-span-7 flex flex-col gap-6 lg:gap-8">
-          
-          <!-- CARD 1: Welcome & School Join Card -->
-          <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-            <div>
-              <div class="mb-5">
-                <h2 class="text-xl sm:text-2xl text-slate-700 font-normal leading-tight">
-                  Selamat datang,
-                </h2>
-                <h1 class="text-2xl sm:text-3xl md:text-4xl text-slate-900 font-extrabold mt-1 tracking-tight">
-                  {{ userName }}
-                </h1>
-              </div>
-
-              <!-- Divider Line -->
-              <hr class="border-slate-200 my-6" />
-
-              <div class="space-y-3">
-                <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-                  Gabung ke kelasmu untuk mulai mengikuti pembelajaran dan tantangan di Tanggap.org.
-                </p>
-                <p class="text-slate-500 text-xs sm:text-sm">
-                  Masukkan 6 digit kode sekolah yang diberikan oleh sekolahmu.
-                </p>
-              </div>
-
-              <!-- 6-Digit School Code Input -->
-              <div class="mt-6 mb-2 overflow-x-auto py-1">
-                <OtpSchoolInput
-                  v-model="schoolCode"
-                  @complete="onCodeComplete"
-                />
-              </div>
-            </div>
-
-            <!-- Bottom Action: Masuk Button -->
-            <div class="flex justify-end mt-8">
-              <button
-                @click="submitSchoolCode"
-                type="button"
-                :disabled="isSubmitting"
-                class="bg-[#1E40AF] hover:bg-blue-800 disabled:opacity-60 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-2"
-              >
-                <span v-if="isSubmitting">Memproses...</span>
-                <span v-else>Masuk</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- CARD 4: AMIGO Promo Card -->
-          <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
-            <div>
-              <!-- Blue Square Icon: Playing Cards -->
-              <div class="w-14 h-14 bg-[#1E40AF] rounded-2xl flex items-center justify-center text-white mb-5 shadow-sm">
-                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
-                  <!-- AMIGO Card Deck Icon -->
-                  <path d="M4 4c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v1h2c1.1 0 2 .9 2 2v13c0 1.1-.9 2-2 2H10c-1.1 0-2-.9-2-2v-1H6c-1.1 0-2-.9-2-2V4zm4 1v11h10V7H8V5zm-2 1v11h10v1c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1zm6 3h2v2h-2V9zm0 4h2v4h-2v-4z"/>
-                </svg>
-              </div>
-
-              <h3 class="text-2xl font-bold text-slate-900 mb-2">
-                AMIGO
-              </h3>
-              <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-                Kenali AMIGO dan eksplorasi cara bermainnya
-              </p>
-            </div>
-
-            <div>
-              <router-link
-                to="/amigo"
-                class="inline-flex items-center gap-2 text-[#1E40AF] hover:text-blue-800 font-bold text-base transition-colors group-hover:translate-x-1 duration-200"
-              >
-                <span>Jelajahi AMIGO</span>
-                <span class="text-lg">→</span>
-              </router-link>
-            </div>
-          </div>
-
+    <!-- TAMPILAN DASHBOARD DEFAULT (Saat belum memasukkan kode - Matching dashboard user biasa.1.png) -->
+    <div v-else class="space-y-6 lg:space-y-8 select-none">
+      <!-- 1. Hero Welcome Banner (Full-Width Card) -->
+      <div class="bg-white rounded-3xl md:rounded-[32px] p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
+        <div class="flex-1 max-w-xl">
+          <h2 class="text-xl sm:text-2xl font-bold text-[#1E40AF]">
+            Selamat datang,
+          </h2>
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#1E40AF] tracking-tight mt-1 mb-2">
+            {{ userName }}
+          </h1>
+          <p class="text-slate-600 text-sm sm:text-base font-normal">
+            Mulai perjalananbelajarmu di Tanggap.org
+          </p>
         </div>
 
-        <!-- RIGHT COLUMN (Speedometer Status Card + Action Toolkit Card) -->
-        <div class="lg:col-span-5 flex flex-col gap-6 lg:gap-8">
-          
-          <!-- CARD 2: User School Status Widget with Speedometer -->
-          <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <!-- Speedometer Graphic -->
-            <SpeedometerWidget />
-
-            <!-- Details -->
-            <div class="flex-1">
-              <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">
-                Hai, {{ userName }}
-              </h3>
-              <p class="text-slate-600 text-sm leading-relaxed mt-1">
-                Saat ini Anda belum berada sekolah manapun.
-              </p>
-              <button
-                @click="showSchoolDetailModal = true"
-                type="button"
-                class="text-[#1E40AF] hover:underline font-semibold text-sm mt-3 inline-block cursor-pointer focus:outline-none"
-              >
-                Lihat detail
-              </button>
-            </div>
-          </div>
-
-          <!-- CARD 3: Action Toolkit Promo Card -->
-          <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
-            <div>
-              <!-- Blue Square Icon: Folder / Action Toolkit -->
-              <div class="w-14 h-14 bg-[#1E40AF] rounded-2xl flex items-center justify-center text-white mb-5 shadow-sm">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                </svg>
-              </div>
-
-              <h3 class="text-2xl font-bold text-slate-900 mb-2">
-                Action Toolkit
-              </h3>
-              <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-                Temukan berbagai media dan lembar aktivitas untuk membantu menghadapi situasi sosial dan konflik
-              </p>
-            </div>
-
-            <div>
-              <router-link
-                to="/action-toolkit"
-                class="inline-flex items-center gap-2 text-[#1E40AF] hover:text-blue-800 font-bold text-base transition-colors group-hover:translate-x-1 duration-200"
-              >
-                <span>Jelajahi Toolkit</span>
-                <span class="text-lg">→</span>
-              </router-link>
-            </div>
-          </div>
-
+        <div class="shrink-0 flex items-center justify-center md:justify-end">
+          <img
+            :src="heroStudentsImg"
+            alt="Ilustrasi Siswa Tanggap.org"
+            class="w-full max-w-[320px] sm:max-w-[380px] md:max-w-[440px] h-auto object-contain select-none pointer-events-none"
+          />
         </div>
-
       </div>
 
-      <!-- Modal Detail Sekolah (Matching lihat detail.png) -->
+      <!-- 2. Callout Banner: "Kamu belum bergabung kelas" -->
+      <div class="bg-[#F0F5FF] rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-100 shadow-xs">
+        <div class="flex items-center gap-4 sm:gap-5 flex-1">
+          <!-- Icon Group Users in Circle -->
+          <div class="w-14 h-14 rounded-full bg-[#DCE9FE] flex items-center justify-center text-[#1E40AF] shrink-0">
+            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+          </div>
+
+          <div>
+            <h3 class="text-xl sm:text-2xl font-bold text-[#1E40AF] mb-1">
+              Kamu belum bergabung kelas
+            </h3>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+              Masukkan kode kelas yang diberikan oleh guru atau sekolahmu untuk mulai mengikuti pembelajaran dan tantangan di Tanggap.org
+            </p>
+          </div>
+        </div>
+
+        <div class="shrink-0 w-full md:w-auto flex justify-end">
+          <button
+            @click="showJoinClassModal = true"
+            type="button"
+            class="bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white font-bold px-7 py-3.5 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap text-base w-full sm:w-auto"
+          >
+            <span>Gabung kelas</span>
+            <span class="text-lg">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Grid 2-Kolom Seimbang (AMIGO & Action Toolkit) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <!-- AMIGO Card -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 group hover:shadow-md transition-shadow relative overflow-hidden">
+          <div class="flex-1 min-w-0">
+            <!-- Gamepad Icon in circle -->
+            <div class="w-12 h-12 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] mb-5">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+              </svg>
+            </div>
+
+            <h3 class="text-2xl font-bold text-[#1E40AF] mb-2">
+              AMIGO
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+              Kenali AMIGO dan eksplrorasi cara bermainnya.
+            </p>
+
+            <router-link
+              to="/amigo"
+              class="inline-flex items-center gap-2 text-[#1E40AF] hover:text-blue-800 font-bold text-base transition-transform group-hover:translate-x-1 duration-200"
+            >
+              <span>Jelajahi AMIGO</span>
+              <span class="text-lg">→</span>
+            </router-link>
+          </div>
+
+          <!-- AMIGO 3D Illustration -->
+          <div class="shrink-0">
+            <img
+              :src="amigoBoxImg"
+              alt="AMIGO Boardgame 3D"
+              class="w-44 sm:w-52 h-auto object-contain select-none pointer-events-none"
+            />
+          </div>
+        </div>
+
+        <!-- Action Toolkit Card -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 group hover:shadow-md transition-shadow relative overflow-hidden">
+          <div class="flex-1 min-w-0">
+            <!-- Folder Icon in circle -->
+            <div class="w-12 h-12 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] mb-5">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+              </svg>
+            </div>
+
+            <h3 class="text-2xl font-bold text-[#1E40AF] mb-2">
+              Action Toolkit
+            </h3>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+              Temukan berbagai media dan lembar aktivitas untuk membantu menghadapi situasi sosial dan konflik.
+            </p>
+
+            <router-link
+              to="/action-toolkit"
+              class="inline-flex items-center gap-2 text-[#1E40AF] hover:text-blue-800 font-bold text-base transition-transform group-hover:translate-x-1 duration-200"
+            >
+              <span>Jelajahi Toolkit</span>
+              <span class="text-lg">→</span>
+            </router-link>
+          </div>
+
+          <!-- Action Toolkit Binder 3D Illustration -->
+          <div class="shrink-0">
+            <img
+              :src="toolkitBinderImg"
+              alt="Action Toolkit Binder 3D"
+              class="w-44 sm:w-52 h-auto object-contain select-none pointer-events-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Modal "Masukkan Kode Kelas" (Matching masukan kode.png) -->
       <transition
         enter-active-class="transition duration-200 ease-out"
         enter-from-class="opacity-0 scale-95"
@@ -185,28 +171,61 @@
         leave-to-class="opacity-0 scale-95"
       >
         <div
-          v-if="showSchoolDetailModal"
+          v-if="showJoinClassModal"
           class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-xs"
-          @click.self="showSchoolDetailModal = false"
+          @click.self="showJoinClassModal = false"
         >
-          <div class="bg-white rounded-[32px] sm:rounded-[36px] max-w-[620px] w-full p-7 sm:p-9 md:p-10 shadow-2xl border border-slate-100/80 relative text-left select-none">
-            <h3 class="text-2xl sm:text-[28px] font-bold text-slate-900 mb-4 sm:mb-5 tracking-tight leading-tight">
-              Status Sekolah Pengguna
-            </h3>
-            <p class="text-slate-600 text-base sm:text-[17px] leading-relaxed mb-6 sm:mb-8 font-normal">
-              Akun Anda saat ini belum terhubung ke instansi sekolah mana pun. Silakan masukkan 6 digit kode sekolah yang diberikan oleh Sekolah atau koordinator sekolah Anda.
-            </p>
-            <div class="bg-[#EEF3F8] rounded-2xl p-5 sm:p-6 mb-7 sm:mb-8 text-[#1E40AF] text-sm sm:text-base leading-relaxed font-normal">
-              Anda dapat mencoba memasukan kode yang didapat di kolom lalu klik Masuk.
-            </div>
-            <div class="flex justify-end">
+          <div class="bg-white rounded-[32px] sm:rounded-[36px] max-w-4xl w-full p-6 sm:p-10 md:p-12 shadow-2xl border border-slate-100/90 relative flex flex-col md:flex-row items-center justify-between gap-8 text-left select-none overflow-hidden">
+            <!-- Close Button -->
+            <button
+              @click="showJoinClassModal = false"
+              type="button"
+              class="absolute top-6 right-6 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Tutup Modal"
+              aria-label="Tutup Modal"
+            >
+              <span class="text-2xl leading-none">✕</span>
+            </button>
+
+            <!-- Left Form Content -->
+            <div class="flex-1 max-w-lg w-full">
+              <h3 class="text-lg sm:text-xl font-bold text-[#1E40AF]">
+                Gabung Kelas
+              </h3>
+              <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1E40AF] mt-1 mb-3 tracking-tight">
+                Masukkan Kode Kelas
+              </h2>
+              <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8">
+                Kode kelas diberikan oleh guru atau sekolahmu, Masukkan kode yang benar untuk mulai bergabung ke dalam kelas.
+              </p>
+
+              <!-- 6-Digit OTP Input -->
+              <div class="mb-6 overflow-x-auto py-1">
+                <OtpSchoolInput
+                  v-model="schoolCode"
+                  @complete="onCodeComplete"
+                />
+              </div>
+
+              <!-- Submit Button -->
               <button
-                @click="showSchoolDetailModal = false"
+                @click="submitSchoolCode"
                 type="button"
-                class="bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white font-bold px-10 sm:px-12 py-3.5 rounded-2xl shadow-md transition-all cursor-pointer text-base sm:text-lg focus:outline-none"
+                :disabled="isSubmitting"
+                class="bg-[#1E40AF] hover:bg-blue-800 disabled:opacity-60 text-white font-bold px-10 py-3.5 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-2 text-base"
               >
-                Tutup
+                <span v-if="isSubmitting">Memproses...</span>
+                <span v-else>Gabung Kelas</span>
               </button>
+            </div>
+
+            <!-- Right Illustration matching masukan kode.png -->
+            <div class="shrink-0 flex items-center justify-center">
+              <img
+                :src="schoolCodeIllustration"
+                alt="Ilustrasi Masukkan Kode"
+                class="w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] h-auto object-contain select-none pointer-events-none"
+              />
             </div>
           </div>
         </div>
@@ -223,9 +242,13 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 import OtpSchoolInput from '../../components/dashboard/OtpSchoolInput.vue'
-import SpeedometerWidget from '../../components/dashboard/SpeedometerWidget.vue'
 import FloatingSupport from '../../components/dashboard/FloatingSupport.vue'
 import StudentDashboard from '../../components/dashboard/StudentDashboard.vue'
+
+import heroStudentsImg from '../../assets/dashboard/hero_students_new.png'
+import amigoBoxImg from '../../assets/dashboard/amigo_box_3d.png'
+import toolkitBinderImg from '../../assets/dashboard/toolkit_binder_3d.png'
+import schoolCodeIllustration from '../../assets/dashboard/school_code_illustration.png'
 
 const route = useRoute()
 const userName = ref('Ahmat Fauzy')
@@ -233,7 +256,7 @@ const schoolCode = ref('')
 const isSubmitting = ref(false)
 const toastMessage = ref('')
 const toastType = ref<'success' | 'info'>('success')
-const showSchoolDetailModal = ref(false)
+const showJoinClassModal = ref(false)
 const hasEnteredCode = ref(false)
 
 const checkSchoolStatus = () => {
@@ -263,8 +286,8 @@ watch(
 )
 
 const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && showSchoolDetailModal.value) {
-    showSchoolDetailModal.value = false
+  if (event.key === 'Escape' && showJoinClassModal.value) {
+    showJoinClassModal.value = false
   }
 }
 
@@ -296,7 +319,7 @@ const onCodeComplete = (code: string) => {
 const submitSchoolCode = () => {
   if (schoolCode.value.length < 6) {
     toastType.value = 'info'
-    toastMessage.value = 'Silakan masukkan lengkap 6 digit kode sekolah terlebih dahulu.'
+    toastMessage.value = 'Silakan masukkan lengkap 6 digit kode kelas terlebih dahulu.'
     return
   }
 
@@ -306,12 +329,13 @@ const submitSchoolCode = () => {
     try {
       localStorage.setItem('tanggap_school_code', schoolCode.value)
       hasEnteredCode.value = true
+      showJoinClassModal.value = false
       window.dispatchEvent(new Event('storage'))
     } catch (e) {
       console.error('Failed saving school code', e)
     }
     toastType.value = 'success'
-    toastMessage.value = `Selamat! Kode sekolah "${schoolCode.value}" terverifikasi. Selamat belajar di Tanggap.org!`
+    toastMessage.value = `Selamat! Kode kelas "${schoolCode.value}" terverifikasi. Selamat bergabung di kelas!`
   }, 600)
 }
 </script>

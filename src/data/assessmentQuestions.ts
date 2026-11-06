@@ -278,8 +278,8 @@ export const traitDefinitions: Record<string, TraitCardInfo> = {
   melankolis: {
     type: "melankolis",
     title: "Melankolis",
-    tagline: "Analitis, mendalam, terstruktur, dan penuh pertimbangan.",
-    description: "Cenderung teliti, terorganisir dengan rapi, menghargai aturan dan kualitas kerja yang tinggi. Sangat baik dalam menyusun strategi dan memastikan semua proses berjalan teratur.",
+    tagline: "Teliti, analitis, dan terstruktur.",
+    description: "Cenderung memperhatikan detail, mempertimbangkan keputusan dengan matang, menyukai keteraturan, dan berusaha menghasilkan sesuatu dengan baik.",
     bgBadgeColor: "bg-blue-50 text-blue-600",
     iconColor: "text-blue-600",
     iconType: "scale"
@@ -287,8 +287,8 @@ export const traitDefinitions: Record<string, TraitCardInfo> = {
   plegmatis: {
     type: "plegmatis",
     title: "Plegmatis",
-    tagline: "Tenang, sabar, pendengar yang baik, dan cinta damai.",
-    description: "Cenderung stabil, menghindari konflik langsung, pandai menjaga keharmonisan kelompok, serta mampu memberikan dukungan emosional yang konsisten bagi siswa di sekitarnya.",
+    tagline: "Tenang, sabar, dan mengutamakan keharmonisan.",
+    description: "Cenderung stabil dalam menghadapi situasi, suka membantu, mampu mendengarkan orang lain, dan berusaha menjaga hubungan tetap damai.",
     bgBadgeColor: "bg-emerald-50 text-emerald-600",
     iconColor: "text-emerald-600",
     iconType: "leaf"
@@ -310,15 +310,22 @@ export function calculateAssessmentResult(answers: Record<number, number>): Asse
     rawScores[q.dimension].count += 1
   }
 
-  // Hitung rata-rata skala 1-7 dan normalisasikan ke persentase 20% - 100%
-  const normalized: TemperamentScore = {
-    koleris: Math.round(((rawScores.koleris.total / (rawScores.koleris.count * 7)) * 80 + 20)),
-    melankolis: Math.round(((rawScores.melankolis.total / (rawScores.melankolis.count * 7)) * 80 + 20)),
-    plegmatis: Math.round(((rawScores.plegmatis.total / (rawScores.plegmatis.count * 7)) * 80 + 20)),
-    sanguinis: Math.round(((rawScores.sanguinis.total / (rawScores.sanguinis.count * 7)) * 80 + 20))
+  // Min-Max linear normalization to 20% - 100%
+  const calcNormalized = (dim: 'koleris' | 'melankolis' | 'plegmatis' | 'sanguinis') => {
+    const { total, count } = rawScores[dim]
+    if (count === 0) return 60
+    const mean = total / count
+    return Math.round(((mean - 1) / 6) * 80 + 20)
   }
 
-  // Urutkan dimensi tertinggi
+  const normalized: TemperamentScore = {
+    koleris: calcNormalized('koleris'),
+    melankolis: calcNormalized('melankolis'),
+    plegmatis: calcNormalized('plegmatis'),
+    sanguinis: calcNormalized('sanguinis')
+  }
+
+  // Urutkan dimensi tertinggi (Rank 1 & Rank 2)
   const sortedDimensions = Object.entries(normalized)
     .sort(([, a], [, b]) => b - a)
     .map(([key]) => key as 'koleris' | 'melankolis' | 'plegmatis' | 'sanguinis')
@@ -334,10 +341,10 @@ export function calculateAssessmentResult(answers: Record<number, number>): Asse
   const title1 = traitDefinitions[top1].title
   const title2 = traitDefinitions[top2].title
 
-  const summaryTitle = `Dominan ${title2}-${title1}`
+  const summaryTitle = `Dominan ${title1}-${title2}`
 
   const summaryParagraphs = [
-    `Seseorang dengan kecenderungan ${title2} dan ${title1} umumnya memiliki karakter yang ${traitDefinitions[top2].tagline.toLowerCase()} dan ${traitDefinitions[top1].tagline.toLowerCase()}`,
+    `Seseorang dengan kecenderungan ${title1} dan ${title2} umumnya memiliki karakter yang ${traitDefinitions[top1].tagline.toLowerCase()} dan ${traitDefinitions[top2].tagline.toLowerCase()}`,
     `Perpaduan ini menggambarkan seseorang yang mampu membawa energi positif dalam interaksi sosial sekaligus berorientasi pada tindakan dan hasil nyata. Meski demikian, kecenderungan tersebut tetap perlu diimbangi dengan kesediaan mendengarkan, kesabaran, dan pertimbangan terhadap sudut pandang orang lain.`
   ]
 

@@ -44,8 +44,11 @@
         <slot />
       </main>
 
-      <!-- Footer at bottom of content area -->
-      <footer class="bg-[#1E40AF] text-white py-4 px-6 text-center text-xs md:text-sm font-normal tracking-wide shadow-inner mt-auto select-none">
+      <!-- Footer at bottom of content area (Hanya di halaman Dashboard utama) -->
+      <footer
+        v-if="isDashboardPage"
+        class="bg-[#1E40AF] text-white py-4 px-6 text-center text-xs md:text-sm font-normal tracking-wide shadow-inner mt-auto select-none"
+      >
         © 2026 All Right Reserved, Powered by <span class="font-bold">Tanggap.org</span>
       </footer>
     </div>
@@ -53,7 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import SidebarNav from './../dashboard/SidebarNav.vue'
 import HeaderNav from './../dashboard/HeaderNav.vue'
 import { useSidebar } from '../../composables/useSidebar'
@@ -67,7 +71,13 @@ withDefaults(
   {}
 )
 
+const route = useRoute()
 const isMobile = ref(false)
+
+// Footer hanya muncul di halaman Dashboard utama (Siswa & Guru)
+const isDashboardPage = computed(() => {
+  return route.path === '/dashboard' || route.path === '/dashboard_guru'
+})
 
 // State sidebar tersimpan secara global / persisten saat berpindah halaman.
 // Hanya tertutup jika user klik tombol hamburger 2-garis (burger 2) sesuai instruksi.

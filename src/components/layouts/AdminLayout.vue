@@ -37,8 +37,11 @@
         <slot />
       </main>
 
-      <!-- Admin Clean Footer -->
-      <footer class="bg-white border-t border-slate-200/80 text-slate-500 py-4 px-6 text-center text-xs md:text-sm font-normal select-none">
+      <!-- Admin Clean Footer (Hanya di Dashboard Admin utama) -->
+      <footer
+        v-if="isDashboardPage"
+        class="bg-white border-t border-slate-200/80 text-slate-500 py-4 px-6 text-center text-xs md:text-sm font-normal select-none"
+      >
         © 2026 All Right Reserved, Powered by <span class="font-bold text-[#1E40AF]">Tanggap.org</span>
       </footer>
     </div>
@@ -46,12 +49,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import AdminSidebar from '../admin/AdminSidebar.vue'
 import AdminHeader from '../admin/AdminHeader.vue'
 import { useSidebar } from '../../composables/useSidebar'
 
+const route = useRoute()
 const isMobile = ref(false)
+
+// Footer hanya muncul di halaman Dashboard Admin utama
+const isDashboardPage = computed(() => {
+  return route.path === '/dashboard_admin'
+})
 
 // Shared persistent state across route navigation (stays open unless hamburger clicked)
 const { isSidebarOpen, toggleSidebar } = useSidebar()

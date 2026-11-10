@@ -405,16 +405,16 @@ const users = ref<UserItem[]>([
 ])
 
 onMounted(() => {
-  // Masukkan akun guru yang baru di-ACC oleh Admin ke daftar pengguna
+  // 1. Masukkan akun guru yang emailnya sudah di-ACC oleh Admin ke daftar pengguna
   try {
-    const rawTeachers = localStorage.getItem('tanggap_provisioned_teachers')
-    if (rawTeachers) {
-      const teachers = JSON.parse(rawTeachers)
-      for (const t of teachers) {
+    const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
+    if (rawApproved) {
+      const approved = JSON.parse(rawApproved)
+      for (const t of approved) {
         if (!users.value.some(u => u.email.toLowerCase() === t.email.toLowerCase())) {
           users.value.unshift({
             id: t.id || 'guru-' + Date.now(),
-            name: t.name || 'Guru BK',
+            name: t.picName || 'Guru BK',
             email: t.email,
             role: 'Guru/Sekolah',
             date: 'Hari Ini',
@@ -424,8 +424,28 @@ onMounted(() => {
       }
     }
   } catch (e) {
-    console.warn('Error reading provisioned teachers:', e)
+    console.warn('Error reading approved teachers:', e)
   }
+
+  // 2. Masukkan akun pendaftar lokal lainnya
+  try {
+    const rawAccounts = localStorage.getItem('tanggap_user_accounts')
+    if (rawAccounts) {
+      const accs = JSON.parse(rawAccounts)
+      for (const a of accs) {
+        if (!users.value.some(u => u.email.toLowerCase() === a.email.toLowerCase())) {
+          users.value.unshift({
+            id: 'user-' + Date.now(),
+            name: a.name || 'Pengguna Baru',
+            email: a.email,
+            role: a.role === 'Guru BK' ? 'Guru/Sekolah' : 'Siswa',
+            date: 'Hari Ini',
+            status: 'Aktif'
+          })
+        }
+      }
+    }
+  } catch {}
 })
 
 const toggleSort = () => {

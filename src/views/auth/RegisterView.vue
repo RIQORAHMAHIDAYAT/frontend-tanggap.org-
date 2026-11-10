@@ -142,6 +142,44 @@ const handleRegister = async () => {
   isSubmitting.value = true
 
   try {
+    const emailClean = email.value.toLowerCase().trim()
+
+    // Cek apakah email yang didaftarkan adalah email Guru dari proposal yang sudah di-ACC Admin
+    let assignedRole = 'Siswa'
+    let assignedSchool = ''
+    try {
+      const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
+      if (rawApproved) {
+        const approvedList = JSON.parse(rawApproved)
+        const matched = approvedList.find((a: any) => a.email.toLowerCase() === emailClean && a.status === 'Disetujui')
+        if (matched) {
+          assignedRole = 'Guru BK'
+          assignedSchool = matched.schoolName || ''
+        }
+      }
+    } catch {}
+
+    // Simpan data pendaftaran ke cache akun lokal
+    try {
+      const rawAccounts = localStorage.getItem('tanggap_user_accounts')
+      const accounts = rawAccounts ? JSON.parse(rawAccounts) : []
+      const accIdx = accounts.findIndex((a: any) => a.email.toLowerCase() === emailClean)
+      const userRecord = {
+        name: fullName.value,
+        email: emailClean,
+        password: password.value,
+        phone: phone.value,
+        role: assignedRole,
+        school: assignedSchool
+      }
+      if (accIdx !== -1) {
+        accounts[accIdx] = userRecord
+      } else {
+        accounts.push(userRecord)
+      }
+      localStorage.setItem('tanggap_user_accounts', JSON.stringify(accounts))
+    } catch {}
+
     await authService.register({
       name: fullName.value,
       email: email.value,

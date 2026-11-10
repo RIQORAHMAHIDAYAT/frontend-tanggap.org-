@@ -118,55 +118,84 @@ const handleLogin = async () => {
 
   const emailClean = email.value.toLowerCase().trim()
 
-  // 1. Cek terlebih dahulu apakah akun ini adalah akun Guru yang baru saja di-ACC oleh Admin
+  // 1. Cek apakah email user ini ada di daftar proposal yang sudah di-ACC Admin
+  let isApprovedTeacher = false
+  let teacherSchool = ''
+  let teacherName = ''
   try {
-    const rawTeachers = localStorage.getItem('tanggap_provisioned_teachers')
-    if (rawTeachers) {
-      const teachers = JSON.parse(rawTeachers)
-      const matchedTeacher = teachers.find((t: any) => t.email.toLowerCase() === emailClean)
-      if (matchedTeacher) {
-        if (matchedTeacher.password && password.value !== matchedTeacher.password) {
-          errorMsg.value = 'Password guru salah. Silakan periksa kembali.'
-          isSubmitting.value = false
-          return
-        }
-
-        const teacherUser = {
-          id: matchedTeacher.id || 'guru-' + Date.now(),
-          name: matchedTeacher.name,
-          email: matchedTeacher.email,
-          role: matchedTeacher.role || 'Guru BK',
-          school: matchedTeacher.school,
-          classCode: matchedTeacher.classCode
-        }
-        localStorage.setItem('tanggap_token', 'token-guru-' + Date.now())
-        localStorage.setItem('tanggap_user', JSON.stringify(teacherUser))
-        window.dispatchEvent(new Event('storage'))
-        router.push(getRedirectPathByRole('Guru BK'))
-        isSubmitting.value = false
-        return
+    const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
+    if (rawApproved) {
+      const approvedList = JSON.parse(rawApproved)
+      const matched = approvedList.find((a: any) => a.email.toLowerCase() === emailClean && a.status === 'Disetujui')
+      if (matched) {
+        isApprovedTeacher = true
+        teacherSchool = matched.schoolName || ''
+        teacherName = matched.picName || ''
       }
     }
   } catch (e) {
-    console.warn('Teacher lookup error:', e)
+    console.warn('Approved teacher lookup error:', e)
   }
 
-  // 2. Jika bukan akun guru lokal, login ke Backend API
+  // Cek jika akun terdaftar di penyimpanan akun lokal dan verifikasi password
+  try {
+    const rawAccounts = localStorage.getItem('tanggap_user_accounts')
+    if (rawAccounts) {
+      const accounts = JSON.parse(rawAccounts)
+      const localAcc = accounts.find((a: any) => a.email.toLowerCase() === emailClean)
+      if (localAcc && localAcc.password && localAcc.password !== password.value) {
+        errorMsg.value = 'Email atau password salah.'
+        isSubmitting.value = false
+        return
+      }
+      if (localAcc && localAcc.name) {
+        teacherName = localAcc.name
+      }
+    }
+  } catch {}
+
+  // 2. Jalankan login ke API Backend
   try {
     const res = await authService.login({
       email: email.value,
       password: password.value,
     })
-    const role = res.user?.role
-    router.push(getRedirectPathByRole(role))
+
+    // Jika email ini sudah di-ACC sebagai guru, pastikan role menjadi Guru BK
+    let finalRole = res.user?.role || (isApprovedTeacher ? 'Guru BK' : 'Siswa')
+    if (isApprovedTeacher) {
+      finalRole = 'Guru BK'
+      if (res.user) {
+        res.user.role = 'Guru BK'
+        if (teacherSchool) res.user.school = teacherSchool
+        localStorage.setItem('tanggap_user', JSON.stringify(res.user))
+        window.dispatchEvent(new Event('storage'))
+      }
+    }
+    router.push(getRedirectPathByRole(finalRole))
   } catch (err: unknown) {
     console.warn('Login API error, evaluating fallback:', err)
     if (err && typeof err === 'object' && 'status' in err && ((err as { status: number }).status === 400 || (err as { status: number }).status === 401)) {
+      // Jika backend partner belum sync akun guru yang baru di-ACC tapi email ada di approved whitelist
+      if (isApprovedTeacher) {
+        const teacherUser = {
+          id: 'guru-' + Date.now(),
+          name: teacherName || emailClean.split('@')[0],
+          email: emailClean,
+          role: 'Guru BK',
+          school: teacherSchool
+        }
+        localStorage.setItem('tanggap_token', 'token-guru-' + Date.now())
+        localStorage.setItem('tanggap_user', JSON.stringify(teacherUser))
+        window.dispatchEvent(new Event('storage'))
+        router.push(getRedirectPathByRole('Guru BK'))
+        return
+      }
       errorMsg.value = (err as { message?: string }).message || 'Email atau password salah.'
     } else {
-      // In case server partner unreachable, fallback ke user demo mock
-      const emailLower = email.value.toLowerCase()
-      let fallbackRole = 'Siswa'
+      // Fallback offline / server unreachable
+      const emailLower = emailClean
+      let fallbackRole = isApprovedTeacher ? 'Guru BK' : 'Siswa'
       if (emailLower.includes('admin')) {
         fallbackRole = 'Admin Sekolah'
       } else if (emailLower.includes('guru') || emailLower.includes('teacher')) {
@@ -174,9 +203,10 @@ const handleLogin = async () => {
       }
       const mockUser = {
         id: 'user-demo-1',
-        name: email.value.split('@')[0] || 'Ahmat Fauzy',
+        name: teacherName || email.value.split('@')[0] || 'Pengguna Tanggap',
         email: email.value,
-        role: fallbackRole
+        role: fallbackRole,
+        school: teacherSchool
       }
       localStorage.setItem('tanggap_token', 'mock-token-demo')
       localStorage.setItem('tanggap_user', JSON.stringify(mockUser))

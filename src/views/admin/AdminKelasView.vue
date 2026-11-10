@@ -283,12 +283,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
 import AdminModal from '../../components/admin/AdminModal.vue'
+import { api, isMockMode } from '../../services/api'
 
 interface ClassItem {
-  id: number
+  id: number | string
   name: string
   school: string
   code: string
@@ -301,47 +302,79 @@ const sortOrder = ref<'asc' | 'desc'>('asc')
 const classes = ref<ClassItem[]>([
   {
     id: 1,
-    name: 'Kelas 10 A',
-    school: 'SMA Cendekia',
-    code: 'KLS001',
+    name: 'Kelas XI IPA 1',
+    school: 'SMA Negeri 1',
+    code: 'SMAN1A',
     studentsCount: 26
   },
   {
     id: 2,
-    name: 'KElas 10 B',
-    school: 'SMA Cendekia',
-    code: 'KLS002',
+    name: 'Kelas XI IPS 1',
+    school: 'SMA Negeri 1',
+    code: 'SMAN1B',
     studentsCount: 28
   },
   {
     id: 3,
-    name: 'Kelas Damai',
-    school: 'SMA Karasuno',
-    code: 'KLS003',
+    name: 'Kelas Demo',
+    school: 'Tanggap.org Demo School',
+    code: 'DEMO01',
     studentsCount: 30
-  },
-  {
-    id: 4,
-    name: 'Kelas Ceria',
-    school: 'SMA Karasuno',
-    code: 'KLS004',
-    studentsCount: 34
-  },
-  {
-    id: 5,
-    name: 'Kelas Aman',
-    school: 'SMA Karasuno',
-    code: 'KLS005',
-    studentsCount: 30
-  },
-  {
-    id: 6,
-    name: 'Kelas Bakti',
-    school: 'SMA Karasuno',
-    code: 'KLS006',
-    studentsCount: 26
   }
 ])
+
+onMounted(async () => {
+  // 1. Ambil custom classes dari localStorage (sekolah baru yang di-ACC Admin)
+  let customList: ClassItem[] = []
+  try {
+    const raw = localStorage.getItem('tanggap_custom_classes')
+    if (raw) {
+      customList = JSON.parse(raw)
+    }
+  } catch (e) {
+    console.warn('Error reading custom classes:', e)
+  }
+
+  // 2. Jika bukan mock, fetch dari API backend
+  if (!isMockMode()) {
+    try {
+      const res = await api.get<{ success?: boolean; data?: any[] }>('classes')
+      const apiData = Array.isArray(res?.data) ? res.data : []
+      if (apiData.length > 0) {
+        const mappedApi: ClassItem[] = apiData.map((c: any, idx: number) => ({
+          id: c.id || c.code || idx + 1,
+          name: c.name || c.className || `Kelas ${c.code}`,
+          school: c.school || 'Sekolah Mitra',
+          code: c.code || `KLS00${idx + 1}`,
+          studentsCount: c.studentsCount || (25 + (idx % 10))
+        }))
+
+        // Gabungkan API data dengan custom classes
+        const combined = [...customList]
+        for (const item of mappedApi) {
+          if (!combined.some(c => c.code === item.code)) {
+            combined.push(item)
+          }
+        }
+        classes.value = combined
+        return
+      }
+    } catch (err) {
+      console.warn('Gagal fetch classes dari API, menggunakan fallback:', err)
+    }
+  }
+
+  // Fallback: gabungkan data default dengan custom classes
+  if (customList.length > 0) {
+    const combined = [...customList]
+    for (const item of classes.value) {
+      if (!combined.some(c => c.code === item.code)) {
+        combined.push(item)
+      }
+    }
+    classes.value = combined
+  }
+})
 
 const toggleSort = () => {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -371,13 +404,24 @@ const newClass = ref<Partial<ClassItem>>({
 
 const submitAddClass = () => {
   if (!newClass.value.name || !newClass.value.school || !newClass.value.code) return
-  classes.value.unshift({
-    id: Date.now(),
+  const created: ClassItem = {
+    id: newClass.value.code.toUpperCase().trim(),
     name: newClass.value.name,
     school: newClass.value.school,
-    code: newClass.value.code,
+    code: newClass.value.code.toUpperCase().trim(),
     studentsCount: newClass.value.studentsCount || 30
-  })
+  }
+  classes.value.unshift(created)
+
+  // Simpan ke localStorage agar bisa diakses oleh siswa saat gabung kelas
+  try {
+    const raw = localStorage.getItem('tanggap_custom_classes')
+    const list = raw ? JSON.parse(raw) : []
+    list.unshift(created)
+    localStorage.setItem('tanggap_custom_classes', JSON.stringify(list))
+    window.dispatchEvent(new Event('storage'))
+  } catch {}
+
   isAddModalOpen.value = false
   newClass.value = {
     name: '',

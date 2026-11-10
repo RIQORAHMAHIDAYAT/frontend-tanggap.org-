@@ -287,6 +287,25 @@
           </div>
         </div>
 
+        <!-- Role Management (Hanya Admin) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+            Ubah Role Pengguna (Akses Admin)
+          </label>
+          <div class="grid grid-cols-3 gap-2">
+            <button
+              v-for="r in (['Siswa', 'Guru/Sekolah', 'Admin'] as const)"
+              :key="r"
+              @click="changeUserRole(r)"
+              type="button"
+              class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer"
+              :class="selectedUser.role === r ? 'bg-[#1E40AF] text-white border-[#1E40AF]' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'"
+            >
+              {{ r }}
+            </button>
+          </div>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
             Ubah Status Akun
@@ -318,12 +337,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
 import AdminModal from '../../components/admin/AdminModal.vue'
 
 interface UserItem {
-  id: number
+  id: number | string
   name: string
   email: string
   role: 'Siswa' | 'Guru/Sekolah' | 'Admin'
@@ -385,6 +404,30 @@ const users = ref<UserItem[]>([
   }
 ])
 
+onMounted(() => {
+  // Masukkan akun guru yang baru di-ACC oleh Admin ke daftar pengguna
+  try {
+    const rawTeachers = localStorage.getItem('tanggap_provisioned_teachers')
+    if (rawTeachers) {
+      const teachers = JSON.parse(rawTeachers)
+      for (const t of teachers) {
+        if (!users.value.some(u => u.email.toLowerCase() === t.email.toLowerCase())) {
+          users.value.unshift({
+            id: t.id || 'guru-' + Date.now(),
+            name: t.name || 'Guru BK',
+            email: t.email,
+            role: 'Guru/Sekolah',
+            date: 'Hari Ini',
+            status: 'Aktif'
+          })
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Error reading provisioned teachers:', e)
+  }
+})
+
 const toggleSort = () => {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
 }
@@ -441,6 +484,12 @@ const openDetail = (user: UserItem) => {
 const toggleUserStatus = () => {
   if (selectedUser.value) {
     selectedUser.value.status = selectedUser.value.status === 'Aktif' ? 'Nonaktif' : 'Aktif'
+  }
+}
+
+const changeUserRole = (newRole: 'Siswa' | 'Guru/Sekolah' | 'Admin') => {
+  if (selectedUser.value) {
+    selectedUser.value.role = newRole
   }
 }
 </script>

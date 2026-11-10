@@ -27,7 +27,7 @@
           </div>
           <div class="mt-6">
             <div class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-              -
+              {{ totalParticipants }}
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
           </div>
           <div class="mt-6">
             <div class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-              -
+              {{ totalAssessments }}
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
           </div>
           <div class="mt-6">
             <div class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-              -
+              {{ averageScore }}
             </div>
           </div>
         </div>
@@ -84,7 +84,7 @@
           </div>
           <div class="mt-6">
             <div class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-              -
+              {{ scoreIncrease }}
             </div>
           </div>
         </div>
@@ -196,16 +196,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
+import { api, isMockMode } from '../../services/api'
 
-const chartData = [
+const totalParticipants = ref<string | number>(45)
+const totalAssessments = ref<string | number>(35)
+const averageScore = ref<string | number>('81.4')
+const scoreIncrease = ref<string | number>('+12%')
+
+const chartData = ref([
   { label: 'Regulasi Emosi', val1: 42, val2: 53 },
   { label: 'Empati', val1: 54, val2: 64 },
   { label: 'Komunikasi Asertif', val1: 51, val2: 65 },
   { label: 'De-eskalasi Konflik', val1: 56, val2: 67 }
-]
+])
 
-const recentActivities = [
+const recentActivities = ref([
   {
     schoolName: 'SMA Harapan Bangsa',
     date: '12 Juni 2026'
@@ -218,6 +225,31 @@ const recentActivities = [
     schoolName: 'SMK Teknologi Mandiri',
     date: '3 Februari 2026'
   }
-]
+])
+
+onMounted(async () => {
+  if (isMockMode()) return
+
+  try {
+    const [assessmentRes, statsRes] = await Promise.allSettled([
+      api.get<{ success?: boolean; data?: any[] }>('admin/monitoring-assessment'),
+      api.get<{ success?: boolean; data?: any }>('admin/dashboard-stats')
+    ])
+
+    if (assessmentRes.status === 'fulfilled' && Array.isArray(assessmentRes.value?.data) && assessmentRes.value.data.length > 0) {
+      const first = assessmentRes.value.data[0]
+      if (first.totalParticipants) totalParticipants.value = first.totalParticipants
+      if (first.averageScore) averageScore.value = first.averageScore
+    }
+
+    if (statsRes.status === 'fulfilled' && statsRes.value?.data) {
+      const stats = statsRes.value.data
+      if (stats.totalAssessments) totalAssessments.value = stats.totalAssessments
+      if (stats.userGrowth) scoreIncrease.value = stats.userGrowth
+    }
+  } catch (err) {
+    console.warn('Fallback: gagal mengambil admin assessment metrics:', err)
+  }
+})
 </script>
 

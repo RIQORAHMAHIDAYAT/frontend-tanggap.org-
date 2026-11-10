@@ -362,6 +362,27 @@ const submitSchoolCode = async () => {
       toastType.value = 'success'
       toastMessage.value = res.message || `Selamat! Kode kelas "${schoolCode.value}" terverifikasi. Selamat bergabung di kelas!`
     } catch (err: unknown) {
+      // Periksa apakah kode kelas ini berasal dari sekolah yang baru saja di-ACC oleh Admin
+      try {
+        const rawClasses = localStorage.getItem('tanggap_custom_classes')
+        if (rawClasses) {
+          const customClasses = JSON.parse(rawClasses)
+          const matched = customClasses.find((c: any) => c.code.toUpperCase() === schoolCode.value.toUpperCase())
+          if (matched) {
+            localStorage.setItem('tanggap_school_code', matched.code)
+            hasEnteredCode.value = true
+            showJoinClassModal.value = false
+            window.dispatchEvent(new Event('storage'))
+            toastType.value = 'success'
+            toastMessage.value = `Selamat! Kode kelas "${matched.code}" (${matched.school}) terverifikasi. Selamat bergabung di kelas!`
+            isSubmitting.value = false
+            return
+          }
+        }
+      } catch (checkErr) {
+        console.warn('Custom class lookup error:', checkErr)
+      }
+
       // Jika kode kelas salah / tidak ditemukan di backend (HTTP 404 / 400) -> TAMPILKAN ERROR & JANGAN MASUK!
       console.warn('Backend rejected class code:', err)
       if (err && typeof err === 'object' && 'status' in err && ((err as { status: number }).status === 404 || (err as { status: number }).status === 400)) {

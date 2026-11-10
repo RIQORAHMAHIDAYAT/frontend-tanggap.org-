@@ -116,6 +116,42 @@ const handleLogin = async () => {
   errorMsg.value = ''
   isSubmitting.value = true
 
+  const emailClean = email.value.toLowerCase().trim()
+
+  // 1. Cek terlebih dahulu apakah akun ini adalah akun Guru yang baru saja di-ACC oleh Admin
+  try {
+    const rawTeachers = localStorage.getItem('tanggap_provisioned_teachers')
+    if (rawTeachers) {
+      const teachers = JSON.parse(rawTeachers)
+      const matchedTeacher = teachers.find((t: any) => t.email.toLowerCase() === emailClean)
+      if (matchedTeacher) {
+        if (matchedTeacher.password && password.value !== matchedTeacher.password) {
+          errorMsg.value = 'Password guru salah. Silakan periksa kembali.'
+          isSubmitting.value = false
+          return
+        }
+
+        const teacherUser = {
+          id: matchedTeacher.id || 'guru-' + Date.now(),
+          name: matchedTeacher.name,
+          email: matchedTeacher.email,
+          role: matchedTeacher.role || 'Guru BK',
+          school: matchedTeacher.school,
+          classCode: matchedTeacher.classCode
+        }
+        localStorage.setItem('tanggap_token', 'token-guru-' + Date.now())
+        localStorage.setItem('tanggap_user', JSON.stringify(teacherUser))
+        window.dispatchEvent(new Event('storage'))
+        router.push(getRedirectPathByRole('Guru BK'))
+        isSubmitting.value = false
+        return
+      }
+    }
+  } catch (e) {
+    console.warn('Teacher lookup error:', e)
+  }
+
+  // 2. Jika bukan akun guru lokal, login ke Backend API
   try {
     const res = await authService.login({
       email: email.value,

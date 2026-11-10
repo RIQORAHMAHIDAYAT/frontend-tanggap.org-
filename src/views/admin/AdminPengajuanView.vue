@@ -160,7 +160,7 @@
           </label>
           <div class="grid grid-cols-3 gap-2">
             <button
-              @click="updateStatus('Menunggu ditinjau')"
+              @click="handleStatusClick('Menunggu ditinjau')"
               type="button"
               :disabled="isUpdatingStatus"
               class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer disabled:opacity-60"
@@ -169,16 +169,16 @@
               Menunggu Ditinjau
             </button>
             <button
-              @click="updateStatus('Disetujui')"
+              @click="handleStatusClick('Disetujui')"
               type="button"
               :disabled="isUpdatingStatus"
               class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer disabled:opacity-60"
               :class="selectedItem.status === 'Disetujui' ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'"
             >
-              Setujui
+              Setujui & Aktivasi
             </button>
             <button
-              @click="updateStatus('Ditolak')"
+              @click="handleStatusClick('Ditolak')"
               type="button"
               :disabled="isUpdatingStatus"
               class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer disabled:opacity-60"
@@ -197,6 +197,106 @@
           class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm cursor-pointer transition-colors"
         >
           Tutup
+        </button>
+      </template>
+    </AdminModal>
+
+    <!-- Modal Aktivasi Akun Guru & Kode Kelas -->
+    <AdminModal
+      :is-open="isActivationModalOpen"
+      title="Aktivasi Akun Guru & Terbitkan Kode Kelas"
+      @close="isActivationModalOpen = false"
+    >
+      <form @submit.prevent="confirmApprovalAndProvision" class="space-y-4 text-sm sm:text-base">
+        <div class="bg-blue-50/80 p-4 rounded-2xl border border-blue-100 text-blue-900 text-xs sm:text-sm">
+          <p class="font-semibold mb-1">Menerbitkan Akun Guru BK & Kode Kelas</p>
+          <p class="text-blue-700 text-xs">
+            Sekolah ini akan disetujui. Akun guru akan langsung aktif dan kode kelas dapat digunakan oleh siswa untuk asesmen.
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Instansi / Sekolah
+          </label>
+          <input
+            :value="selectedItem?.schoolName"
+            disabled
+            type="text"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 text-sm font-semibold"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nama Guru BK (PIC)
+          </label>
+          <input
+            :value="selectedItem?.pic"
+            disabled
+            type="text"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 text-sm font-semibold"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Email Login Guru <span class="text-red-500">*</span>
+          </label>
+          <input
+            v-model="provisionEmail"
+            required
+            type="email"
+            placeholder="guru.bk@sekolah.sch.id"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Kode Kelas Siswa <span class="text-red-500">* (6 Digit)</span>
+            </label>
+            <input
+              v-model="provisionClassCode"
+              required
+              maxlength="10"
+              type="text"
+              placeholder="Contoh: SMAJOG"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm font-mono uppercase font-bold tracking-wider"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Password Sementara <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="provisionPassword"
+              required
+              type="text"
+              placeholder="Tanggap123!"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm font-mono"
+            />
+          </div>
+        </div>
+      </form>
+
+      <template #footer>
+        <button
+          @click="isActivationModalOpen = false"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm cursor-pointer transition-colors"
+        >
+          Batal
+        </button>
+        <button
+          @click="confirmApprovalAndProvision"
+          type="button"
+          :disabled="isUpdatingStatus || !provisionClassCode || !provisionEmail"
+          class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm cursor-pointer transition-colors shadow-sm flex items-center gap-2"
+        >
+          <span v-if="isUpdatingStatus">Memproses...</span>
+          <span v-else>Setujui & Terbitkan</span>
         </button>
       </template>
     </AdminModal>
@@ -270,8 +370,121 @@ const submissions = ref<SubmissionItem[]>([
 ])
 
 const isDetailModalOpen = ref(false)
+const isActivationModalOpen = ref(false)
 const selectedItem = ref<SubmissionItem | null>(null)
 const isUpdatingStatus = ref(false)
+
+const provisionEmail = ref('')
+const provisionClassCode = ref('')
+const provisionPassword = ref('Tanggap123!')
+
+// Fungsi pembuat kode kelas unik 6 karakter dari nama sekolah
+const generateClassCode = (schoolName: string): string => {
+  const clean = (schoolName || '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+  if (clean.length >= 6) return clean.slice(0, 6)
+  return (clean + '012345').slice(0, 6)
+}
+
+const handleStatusClick = (status: 'Menunggu ditinjau' | 'Disetujui' | 'Ditolak') => {
+  if (!selectedItem.value) return
+
+  if (status === 'Disetujui') {
+    // Siapkan data default aktivasi
+    const school = selectedItem.value.schoolName
+    provisionClassCode.value = generateClassCode(school)
+    
+    // Cari email dari submission jika ada
+    let foundEmail = ''
+    try {
+      const rawLocal = localStorage.getItem('tanggap_school_submissions')
+      if (rawLocal) {
+        const list = JSON.parse(rawLocal)
+        const matched = list.find((item: any) => item.id === selectedItem.value?.id || item.schoolName === school)
+        if (matched?.picEmail || matched?.email) {
+          foundEmail = matched.picEmail || matched.email
+        }
+      }
+    } catch {}
+
+    if (!foundEmail) {
+      const slug = (selectedItem.value.pic || 'guru').toLowerCase().replace(/\s+/g, '.')
+      foundEmail = `${slug}@sekolah.sch.id`
+    }
+
+    provisionEmail.value = foundEmail
+    provisionPassword.value = 'Tanggap123!'
+    isActivationModalOpen.value = true
+  } else {
+    updateStatus(status)
+  }
+}
+
+const confirmApprovalAndProvision = async () => {
+  if (!selectedItem.value || !provisionClassCode.value || !provisionEmail.value) return
+
+  const targetClassCode = provisionClassCode.value.toUpperCase().trim()
+  const targetEmail = provisionEmail.value.toLowerCase().trim()
+  const schoolName = selectedItem.value.schoolName
+  const picName = selectedItem.value.pic
+
+  // 1. Jalankan update status ke backend
+  await updateStatus('Disetujui')
+
+  // 2. Simpan akun Guru terbitan ke tanggap_provisioned_teachers
+  try {
+    const rawTeachers = localStorage.getItem('tanggap_provisioned_teachers')
+    const teachers = rawTeachers ? JSON.parse(rawTeachers) : []
+    const existingIdx = teachers.findIndex((t: any) => t.email === targetEmail)
+    const teacherData = {
+      id: 'guru-' + Date.now(),
+      name: picName,
+      email: targetEmail,
+      password: provisionPassword.value,
+      role: 'Guru BK',
+      school: schoolName,
+      classCode: targetClassCode,
+      createdAt: new Date().toISOString()
+    }
+    if (existingIdx !== -1) {
+      teachers[existingIdx] = teacherData
+    } else {
+      teachers.push(teacherData)
+    }
+    localStorage.setItem('tanggap_provisioned_teachers', JSON.stringify(teachers))
+  } catch (e) {
+    console.error('Failed saving provisioned teacher:', e)
+  }
+
+  // 3. Simpan data Kelas baru ke tanggap_custom_classes agar siswa bisa join & admin kelas melihatnya
+  try {
+    const rawClasses = localStorage.getItem('tanggap_custom_classes')
+    const classesList = rawClasses ? JSON.parse(rawClasses) : []
+    const existingClassIdx = classesList.findIndex((c: any) => c.code === targetClassCode)
+    const newClassData = {
+      id: targetClassCode,
+      code: targetClassCode,
+      name: `Kelas ${schoolName}`,
+      className: `Kelas ${schoolName}`,
+      school: schoolName,
+      studentsCount: 0
+    }
+    if (existingClassIdx !== -1) {
+      classesList[existingClassIdx] = newClassData
+    } else {
+      classesList.push(newClassData)
+    }
+    localStorage.setItem('tanggap_custom_classes', JSON.stringify(classesList))
+    window.dispatchEvent(new Event('storage'))
+  } catch (e) {
+    console.error('Failed saving custom class:', e)
+  }
+
+  isActivationModalOpen.value = false
+  isDetailModalOpen.value = false
+  alert(`Sukses! Akun Guru "${picName}" (${targetEmail}) dan Kode Kelas "${targetClassCode}" berhasil diaktifkan.`)
+}
 
 onMounted(async () => {
   // Baca status overrides dari penyimpanan lokal

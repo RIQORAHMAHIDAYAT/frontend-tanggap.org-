@@ -162,7 +162,8 @@
             <button
               @click="updateStatus('Menunggu ditinjau')"
               type="button"
-              class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer"
+              :disabled="isUpdatingStatus"
+              class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer disabled:opacity-60"
               :class="selectedItem.status === 'Menunggu ditinjau' ? 'bg-amber-500 text-white border-amber-600' : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'"
             >
               Menunggu Ditinjau
@@ -170,7 +171,8 @@
             <button
               @click="updateStatus('Disetujui')"
               type="button"
-              class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer"
+              :disabled="isUpdatingStatus"
+              class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer disabled:opacity-60"
               :class="selectedItem.status === 'Disetujui' ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'"
             >
               Setujui
@@ -178,7 +180,8 @@
             <button
               @click="updateStatus('Ditolak')"
               type="button"
-              class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer"
+              :disabled="isUpdatingStatus"
+              class="py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer disabled:opacity-60"
               :class="selectedItem.status === 'Ditolak' ? 'bg-red-600 text-white border-red-700' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'"
             >
               Tolak
@@ -207,7 +210,7 @@ import AdminModal from '../../components/admin/AdminModal.vue'
 import { api, isMockMode } from '../../services/api'
 
 interface SubmissionItem {
-  id: number
+  id: string | number
   schoolName: string
   pic: string
   whatsapp: string
@@ -268,9 +271,23 @@ const submissions = ref<SubmissionItem[]>([
 
 const isDetailModalOpen = ref(false)
 const selectedItem = ref<SubmissionItem | null>(null)
+const isUpdatingStatus = ref(false)
 
 onMounted(async () => {
-  if (isMockMode()) return
+  // Baca status overrides dari penyimpanan lokal
+  let overrides: Record<string, 'Menunggu ditinjau' | 'Disetujui' | 'Ditolak'> = {}
+  try {
+    overrides = JSON.parse(localStorage.getItem('tanggap_leads_status_overrides') || '{}')
+  } catch {}
+
+  if (isMockMode()) {
+    // Terapkan override pada mock data
+    submissions.value = submissions.value.map((s) => ({
+      ...s,
+      status: overrides[String(s.id)] || s.status
+    }))
+    return
+  }
 
   try {
     const res = await api.get<{ success?: boolean; data?: any[] }>('leads')
@@ -283,16 +300,22 @@ onMounted(async () => {
 
     const combined = [...localSubmissions, ...apiLeads]
     if (combined.length > 0) {
-      submissions.value = combined.map((item, idx) => ({
-        id: item.id || idx + 1,
-        schoolName: item.schoolName || item.name || 'Sekolah Mitra',
-        pic: item.picName || item.contactName || item.pic || item.name || 'Penanggung Jawab',
-        whatsapp: item.picWhatsapp || item.phoneNumber || item.phone || item.whatsapp || '088232258814',
-        date: item.submittedAt || item.createdAt
-          ? new Date(item.submittedAt || item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-          : (item.registrationDate || '12 Juni 2026'),
-        status: (item.status === 'Disetujui' || item.status === 'Ditolak') ? item.status : 'Menunggu ditinjau'
-      }))
+      submissions.value = combined.map((item, idx) => {
+        const itemId = item.id || idx + 1
+        const rawStatus = (item.status === 'Disetujui' || item.status === 'Ditolak') ? item.status : 'Menunggu ditinjau'
+        const effectiveStatus = overrides[String(itemId)] || rawStatus
+
+        return {
+          id: itemId,
+          schoolName: item.schoolName || item.name || 'Sekolah Mitra',
+          pic: item.picName || item.contactName || item.pic || item.name || 'Penanggung Jawab',
+          whatsapp: item.picWhatsapp || item.phoneNumber || item.phone || item.whatsapp || '088232258814',
+          date: item.submittedAt || item.createdAt
+            ? new Date(item.submittedAt || item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+            : (item.registrationDate || '12 Juni 2026'),
+          status: effectiveStatus
+        }
+      })
     }
   } catch (err) {
     console.warn('Fallback: gagal mengambil daftar pengajuan:', err)
@@ -304,9 +327,50 @@ const openDetail = (item: SubmissionItem) => {
   isDetailModalOpen.value = true
 }
 
-const updateStatus = (newStatus: 'Menunggu ditinjau' | 'Disetujui' | 'Ditolak') => {
-  if (selectedItem.value) {
-    selectedItem.value.status = newStatus
+const updateStatus = async (newStatus: 'Menunggu ditinjau' | 'Disetujui' | 'Ditolak') => {
+  if (!selectedItem.value) return
+
+  const targetId = selectedItem.value.id
+  selectedItem.value.status = newStatus
+
+  // Update di tabel list
+  const idx = submissions.value.findIndex((s) => String(s.id) === String(targetId))
+  if (idx !== -1) {
+    submissions.value[idx].status = newStatus
+  }
+
+  // 1. Simpan ke Backend Partner via PATCH /api/leads/:id jika live mode
+  if (!isMockMode()) {
+    isUpdatingStatus.value = true
+    try {
+      await api.patch(`leads/${targetId}`, { status: newStatus })
+    } catch (err) {
+      console.warn('Gagal sinkronisasi status ke backend, disimpan lokal:', err)
+    } finally {
+      isUpdatingStatus.value = false
+    }
+  }
+
+  // 2. Simpan permanen ke localStorage agar saat di-refresh (F5) status tidak kembali lagi
+  try {
+    const overrides = JSON.parse(localStorage.getItem('tanggap_leads_status_overrides') || '{}')
+    overrides[String(targetId)] = newStatus
+    localStorage.setItem('tanggap_leads_status_overrides', JSON.stringify(overrides))
+
+    // Update juga di tanggap_school_submissions jika ada
+    const rawLocal = localStorage.getItem('tanggap_school_submissions')
+    if (rawLocal) {
+      const list = JSON.parse(rawLocal)
+      const updated = list.map((item: any) => {
+        if (item.id === targetId || item.schoolName === selectedItem.value?.schoolName) {
+          return { ...item, status: newStatus }
+        }
+        return item
+      })
+      localStorage.setItem('tanggap_school_submissions', JSON.stringify(updated))
+    }
+  } catch (e) {
+    console.error('Failed saving status locally:', e)
   }
 }
 

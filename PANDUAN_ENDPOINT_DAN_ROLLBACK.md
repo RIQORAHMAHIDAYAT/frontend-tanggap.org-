@@ -100,13 +100,19 @@ Untuk mencegah pengguna sembarangan mengakses halaman internal tanpa login, sist
 ## 5. Cara Login Sesuai Peran (Role-Based Testing)
 
 ### A. Pengujian Pada Live Mode (`VITE_USE_MOCK=false`):
-Backend partner telah menyimpan akun uji berikut:
+Backend partner telah menyimpan akun uji dan kode kelas berikut:
 * **Admin:**
-  * Login dengan akun yang memiliki role `Admin Sekolah` / `ADMIN` (misal: `admin.utama@tanggap.org` / `password123`) $\rightarrow$ otomatis masuk ke `/dashboard_admin`.
+  * Login dengan akun role `Admin Sekolah` / `ADMIN` (misal: `admin.utama@tanggap.org` / `password123`) $\rightarrow$ otomatis masuk ke `/dashboard_admin`.
 * **Guru BK:**
   * Login dengan akun role `Guru BK` / `TEACHER` (misal: `guru.bk@tanggap.org` / `password123`) $\rightarrow$ otomatis masuk ke `/dashboard_guru`.
-* **Siswa:**
-  * Login dengan akun siswa hasil pendaftaran $\rightarrow$ otomatis masuk ke `/dashboard`.
+* **Siswa & Kode Kelas Valid:**
+  * Login dengan akun siswa $\rightarrow$ masuk ke Dashboard User Biasa.
+  * Masukkan kode kelas yang valid di pop-up Gabung Kelas:
+    * `SMAN1A` (Kelas XI IPA 1 - SMA Negeri 1)
+    * `SMAN1B` (Kelas XI IPS 1 - SMA Negeri 1)
+    * `DEMO01` (Kelas Demo - Tanggap.org Demo School)
+  * *Catatan:* Jika memasukkan kode selain di atas (misal kode asal), server backend akan menolak dan menampilkan pesan peringatan merah: *"Kode kelas '...' tidak ditemukan. Pastikan kode sudah benar."*
+  * Setelah berhasil memasukkan kode valid, dashboard langsung bertransformasi menjadi Dashboard Siswa.
 
 ### B. Pengujian Pada Mock Mode (`VITE_USE_MOCK=true`):
 Sistem mock mendeteksi role secara cerdas dari email yang Anda ketikkan:

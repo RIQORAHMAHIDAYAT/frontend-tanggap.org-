@@ -199,6 +199,24 @@
                 Kode kelas diberikan oleh guru atau sekolahmu, Masukkan kode yang benar untuk mulai bergabung ke dalam kelas.
               </p>
 
+              <!-- Top Alert Banner for Class Code Error -->
+              <div
+                v-if="codeErrorMsg"
+                class="mb-4 p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-medium flex items-center justify-between"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="text-base font-bold">⚠️</span>
+                  <span>{{ codeErrorMsg }}</span>
+                </div>
+                <button
+                  @click="codeErrorMsg = ''"
+                  type="button"
+                  class="text-red-400 hover:text-red-700 font-bold p-1 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
               <!-- 6-Digit OTP Input -->
               <div class="mb-6 overflow-x-auto py-1">
                 <OtpSchoolInput
@@ -259,6 +277,7 @@ const toastMessage = ref('')
 const toastType = ref<'success' | 'info'>('success')
 const showJoinClassModal = ref(false)
 const hasEnteredCode = ref(false)
+const codeErrorMsg = ref('')
 
 const checkSchoolStatus = () => {
   if (route.query.view === 'siswa') {
@@ -315,36 +334,59 @@ onUnmounted(() => {
 
 const onCodeComplete = (code: string) => {
   schoolCode.value = code
+  codeErrorMsg.value = ''
 }
 
 const submitSchoolCode = async () => {
+  codeErrorMsg.value = ''
   if (schoolCode.value.length < 6) {
-    toastType.value = 'info'
-    toastMessage.value = 'Silakan masukkan lengkap 6 digit kode kelas terlebih dahulu.'
+    codeErrorMsg.value = 'Silakan masukkan lengkap 6 digit kode kelas terlebih dahulu.'
     return
   }
 
   isSubmitting.value = true
 
+  // 1. Jika terhubung ke Backend Nyata (Live Mode)
   if (!isMockMode()) {
     try {
-      await api.post('classes/join', { code: schoolCode.value })
-    } catch (err) {
-      console.warn('API join class fallback to local storage:', err)
+      const res = await api.post<{ success: boolean; message?: string; data?: any }>('classes/join', {
+        code: schoolCode.value
+      })
+
+      // Jika kode valid dan backend merespons sukses
+      localStorage.setItem('tanggap_school_code', schoolCode.value)
+      hasEnteredCode.value = true
+      showJoinClassModal.value = false
+      window.dispatchEvent(new Event('storage'))
+
+      toastType.value = 'success'
+      toastMessage.value = res.message || `Selamat! Kode kelas "${schoolCode.value}" terverifikasi. Selamat bergabung di kelas!`
+    } catch (err: unknown) {
+      // Jika kode kelas salah / tidak ditemukan di backend (HTTP 404 / 400) -> TAMPILKAN ERROR & JANGAN MASUK!
+      console.warn('Backend rejected class code:', err)
+      if (err && typeof err === 'object' && 'status' in err && ((err as { status: number }).status === 404 || (err as { status: number }).status === 400)) {
+        codeErrorMsg.value = (err as { message?: string }).message || `Kode kelas "${schoolCode.value}" tidak ditemukan. Pastikan kode sudah benar.`
+      } else {
+        codeErrorMsg.value = 'Gagal menghubungi server verifikasi kelas. Silakan periksa koneksi Anda.'
+      }
+    } finally {
+      isSubmitting.value = false
     }
+    return
   }
 
+  // 2. Jika dalam Mock Mode (VITE_USE_MOCK=true)
   try {
     localStorage.setItem('tanggap_school_code', schoolCode.value)
     hasEnteredCode.value = true
     showJoinClassModal.value = false
     window.dispatchEvent(new Event('storage'))
+    toastType.value = 'success'
+    toastMessage.value = `Selamat! Kode kelas "${schoolCode.value}" terverifikasi (Mock Mode). Selamat bergabung di kelas!`
   } catch (e) {
     console.error('Failed saving school code', e)
+  } finally {
+    isSubmitting.value = false
   }
-
-  isSubmitting.value = false
-  toastType.value = 'success'
-  toastMessage.value = `Selamat! Kode kelas "${schoolCode.value}" terverifikasi. Selamat bergabung di kelas!`
 }
 </script>

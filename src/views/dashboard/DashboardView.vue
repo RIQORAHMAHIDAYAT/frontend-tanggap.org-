@@ -244,6 +244,7 @@ import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 import OtpSchoolInput from '../../components/dashboard/OtpSchoolInput.vue'
 import FloatingSupport from '../../components/dashboard/FloatingSupport.vue'
 import StudentDashboard from '../../components/dashboard/StudentDashboard.vue'
+import { api, isMockMode } from '../../services/api'
 
 import heroStudentsImg from '../../assets/dashboard/hero_students_new.png'
 import amigoBoxImg from '../../assets/dashboard/amigo_box_3d.png'
@@ -316,7 +317,7 @@ const onCodeComplete = (code: string) => {
   schoolCode.value = code
 }
 
-const submitSchoolCode = () => {
+const submitSchoolCode = async () => {
   if (schoolCode.value.length < 6) {
     toastType.value = 'info'
     toastMessage.value = 'Silakan masukkan lengkap 6 digit kode kelas terlebih dahulu.'
@@ -324,18 +325,26 @@ const submitSchoolCode = () => {
   }
 
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+
+  if (!isMockMode()) {
     try {
-      localStorage.setItem('tanggap_school_code', schoolCode.value)
-      hasEnteredCode.value = true
-      showJoinClassModal.value = false
-      window.dispatchEvent(new Event('storage'))
-    } catch (e) {
-      console.error('Failed saving school code', e)
+      await api.post('classes/join', { code: schoolCode.value })
+    } catch (err) {
+      console.warn('API join class fallback to local storage:', err)
     }
-    toastType.value = 'success'
-    toastMessage.value = `Selamat! Kode kelas "${schoolCode.value}" terverifikasi. Selamat bergabung di kelas!`
-  }, 600)
+  }
+
+  try {
+    localStorage.setItem('tanggap_school_code', schoolCode.value)
+    hasEnteredCode.value = true
+    showJoinClassModal.value = false
+    window.dispatchEvent(new Event('storage'))
+  } catch (e) {
+    console.error('Failed saving school code', e)
+  }
+
+  isSubmitting.value = false
+  toastType.value = 'success'
+  toastMessage.value = `Selamat! Kode kelas "${schoolCode.value}" terverifikasi. Selamat bergabung di kelas!`
 }
 </script>

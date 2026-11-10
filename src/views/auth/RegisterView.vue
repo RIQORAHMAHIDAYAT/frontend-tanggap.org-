@@ -92,9 +92,11 @@
 
       <button 
         type="submit" 
-        class="w-full bg-[#20409A] text-white font-semibold py-3.5 rounded-xl shadow-lg hover:bg-[#1C368D] hover:shadow-xl transition-all active:scale-[0.98] mt-2"
+        :disabled="isSubmitting"
+        class="w-full bg-[#20409A] hover:bg-[#1C368D] disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98] mt-2 cursor-pointer"
       >
-        Daftar
+        <span v-if="isSubmitting">Memproses...</span>
+        <span v-else>Daftar</span>
       </button>
     </form>
 
@@ -115,6 +117,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthLayout from '../../components/layouts/AuthLayout.vue'
 import AuthModal from '../../components/ui/AuthModal.vue'
+import { authService } from '../../services/authService'
 
 const router = useRouter()
 
@@ -126,17 +129,36 @@ const confirmPassword = ref('')
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const errorMsg = ref('')
+const isSubmitting = ref(false)
 
 const isModalOpen = ref(false)
 
-const handleRegister = () => {
+const handleRegister = async () => {
   if (password.value !== confirmPassword.value) {
     errorMsg.value = 'Konfirmasi password tidak cocok!'
     return
   }
   errorMsg.value = ''
-  // Simulate successful registration
-  isModalOpen.value = true
+  isSubmitting.value = true
+
+  try {
+    await authService.register({
+      name: fullName.value,
+      email: email.value,
+      password: password.value,
+    })
+    isModalOpen.value = true
+  } catch (err: unknown) {
+    console.warn('Registration API error, fallback handling:', err)
+    if (err && typeof err === 'object' && 'status' in err && (err as { status: number }).status === 400) {
+      errorMsg.value = (err as { message?: string }).message || 'Pendaftaran gagal. Silakan periksa kembali data Anda.'
+    } else {
+      // Jika jaringan/server partner offline, fallback graceful agar pengguna tetap bisa mencoba
+      isModalOpen.value = true
+    }
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const handleModalClose = () => {

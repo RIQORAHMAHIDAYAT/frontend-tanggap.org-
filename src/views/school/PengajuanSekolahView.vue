@@ -392,6 +392,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { leadsService } from '../../services/leadsService'
 
 const router = useRouter()
 
@@ -496,7 +497,7 @@ const handleReset = () => {
   errorMessage.value = ''
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   let hasErrors = false
   let firstKey: string | null = null
 
@@ -621,22 +622,33 @@ const handleSubmit = () => {
   isSubmitting.value = true
   submittedSchoolName.value = form.value.schoolName
 
-  // Simulate submission and store to localStorage
-  setTimeout(() => {
-    try {
-      const existingSubmissions = JSON.parse(localStorage.getItem('tanggap_school_submissions') || '[]')
-      existingSubmissions.push({
-        ...form.value,
-        submittedAt: new Date().toISOString()
-      })
-      localStorage.setItem('tanggap_school_submissions', JSON.stringify(existingSubmissions))
-    } catch (e) {
-      console.warn('LocalStorage save failed', e)
-    }
+  try {
+    await leadsService.createLead({
+      schoolName: form.value.schoolName,
+      contactName: form.value.picName,
+      email: form.value.picEmail,
+      phoneNumber: form.value.picWhatsapp,
+      address: form.value.schoolAddress,
+      notes: `Jabatan: ${form.value.picPosition}, Akreditasi: ${form.value.accreditation}, Tanggal: ${form.value.registrationDate}`
+    })
+  } catch (apiError) {
+    console.warn('API lead submission fallback to local:', apiError)
+  }
 
-    isSubmitting.value = false
-    isSuccessModalOpen.value = true
-  }, 600)
+  // Simpan ke localStorage agar data tetap persisten
+  try {
+    const existingSubmissions = JSON.parse(localStorage.getItem('tanggap_school_submissions') || '[]')
+    existingSubmissions.push({
+      ...form.value,
+      submittedAt: new Date().toISOString()
+    })
+    localStorage.setItem('tanggap_school_submissions', JSON.stringify(existingSubmissions))
+  } catch (e) {
+    console.warn('LocalStorage save failed', e)
+  }
+
+  isSubmitting.value = false
+  isSuccessModalOpen.value = true
 }
 
 const closeSuccessModal = () => {

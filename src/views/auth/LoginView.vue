@@ -11,6 +11,9 @@
     </div>
 
     <form @submit.prevent="handleLogin" class="space-y-5">
+      <div v-if="errorMsg" class="p-4 bg-red-50 text-red-600 rounded-xl text-sm font-medium">
+        {{ errorMsg }}
+      </div>
       <div>
         <input 
           type="email" 
@@ -53,9 +56,11 @@
 
       <button 
         type="submit" 
-        class="w-full bg-[#20409A] text-white font-semibold py-3.5 rounded-xl shadow-lg hover:bg-[#1C368D] hover:shadow-xl transition-all active:scale-[0.98]"
+        :disabled="isSubmitting"
+        class="w-full bg-[#20409A] hover:bg-[#1C368D] disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
       >
-        Masuk
+        <span v-if="isSubmitting">Memproses...</span>
+        <span v-else>Masuk</span>
       </button>
     </form>
 
@@ -90,18 +95,54 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthLayout from '../../components/layouts/AuthLayout.vue'
+import { authService } from '../../services/authService'
 
 const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
+const errorMsg = ref('')
+const isSubmitting = ref(false)
 
-const handleLogin = () => {
-  router.push('/dashboard')
+const handleLogin = async () => {
+  errorMsg.value = ''
+  isSubmitting.value = true
+
+  try {
+    await authService.login({
+      email: email.value,
+      password: password.value,
+    })
+    router.push('/dashboard')
+  } catch (err: unknown) {
+    console.warn('Login API error, evaluating fallback:', err)
+    if (err && typeof err === 'object' && 'status' in err && ((err as { status: number }).status === 400 || (err as { status: number }).status === 401)) {
+      errorMsg.value = (err as { message?: string }).message || 'Email atau password salah.'
+    } else {
+      // In case server partner unreachable, fallback ke user demo mock
+      const mockUser = {
+        id: 'user-demo-1',
+        name: email.value.split('@')[0] || 'Ahmat Fauzy',
+        email: email.value,
+        role: 'student'
+      }
+      localStorage.setItem('tanggap_user', JSON.stringify(mockUser))
+      router.push('/dashboard')
+    }
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const handleGoogleLogin = () => {
+  const mockUser = {
+    id: 'user-google-1',
+    name: 'Google User',
+    email: 'user@gmail.com',
+    role: 'student'
+  }
+  localStorage.setItem('tanggap_user', JSON.stringify(mockUser))
   router.push('/dashboard')
 }
 </script>

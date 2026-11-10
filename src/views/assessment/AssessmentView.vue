@@ -170,6 +170,7 @@ import {
   calculateAssessmentResult,
   type AssessmentResultData
 } from '../../data/assessmentQuestions'
+import { assessmentService } from '../../services/assessmentService'
 
 const route = useRoute()
 const currentStep = ref<'intro' | 'quiz' | 'result'>('intro')
@@ -212,10 +213,22 @@ const startAssessment = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-const onQuizComplete = (answers: Record<number, number>) => {
+const onQuizComplete = async (answers: Record<number, number>) => {
+  // Hitung hasil lokal secara instan agar radar chart langsung tampil sempurna
   calculatedResult.value = calculateAssessmentResult(answers)
   progressPercent.value = 100
   currentStep.value = 'result'
   window.scrollTo({ top: 0, behavior: 'smooth' })
+
+  // Kirimkan jawaban ke backend di background (dengan graceful fallback)
+  try {
+    const schoolCode = localStorage.getItem('tanggap_school_code') || undefined
+    await assessmentService.submitAssessment({
+      answers,
+      schoolCode,
+    })
+  } catch (err) {
+    console.warn('Backend assessment submission fallback:', err)
+  }
 }
 </script>

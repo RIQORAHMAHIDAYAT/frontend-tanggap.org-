@@ -31,13 +31,20 @@ export const authService = {
    */
   async login(payload: LoginPayload): Promise<AuthResponse> {
     if (isMockMode()) {
+      const emailLower = payload.email.toLowerCase()
+      let role = 'Siswa'
+      if (emailLower.includes('admin')) {
+        role = 'Admin Sekolah'
+      } else if (emailLower.includes('guru') || emailLower.includes('teacher')) {
+        role = 'Guru BK'
+      }
       const mockRes: AuthResponse = {
         token: 'mock-token-demo',
         user: {
           id: 'user-mock-1',
           name: payload.email.split('@')[0] || 'Ahmat Fauzy',
           email: payload.email,
-          role: 'student'
+          role: role
         },
         message: 'Login berhasil (Mock Mode)'
       }
@@ -48,14 +55,17 @@ export const authService = {
     }
 
     const res = await api.post<AuthResponse>('auth/login', payload)
-    if (res.token) {
-      localStorage.setItem('tanggap_token', res.token)
+    const token = res.token || (res as any)?.data?.token
+    const user = res.user || (res as any)?.data?.user
+
+    if (token) {
+      localStorage.setItem('tanggap_token', token)
     }
-    if (res.user) {
-      localStorage.setItem('tanggap_user', JSON.stringify(res.user))
+    if (user) {
+      localStorage.setItem('tanggap_user', JSON.stringify(user))
     }
     window.dispatchEvent(new Event('storage'))
-    return res
+    return { ...res, token, user }
   },
 
   /**
@@ -77,14 +87,17 @@ export const authService = {
     }
 
     const res = await api.post<AuthResponse>('auth/register', payload)
-    if (res.token) {
-      localStorage.setItem('tanggap_token', res.token)
+    const token = res.token || (res as any)?.data?.token
+    const user = res.user || (res as any)?.data?.user
+
+    if (token) {
+      localStorage.setItem('tanggap_token', token)
     }
-    if (res.user) {
-      localStorage.setItem('tanggap_user', JSON.stringify(res.user))
+    if (user) {
+      localStorage.setItem('tanggap_user', JSON.stringify(user))
     }
     window.dispatchEvent(new Event('storage'))
-    return res
+    return { ...res, token, user }
   },
 
   /**

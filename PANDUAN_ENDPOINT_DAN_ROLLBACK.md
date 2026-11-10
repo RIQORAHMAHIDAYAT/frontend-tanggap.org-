@@ -1,6 +1,6 @@
 # Panduan Penggantian Endpoint & Rollback Mock Mode (FrontEnd Tanggap.org)
 
-Dokumen ini merupakan panduan resmi dan catatan permanen untuk tim pengembang dan administrator Tanggap.org terkait pengelolaan URL API Backend, peralihan server (dari backend partner Vercel ke backend Hostinger), serta prosedur rollback instan ke mode mock.
+Dokumen ini merupakan panduan resmi dan catatan permanen untuk tim pengembang dan administrator Tanggap.org terkait pengelolaan URL API Backend, peralihan server (dari backend partner Vercel ke backend Hostinger), sistem proteksi hak akses (Route Guard), serta prosedur rollback instan ke mode mock.
 
 ---
 
@@ -11,6 +11,7 @@ Dokumen ini merupakan panduan resmi dan catatan permanen untuk tim pengembang da
 | **Backend Aktif** | `https://backend-tanggap-org.vercel.app/api` | Server backend sementara dari pihak partner |
 | **File Konfigurasi** | `.env.production` | Terbaca otomatis saat proses build produksi |
 | **Status Mock Toggle** | `VITE_USE_MOCK=false` | Terhubung langsung ke API Backend live |
+| **Proteksi Route Guard** | **Aktif & Terkunci** | Halaman Admin, Guru, dan Siswa dilindungi otentikasi ketat |
 | **Graceful Fallback** | **Aktif** | Jika server backend down/timeout, frontend otomatis memakai data lokal tanpa merusak UI |
 | **Target Backend Akhir** | Hostinger (misal: `https://api.tanggap.org/api` atau IP VPS) | Akan dipasang setelah migrasi selesai |
 
@@ -66,12 +67,56 @@ git push origin main
 
 **Hasil Rollback:**
 - Seluruh form (Login, Register, Pengajuan Sekolah, Join Kelas, Assessment) langsung beralih ke simulasi lokal 100%.
+- Dashboard Admin dan Guru kembali menampilkan data mock bawaan.
 - Tidak ada panggilan network yang dilakukan ke API.
 - Tampilan UI dan data demo tetap utuh persis seperti awal.
 
 ---
 
-## 4. Arsitektur Layanan (Services Layer)
+## 4. Sistem Proteksi Hak Akses (Route Guard)
+
+Untuk mencegah pengguna sembarangan mengakses halaman internal tanpa login, sistem keamanan Route Guard aktif di `src/router/index.ts`:
+
+### Aturan Hak Akses:
+1. **Halaman Publik (Bebas Diakses):**
+   * Beranda (`/`)
+   * Login (`/login`)
+   * Register (`/register`)
+   * Lupa / Reset Password (`/forgot-password`, `/reset-password`)
+   * Pengajuan Proposal Sekolah (`/pengajuan-sekolah`)
+2. **Halaman Siswa (`/dashboard`, `/assessment`, `/amigo`, `/action-toolkit`, `/pengaturan`):**
+   * **Wajib Login.** Jika belum login, otomatis dilempar ke `/login`.
+3. **Halaman Guru BK (`/dashboard_guru`, `/monitoring_guru`):**
+   * **Wajib Login.** Khusus akun dengan peran **Guru BK** (atau Admin).
+   * Akun Siswa biasa yang mencoba membuka URL ini akan otomatis dialihkan ke `/dashboard` Siswa.
+4. **Halaman Administrator (`/dashboard_admin/*`):**
+   * **Wajib Login.** Khusus akun dengan peran **Admin**.
+   * Pengguna tanpa hak akses Admin otomatis ditolak dan dialihkan ke dashboard masing-masing.
+5. **Auto-Redirect Jika Sudah Login:**
+   * Jika pengguna sudah memiliki sesi login aktif dan sengaja membuka `/login` atau `/register`, sistem akan langsung mengarahkan ke dashboard yang sesuai dengan perannya.
+
+---
+
+## 5. Cara Login Sesuai Peran (Role-Based Testing)
+
+### A. Pengujian Pada Live Mode (`VITE_USE_MOCK=false`):
+Backend partner telah menyimpan akun uji berikut:
+* **Admin:**
+  * Login dengan akun yang memiliki role `Admin Sekolah` / `ADMIN` (misal: `admin.utama@tanggap.org` / `password123`) $\rightarrow$ otomatis masuk ke `/dashboard_admin`.
+* **Guru BK:**
+  * Login dengan akun role `Guru BK` / `TEACHER` (misal: `guru.bk@tanggap.org` / `password123`) $\rightarrow$ otomatis masuk ke `/dashboard_guru`.
+* **Siswa:**
+  * Login dengan akun siswa hasil pendaftaran $\rightarrow$ otomatis masuk ke `/dashboard`.
+
+### B. Pengujian Pada Mock Mode (`VITE_USE_MOCK=true`):
+Sistem mock mendeteksi role secara cerdas dari email yang Anda ketikkan:
+* Ketik email yang mengandung kata **"admin"** (contoh: `admin@tanggap.org`) $\rightarrow$ Masuk sebagai Admin.
+* Ketik email yang mengandung kata **"guru"** (contoh: `guru@tanggap.org`) $\rightarrow$ Masuk sebagai Guru.
+* Ketik email lainnya (contoh: `fauzy@tanggap.org` atau Google Login) $\rightarrow$ Masuk sebagai Siswa.
+
+---
+
+## 6. Arsitektur Layanan & Pemetaan Endpoint
 
 Seluruh logika komunikasi backend dipusatkan di folder `src/services/`:
 
@@ -85,19 +130,22 @@ src/services/
 
 ### Tabel Pemetaan Endpoint
 
-| Fitur | Method | Endpoint Backend | Fungsi Service |
+| Modul | Method | Endpoint Backend | Keterangan |
 | :--- | :---: | :--- | :--- |
-| **Registrasi User** | `POST` | `/api/auth/register` | `authService.register(payload)` |
-| **Login User** | `POST` | `/api/auth/login` | `authService.login(payload)` |
-| **Profil User** | `GET` | `/api/auth/me` | `authService.getProfile()` |
-| **Pengajuan Sekolah** | `POST` | `/api/leads` | `leadsService.createLead(payload)` |
-| **Gabung Kelas** | `POST` | `/api/classes/join` | `api.post('classes/join', { code })` |
-| **Submit Assessment** | `POST` | `/api/assessments/submit` | `assessmentService.submitAssessment(payload)` |
-| **Hasil Assessment** | `GET` | `/api/assessments/results/:id` | `assessmentService.getResultById(id)` |
+| **Auth** | `POST` | `/api/auth/register` | Pendaftaran akun baru (Siswa, Guru, Admin) |
+| **Auth** | `POST` | `/api/auth/login` | Login akun & penerimaan token JWT |
+| **Auth** | `GET` | `/api/auth/me` | Membaca profil user aktif |
+| **Leads** | `POST` | `/api/leads` | Form pendaftaran sekolah / demo kit |
+| **Leads** | `GET` | `/api/leads` | Menampilkan daftar pengajuan di Admin Dashboard |
+| **Kelas** | `POST` | `/api/classes/join` | Siswa bergabung kelas menggunakan 6 digit kode |
+| **Assessment** | `POST` | `/api/assessments/submit` | Pengiriman hasil assessment siswa ke backend |
+| **Admin Stats** | `GET` | `/api/admin/dashboard-stats` | Statistik metrik pengguna, sekolah, dan sistem |
+| **Admin Schools**| `GET` | `/api/schools` | Daftar sekolah mitra aktif di Admin |
+| **Guru Stats** | `GET` | `/api/teacher/dashboard-overview`| Statistik 4 indikator resolusi konflik untuk Guru |
 
 ---
 
-## 5. Jaminan Keamanan & "Graceful Degradation" (Zero Mistake)
+## 7. Jaminan Keamanan & "Graceful Degradation" (Zero Mistake)
 
 1. **Apakah aman menaruh `.env.production` di git?**
    - **Sangat Aman**. Variabel `VITE_` yang dikirim ke browser (seperti URL backend) memang bersifat publik karena browser harus tahu kemana ia harus mengirim permintaan HTTP. Tidak ada secret key (seperti database password atau JWT secret) yang disimpan di file ini.
@@ -112,7 +160,7 @@ src/services/
 
 ---
 
-## 6. Panduan Pengujian Lokal (Development)
+## 8. Panduan Pengujian Lokal (Development)
 
 Untuk menguji perubahan di komputer lokal:
 

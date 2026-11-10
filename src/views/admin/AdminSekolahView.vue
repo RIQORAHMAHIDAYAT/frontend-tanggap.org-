@@ -313,9 +313,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
 import AdminModal from '../../components/admin/AdminModal.vue'
+import { api, isMockMode } from '../../services/api'
 
 interface SchoolItem {
   id: number
@@ -426,6 +427,27 @@ const submitAddSchool = () => {
     status: 'Disetujui'
   }
 }
+
+onMounted(async () => {
+  if (isMockMode()) return
+
+  try {
+    const res = await api.get<{ success?: boolean; data?: any[] }>('schools')
+    const list = res?.data
+    if (Array.isArray(list) && list.length > 0) {
+      schools.value = list.map((item, idx) => ({
+        id: item.id || idx + 1,
+        name: item.name || 'Sekolah Mitra',
+        akreditasi: item.akreditasi || item.type || 'A',
+        alamat: item.city ? `${item.city}, ${item.province || 'Indonesia'}` : (item.address || 'Jl. Pendidikan'),
+        pic: item.pic || item.contactName || 'Kepala Sekolah',
+        status: item.status === 'Partner Aktif' || item.status === 'Terdaftar' ? 'Disetujui' : (item.status || 'Disetujui')
+      }))
+    }
+  } catch (err) {
+    console.warn('Fallback: gagal mengambil daftar sekolah:', err)
+  }
+})
 
 const isDetailModalOpen = ref(false)
 const selectedSchool = ref<SchoolItem | null>(null)

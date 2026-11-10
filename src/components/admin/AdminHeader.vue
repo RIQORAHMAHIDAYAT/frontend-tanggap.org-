@@ -127,14 +127,14 @@
 
           <div class="my-1 border-t border-slate-100"></div>
 
-          <router-link
-            to="/login"
-            @click="isDropdownOpen = false"
-            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors"
+          <button
+            type="button"
+            @click="handleLogout"
+            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
           >
             <span>🚪</span>
             <span>Keluar (Logout)</span>
-          </router-link>
+          </button>
         </div>
       </transition>
     </div>
@@ -143,7 +143,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { authService } from '../../services/authService'
 import adminAvatar from '../../assets/icon_fauzy.png'
+
+const router = useRouter()
 
 withDefaults(
   defineProps<{
@@ -165,6 +169,12 @@ const handleClickOutside = (event: MouseEvent) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     isDropdownOpen.value = false
   }
+}
+
+const handleLogout = () => {
+  isDropdownOpen.value = false
+  authService.logout()
+  router.push('/login')
 }
 
 onMounted(() => {

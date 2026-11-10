@@ -105,30 +105,47 @@ const showPassword = ref(false)
 const errorMsg = ref('')
 const isSubmitting = ref(false)
 
+const getRedirectPathByRole = (role?: string): string => {
+  const r = String(role || '').toLowerCase()
+  if (r.includes('admin')) return '/dashboard_admin'
+  if (r.includes('guru') || r.includes('teacher')) return '/dashboard_guru'
+  return '/dashboard'
+}
+
 const handleLogin = async () => {
   errorMsg.value = ''
   isSubmitting.value = true
 
   try {
-    await authService.login({
+    const res = await authService.login({
       email: email.value,
       password: password.value,
     })
-    router.push('/dashboard')
+    const role = res.user?.role
+    router.push(getRedirectPathByRole(role))
   } catch (err: unknown) {
     console.warn('Login API error, evaluating fallback:', err)
     if (err && typeof err === 'object' && 'status' in err && ((err as { status: number }).status === 400 || (err as { status: number }).status === 401)) {
       errorMsg.value = (err as { message?: string }).message || 'Email atau password salah.'
     } else {
       // In case server partner unreachable, fallback ke user demo mock
+      const emailLower = email.value.toLowerCase()
+      let fallbackRole = 'Siswa'
+      if (emailLower.includes('admin')) {
+        fallbackRole = 'Admin Sekolah'
+      } else if (emailLower.includes('guru') || emailLower.includes('teacher')) {
+        fallbackRole = 'Guru BK'
+      }
       const mockUser = {
         id: 'user-demo-1',
         name: email.value.split('@')[0] || 'Ahmat Fauzy',
         email: email.value,
-        role: 'student'
+        role: fallbackRole
       }
+      localStorage.setItem('tanggap_token', 'mock-token-demo')
       localStorage.setItem('tanggap_user', JSON.stringify(mockUser))
-      router.push('/dashboard')
+      window.dispatchEvent(new Event('storage'))
+      router.push(getRedirectPathByRole(fallbackRole))
     }
   } finally {
     isSubmitting.value = false
@@ -140,9 +157,11 @@ const handleGoogleLogin = () => {
     id: 'user-google-1',
     name: 'Google User',
     email: 'user@gmail.com',
-    role: 'student'
+    role: 'Siswa'
   }
+  localStorage.setItem('tanggap_token', 'mock-token-google')
   localStorage.setItem('tanggap_user', JSON.stringify(mockUser))
+  window.dispatchEvent(new Event('storage'))
   router.push('/dashboard')
 }
 </script>

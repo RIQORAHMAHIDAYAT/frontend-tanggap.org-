@@ -201,9 +201,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
 import AdminModal from '../../components/admin/AdminModal.vue'
+import { api, isMockMode } from '../../services/api'
 
 interface SubmissionItem {
   id: number
@@ -267,6 +268,36 @@ const submissions = ref<SubmissionItem[]>([
 
 const isDetailModalOpen = ref(false)
 const selectedItem = ref<SubmissionItem | null>(null)
+
+onMounted(async () => {
+  if (isMockMode()) return
+
+  try {
+    const res = await api.get<{ success?: boolean; data?: any[] }>('leads')
+    const apiLeads = Array.isArray(res?.data) ? res.data : []
+
+    let localSubmissions: any[] = []
+    try {
+      localSubmissions = JSON.parse(localStorage.getItem('tanggap_school_submissions') || '[]')
+    } catch {}
+
+    const combined = [...localSubmissions, ...apiLeads]
+    if (combined.length > 0) {
+      submissions.value = combined.map((item, idx) => ({
+        id: item.id || idx + 1,
+        schoolName: item.schoolName || item.name || 'Sekolah Mitra',
+        pic: item.picName || item.contactName || item.pic || item.name || 'Penanggung Jawab',
+        whatsapp: item.picWhatsapp || item.phoneNumber || item.phone || item.whatsapp || '088232258814',
+        date: item.submittedAt || item.createdAt
+          ? new Date(item.submittedAt || item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+          : (item.registrationDate || '12 Juni 2026'),
+        status: (item.status === 'Disetujui' || item.status === 'Ditolak') ? item.status : 'Menunggu ditinjau'
+      }))
+    }
+  } catch (err) {
+    console.warn('Fallback: gagal mengambil daftar pengajuan:', err)
+  }
+})
 
 const openDetail = (item: SubmissionItem) => {
   selectedItem.value = item

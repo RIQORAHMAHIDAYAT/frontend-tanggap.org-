@@ -238,15 +238,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
+import { api, isMockMode } from '../../services/api'
 
-// Dummy dynamic metrics matching screenshot
+// Metrics (Fallback default mockup)
 const metrics = ref({
-  pengajuan: 0,
-  sekolahAktif: 0,
-  pengguna: 0,
-  kelas: 0
+  pengajuan: 9,
+  sekolahAktif: 14,
+  pengguna: 128,
+  kelas: 8
 })
 
 const chartData = [
@@ -256,7 +257,7 @@ const chartData = [
   { label: 'De-eskalasi Konflik', val1: 56, val2: 67 }
 ]
 
-const recentSubmissions = [
+const recentSubmissions = ref([
   {
     schoolName: 'SMA Harapan Bangsa',
     date: '12 Juni 2026',
@@ -272,7 +273,44 @@ const recentSubmissions = [
     date: '3 Februari 2026',
     status: 'Ditolak'
   }
-]
+])
+
+onMounted(async () => {
+  if (isMockMode()) return
+
+  // 1. Ambil data metrics nyata dari Backend Partner
+  try {
+    const statsRes = await api.get<{ success?: boolean; data?: any }>('admin/dashboard-stats')
+    const d = statsRes?.data
+    if (d) {
+      metrics.value = {
+        pengajuan: d.leadsSummary?.total ?? d.leadsSummary?.menungguDitinjau ?? 9,
+        sekolahAktif: d.totalSchools ?? 14,
+        pengguna: d.totalUsers ?? 128,
+        kelas: d.totalSimulations ?? 8
+      }
+    }
+  } catch (err) {
+    console.warn('Fallback: gagal mengambil admin dashboard stats:', err)
+  }
+
+  // 2. Ambil data recent submissions nyata dari Backend Partner
+  try {
+    const leadsRes = await api.get<{ success?: boolean; data?: any[] }>('leads')
+    const list = leadsRes?.data
+    if (Array.isArray(list) && list.length > 0) {
+      recentSubmissions.value = list.slice(0, 5).map((item) => ({
+        schoolName: item.schoolName || item.name || 'Sekolah Mitra',
+        date: item.createdAt
+          ? new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+          : 'Baru saja',
+        status: item.status || 'Menunggu ditinjau'
+      }))
+    }
+  } catch (err) {
+    console.warn('Fallback: gagal mengambil recent leads:', err)
+  }
+})
 
 const statusBadgeClass = (status: string) => {
   switch (status) {

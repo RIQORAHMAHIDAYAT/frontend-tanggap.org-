@@ -254,10 +254,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 import FloatingSupport from '../../components/dashboard/FloatingSupport.vue'
 import schoolBuildingImg from '../../assets/dashboard/school_building_hero.png'
+import { api, isMockMode } from '../../services/api'
 
 const teacherName = ref('Ahmat Mundakir')
 const teacherInitials = ref('AM')
@@ -271,12 +272,42 @@ const teacherMenuItems = [
 ]
 
 // 4 Indikator Resolusi Konflik (Matching chart pada guru.png)
-const indicatorStats = [
+const indicatorStats = ref([
   { name: 'Regulasi Emosi', pre: 42, post: 54 },
   { name: 'Empati', pre: 55, post: 65 },
   { name: 'Komunikasi Asertif', pre: 52, post: 66 },
   { name: 'De-eskalasi Konflik', pre: 57, post: 68 }
-]
+])
+
+onMounted(async () => {
+  try {
+    const raw = localStorage.getItem('tanggap_user')
+    if (raw) {
+      const u = JSON.parse(raw)
+      if (u.name) {
+        teacherName.value = u.name
+        teacherInitials.value = u.name
+          .split(' ')
+          .map((n: string) => n[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase()
+      }
+    }
+  } catch {}
+
+  if (isMockMode()) return
+
+  try {
+    const res = await api.get<{ success?: boolean; data?: any; indicatorStats?: any[] }>('teacher/dashboard-overview')
+    const list = res?.data?.indicatorStats || res?.indicatorStats
+    if (Array.isArray(list) && list.length > 0) {
+      indicatorStats.value = list
+    }
+  } catch (err) {
+    console.warn('Fallback: gagal mengambil teacher dashboard overview:', err)
+  }
+})
 
 const downloadReport = () => {
   alert('Menyiapkan Impact Report Tanggap.org dalam format PDF...')

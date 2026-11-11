@@ -340,6 +340,7 @@
 import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
 import AdminModal from '../../components/admin/AdminModal.vue'
+import { api, isMockMode } from '../../services/api'
 
 interface UserItem {
   id: number | string
@@ -404,7 +405,7 @@ const users = ref<UserItem[]>([
   }
 ])
 
-onMounted(() => {
+onMounted(async () => {
   // 1. Masukkan akun guru yang emailnya sudah di-ACC oleh Admin ke daftar pengguna
   try {
     const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
@@ -446,6 +447,30 @@ onMounted(() => {
       }
     }
   } catch {}
+
+  // 3. Ambil data pengguna dari backend jika live mode
+  if (!isMockMode()) {
+    try {
+      const res = await api.get<{ success?: boolean; data?: any[] }>('users')
+      const apiUsers = res?.data || (Array.isArray(res) ? res : [])
+      if (Array.isArray(apiUsers) && apiUsers.length > 0) {
+        for (const u of apiUsers) {
+          if (!users.value.some((existing) => existing.email.toLowerCase() === u.email.toLowerCase())) {
+            users.value.unshift({
+              id: u.id,
+              name: u.name,
+              email: u.email,
+              role: u.role === 'Admin' ? 'Admin' : u.role === 'Guru/Sekolah' ? 'Guru/Sekolah' : 'Siswa',
+              date: u.date || 'Hari Ini',
+              status: u.status || 'Aktif',
+            })
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('API users fetch fallback:', err)
+    }
+  }
 })
 
 const toggleSort = () => {

@@ -8,7 +8,7 @@ Dokumen ini merupakan panduan resmi dan catatan permanen untuk tim pengembang da
 
 | Parameter | Nilai Saat Ini | Keterangan |
 | :--- | :--- | :--- |
-| **Backend Aktif** | `https://backend-tanggap-org.vercel.app/api` | Server backend sementara dari pihak partner |
+| **Backend Aktif** | `https://backend-tanggap-org-8fj2.vercel.app/api` | Server backend sementara dari pihak partner |
 | **File Konfigurasi** | `.env.production` | Terbaca otomatis saat proses build produksi |
 | **Status Mock Toggle** | `VITE_USE_MOCK=false` | Terhubung langsung ke API Backend live |
 | **Proteksi Route Guard** | **Aktif & Terkunci** | Halaman Admin, Guru, dan Siswa dilindungi otentikasi ketat |
@@ -53,7 +53,7 @@ Jika sewaktu-waktu backend partner atau server mengalami gangguan fatal dan Anda
 ### Langkah 1: Buka file `.env.production`
 Ubah baris `VITE_USE_MOCK` menjadi `true`:
 ```env
-VITE_API_BASE_URL=https://backend-tanggap-org.vercel.app/api
+VITE_API_BASE_URL=https://backend-tanggap-org-8fj2.vercel.app/api
 VITE_USE_MOCK=true
 ```
 

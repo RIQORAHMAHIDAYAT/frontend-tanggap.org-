@@ -33,7 +33,7 @@ export const isMockMode = (): boolean => {
  * @returns string
  */
 export const getBaseUrl = (): string => {
-  const url = import.meta.env.VITE_API_BASE_URL || 'https://backend-tanggap-org.vercel.app/api'
+  const url = import.meta.env.VITE_API_BASE_URL || 'https://backend-tanggap-org-8fj2.vercel.app/api'
   return url.replace(/\/$/, '')
 }
 

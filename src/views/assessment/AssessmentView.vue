@@ -29,7 +29,7 @@
                 Melalui pengukuran keterampilan resolusi konflik , melalui evaluasi diri, dan kelompok untuk memantau efektivitas program.
               </p>
               <button
-                @click="startAssessment('general')"
+                @click="startAssessment()"
                 type="button"
                 class="bg-[#1E40AF] hover:bg-blue-800 text-white font-bold px-8 py-3.5 rounded-xl shadow-md transition-all active:scale-95 inline-flex items-center gap-2 cursor-pointer focus:outline-none text-sm sm:text-base"
               >
@@ -162,14 +162,14 @@
                     Post-test
                   </h3>
                   <p class="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                    Ukur sejauh mana pemahaman awalmu sebelum mulai mempelajari materi baru!
+                    Ukur peningkatan pemahaman dan keterampilanmu setelah mempelajari materi!
                   </p>
                 </div>
               </div>
 
               <div>
                 <button
-                  @click="startAssessment('post')"
+                  @click="handlePostTestClick"
                   type="button"
                   class="bg-[#1E40AF] hover:bg-blue-800 text-white font-bold px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl shadow-xs transition-all active:scale-95 inline-flex items-center gap-2 text-sm sm:text-base cursor-pointer"
                 >
@@ -247,7 +247,7 @@
       <!-- STEP 2: Interactive Questionnaire (Matching isi_ases_00.png & isi_ases_01.png) -->
       <AssessmentQuiz
         v-else-if="currentStep === 'quiz'"
-        @back="currentStep = 'intro'"
+        @back="handleQuizBack"
         @complete="onQuizComplete"
       />
 
@@ -255,7 +255,7 @@
       <AssessmentResult
         v-else-if="currentStep === 'result' && calculatedResult"
         :result-data="calculatedResult"
-        @back="currentStep = 'intro'"
+        @back="handleResultBack"
       />
     </template>
   </div>
@@ -263,7 +263,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 import AssessmentQuiz from '../../components/assessment/AssessmentQuiz.vue'
 import AssessmentResult from '../../components/assessment/AssessmentResult.vue'
@@ -273,11 +273,23 @@ import {
 } from '../../data/assessmentQuestions'
 import { assessmentService } from '../../services/assessmentService'
 
+const router = useRouter()
 const route = useRoute()
 const currentStep = ref<'intro' | 'quiz' | 'result'>('intro')
 const progressPercent = ref(0)
 const calculatedResult = ref<AssessmentResultData | null>(null)
 const hasSchoolCode = ref(false)
+
+// Placeholder untuk Link Post-test (Nanti tinggal isi URL di sini jika form sudah siap)
+const postTestUrl = ref('')
+
+const handlePostTestClick = () => {
+  if (postTestUrl.value && postTestUrl.value.trim().length > 0) {
+    window.open(postTestUrl.value, '_blank', 'noopener,noreferrer')
+  } else {
+    alert('Link Post-test belum tersedia saat ini. Form akan dibuka oleh guru/fasilitator setelah rangkaian materi dan AMIGO selesai dilaksanakan.')
+  }
+}
 
 const checkSchoolStatus = () => {
   if (route.query.status === 'locked') {
@@ -292,6 +304,21 @@ const checkSchoolStatus = () => {
   const saved = localStorage.getItem('tanggap_school_code')
   hasSchoolCode.value = Boolean(saved && saved.trim().length >= 6)
 }
+
+// Sinkronkan step dengan query URL agar tombol Back browser & tombol Kembali selalu akurat
+watch(
+  () => route.query.step,
+  (step) => {
+    if (step === 'quiz') {
+      currentStep.value = 'quiz'
+    } else if (step === 'result' && calculatedResult.value) {
+      currentStep.value = 'result'
+    } else {
+      currentStep.value = 'intro'
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   () => route.query.status,
@@ -309,8 +336,37 @@ onUnmounted(() => {
   window.removeEventListener('storage', checkSchoolStatus)
 })
 
-const startAssessment = (_type: string = 'general') => {
+// Mulai assessment (HANYA untuk tombol Mulai Assessment di hero card)
+const startAssessment = () => {
   currentStep.value = 'quiz'
+  router.push({
+    path: '/assessment',
+    query: { ...route.query, step: 'quiz' }
+  })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// Kembali dari Quiz ke Halaman Awal Assessment
+const handleQuizBack = () => {
+  currentStep.value = 'intro'
+  const newQuery = { ...route.query }
+  delete newQuery.step
+  router.push({
+    path: '/assessment',
+    query: newQuery
+  })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// Kembali dari Hasil Assessment ke Halaman Awal Assessment
+const handleResultBack = () => {
+  currentStep.value = 'intro'
+  const newQuery = { ...route.query }
+  delete newQuery.step
+  router.push({
+    path: '/assessment',
+    query: newQuery
+  })
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -319,6 +375,10 @@ const onQuizComplete = async (answers: Record<number, number>) => {
   calculatedResult.value = calculateAssessmentResult(answers)
   progressPercent.value = 100
   currentStep.value = 'result'
+  router.push({
+    path: '/assessment',
+    query: { ...route.query, step: 'result' }
+  })
   window.scrollTo({ top: 0, behavior: 'smooth' })
 
   // Kirimkan jawaban ke backend di background (dengan graceful fallback)

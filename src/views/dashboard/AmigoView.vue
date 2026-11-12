@@ -272,7 +272,7 @@
           <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center shadow-inner relative">
             <iframe
               class="w-full h-full"
-              src="https://youtu.be/xiaW2wmBsGY?si=wBlbrg30yNydDmQS"
+              src="https://www.youtube-nocookie.com/embed/xiaW2wmBsGY?autoplay=1"
               title="Video Tutorial AMIGO"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

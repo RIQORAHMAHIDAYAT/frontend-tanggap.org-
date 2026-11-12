@@ -272,7 +272,7 @@
           <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center shadow-inner relative">
             <iframe
               class="w-full h-full"
-              src="https://www.youtube-nocookie.com/embed/xiaW2wmBsGY?autoplay=1"
+              src="https://www.youtube-nocookie.com/embed/J3z3SimLeh8?autoplay=1"
               title="Video Tutorial AMIGO"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -332,7 +332,7 @@ const steps = [
   },
   {
     number: 4,
-    title: 'Lakuka refleksi',
+    title: 'Lakukan refleksi',
     description: 'Diskusikan apa yang kamu pelajari dari permainan.'
   }
 ]

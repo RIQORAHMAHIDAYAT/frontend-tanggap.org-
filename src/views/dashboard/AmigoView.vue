@@ -12,22 +12,23 @@
       </header>
 
       <!-- 2. Main Card Container with Tabs -->
-      <div class="bg-white rounded-3xl md:rounded-[36px] p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs">
+      <div class="bg-white rounded-2xl sm:rounded-3xl md:rounded-[36px] p-3.5 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs">
         <!-- Navigation Tab Headers (Desktop & Mobile) -->
-        <div class="flex items-center gap-4 sm:gap-8 md:gap-12 border-b border-slate-100 overflow-x-auto pb-1 scrollbar-none">
+        <div class="flex items-center justify-between sm:justify-start gap-1 sm:gap-6 md:gap-10 border-b border-slate-100 overflow-x-auto pb-1 scrollbar-none w-full">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             type="button"
-            class="pb-3 text-sm sm:text-base md:text-lg transition-all duration-200 cursor-pointer whitespace-nowrap relative focus:outline-none"
+            class="pb-3 text-xs sm:text-base md:text-lg transition-all duration-200 cursor-pointer whitespace-nowrap relative focus:outline-none px-1.5 sm:px-2 flex-1 sm:flex-initial text-center"
             :class="[
               activeTab === tab.id
                 ? 'text-[#1E40AF] font-bold'
                 : 'text-slate-600 hover:text-slate-900 font-semibold'
             ]"
           >
-            <span>{{ tab.label }}</span>
+            <span class="hidden sm:inline">{{ tab.label }}</span>
+            <span class="sm:hidden">{{ tab.shortLabel }}</span>
             <!-- Active indicator underline bar -->
             <span
               v-if="activeTab === tab.id"
@@ -37,7 +38,7 @@
         </div>
 
         <!-- 3. Tab Contents Inside Light Blue Container -->
-        <div class="mt-6 sm:mt-8">
+        <div class="mt-4 sm:mt-8">
           <!-- TAB 1: Tentang AMIGO (Matching amigo.png & tentang AMIGO.png) -->
           <transition
             enter-active-class="transition duration-200 ease-out"
@@ -51,7 +52,7 @@
             <div
               v-if="activeTab === 'tentang'"
               key="tentang"
-              class="bg-[#F0F5FF] rounded-3xl p-6 sm:p-8 md:p-12 border border-blue-100/70"
+              class="bg-[#F0F5FF] rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 border border-blue-100/70"
             >
               <!-- Desktop View (Grid 2 Kolom Seimbang) -->
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
@@ -94,7 +95,7 @@
             <div
               v-else-if="activeTab === 'mekanisme'"
               key="mekanisme"
-              class="bg-[#F0F5FF] rounded-3xl p-6 sm:p-8 md:p-12 border border-blue-100/70"
+              class="bg-[#F0F5FF] rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 border border-blue-100/70"
             >
               <!-- Desktop View (Kiri: Ilustrasi AMIGO, Kanan: 4 Langkah Aturan) -->
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
@@ -103,6 +104,8 @@
                     :src="amigoMekanismeImg"
                     alt="Mekanisme & Aturan AMIGO"
                     class="w-full max-w-[420px] lg:max-w-[480px] h-auto object-cover rounded-2xl sm:rounded-3xl shadow-md border border-white/60 pointer-events-none select-none"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
@@ -136,29 +139,31 @@
 
               <!-- Mobile View (Stacked matching Mekanisme & Aturan Main.hp.png) -->
               <div class="md:hidden flex flex-col items-start text-left">
-                <h2 class="text-2xl font-extrabold text-[#1E40AF] mb-6">
+                <h2 class="text-xl sm:text-2xl font-extrabold text-[#1E40AF] mb-4">
                   Mekanisme & Aturan Main
                 </h2>
 
-                <div class="w-full flex justify-center mb-6">
+                <div class="w-full flex justify-center mb-5">
                   <img
                     :src="amigoMekanismeImg"
                     alt="Mekanisme & Aturan AMIGO"
-                    class="w-full max-w-[360px] h-auto object-cover rounded-2xl shadow-md border border-white/60 pointer-events-none select-none"
+                    class="w-full max-w-sm h-auto object-cover rounded-xl sm:rounded-2xl shadow-sm border border-white/60 pointer-events-none select-none"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
-                <div class="space-y-5 w-full">
+                <div class="space-y-4 w-full">
                   <div
                     v-for="step in steps"
                     :key="step.number"
-                    class="flex items-start gap-4"
+                    class="flex items-start gap-3.5"
                   >
-                    <div class="w-10 h-10 rounded-full bg-[#1E40AF] text-white font-extrabold text-base flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                    <div class="w-9 h-9 rounded-full bg-[#1E40AF] text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5">
                       {{ step.number }}
                     </div>
                     <div>
-                      <h3 class="text-base font-bold text-[#1E40AF] leading-snug">
+                      <h3 class="text-sm sm:text-base font-bold text-[#1E40AF] leading-snug">
                         {{ step.title }}
                       </h3>
                       <p class="text-slate-600 text-xs sm:text-sm mt-0.5 leading-relaxed">
@@ -174,7 +179,7 @@
             <div
               v-else-if="activeTab === 'video'"
               key="video"
-              class="bg-[#F0F5FF] rounded-3xl p-6 sm:p-8 md:p-12 border border-blue-100/70"
+              class="bg-[#F0F5FF] rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 border border-blue-100/70"
             >
               <!-- Desktop View (Kiri: Thumbnail Video dengan Tombol Play, Kanan: Judul & Subtitle) -->
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
@@ -188,6 +193,8 @@
                     :src="amigoTutorialImg"
                     alt="Video Tutorial Bermain AMIGO"
                     class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <!-- Hover subtle overlay effect with Play Button -->
                   <div class="absolute inset-0 bg-slate-900/30 flex items-center justify-center group-hover:bg-slate-900/40 transition-colors">
@@ -218,34 +225,36 @@
               <!-- Mobile View (Stacked matching Video Tutorial.hp.png) -->
               <div class="md:hidden flex flex-col items-start text-left">
                 <!-- Thumbnail Video on top (Landscape) -->
-                <div class="w-full flex justify-center mb-6">
+                <div class="w-full flex justify-center mb-5">
                   <div
                     @click="openVideoModal"
-                    class="w-full max-w-[360px] aspect-video relative rounded-2xl overflow-hidden shadow-md active:scale-98 transition-all cursor-pointer group"
+                    class="w-full max-w-sm aspect-video relative rounded-xl sm:rounded-2xl overflow-hidden shadow-sm active:scale-98 transition-all cursor-pointer group"
                   >
                     <img
                       :src="amigoTutorialImg"
                       alt="Video Tutorial Bermain AMIGO"
                       class="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div class="absolute inset-0 bg-slate-900/25 flex items-center justify-center">
-                      <div class="w-14 h-14 rounded-full bg-white/95 text-[#1E40AF] flex items-center justify-center text-xl shadow-lg pl-1">
+                      <div class="w-13 h-13 rounded-full bg-white/95 text-[#1E40AF] flex items-center justify-center text-lg shadow-md pl-1">
                         ▶
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <h2 class="text-2xl font-extrabold text-[#1E40AF] mb-2 leading-snug">
+                <h2 class="text-xl sm:text-2xl font-extrabold text-[#1E40AF] mb-1.5 leading-snug">
                   Video Tutorial Bermain AMIGO
                 </h2>
-                <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-4">
+                <p class="text-slate-600 text-sm leading-relaxed mb-4">
                   Tutorial panduan singkat cara bermain AMIGO
                 </p>
                 <button
                   @click="openVideoModal"
                   type="button"
-                  class="bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer inline-flex items-center gap-2 text-sm"
+                  class="bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer inline-flex items-center gap-2 text-sm"
                 >
                   <span>Tonton Video</span>
                   <span>▶</span>
@@ -319,9 +328,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
-import amigoTentangImg from '../../assets/dashboard/amigo_real_tentang.png'
-import amigoMekanismeImg from '../../assets/dashboard/amigo_real_mekanisme.png'
-import amigoTutorialImg from '../../assets/dashboard/amigo_real_tutorial.png'
+import amigoTentangImg from '../../assets/dashboard/amigo_real_tentang.jpg'
+import amigoMekanismeImg from '../../assets/dashboard/amigo_real_mekanisme.jpg'
+import amigoTutorialImg from '../../assets/dashboard/amigo_real_tutorial.jpg'
 
 type TabId = 'tentang' | 'mekanisme' | 'video'
 
@@ -329,9 +338,9 @@ const activeTab = ref<TabId>('tentang')
 const showVideoModal = ref(false)
 
 const tabs = [
-  { id: 'tentang' as TabId, label: 'Tentang AMIGO' },
-  { id: 'mekanisme' as TabId, label: 'Mekanisme & Aturan Main' },
-  { id: 'video' as TabId, label: 'Video Tutorial' }
+  { id: 'tentang' as TabId, label: 'Tentang AMIGO', shortLabel: 'Tentang AMIGO' },
+  { id: 'mekanisme' as TabId, label: 'Mekanisme & Aturan Main', shortLabel: 'Mekanisme & Aturan' },
+  { id: 'video' as TabId, label: 'Video Tutorial', shortLabel: 'Video Tutorial' }
 ]
 
 const steps = [

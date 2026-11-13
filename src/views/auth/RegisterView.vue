@@ -1,16 +1,5 @@
 <template>
   <AuthLayout :reverse="true">
-    <!-- Tombol Kembali ke Beranda -->
-    <div class="mb-4 text-left">
-      <router-link
-        to="/"
-        class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#1C368D] transition-colors group cursor-pointer"
-      >
-        <span class="text-base group-hover:-translate-x-1 transition-transform">←</span>
-        <span>Kembali ke Beranda</span>
-      </router-link>
-    </div>
-
     <div class="mb-10 text-center md:text-left">
       <h1 class="text-3xl md:text-4xl font-bold text-[#1C368D] mb-4">Buat akun</h1>
       <p class="text-gray-500 text-sm md:text-base">Masukkan detail pribadi Anda dan mulailah perjalanan bersama kami.</p>

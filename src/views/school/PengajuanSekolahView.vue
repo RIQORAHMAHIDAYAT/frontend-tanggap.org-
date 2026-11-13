@@ -283,33 +283,22 @@
                 </p>
               </div>
 
-              <!-- Field: Tanggal Pendaftaran -->
-              <div :class="{ 'animate-shake': isShaking && errors.registrationDate }">
-                <label for="registrationDate" class="block text-sm font-semibold text-slate-800 mb-2">
-                  Tanggal Pendaftaran <span class="text-red-500">*</span>
+              <!-- Field: Tanggal Pendaftaran (Otomatis Hari Ini) -->
+              <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-2">
+                  Tanggal Pendaftaran <span class="text-xs font-normal text-slate-500">(Otomatis Hari Ini)</span>
                 </label>
                 <div class="relative max-w-xs">
-                  <input
-                    id="registrationDate"
-                    ref="registrationDateInput"
-                    v-model="form.registrationDate"
-                    @change="clearFieldError('registrationDate')"
-                    @input="clearFieldError('registrationDate')"
-                    type="date"
-                    class="w-full px-4 py-3 sm:py-3.5 bg-white border rounded-xl text-slate-800 text-sm sm:text-base transition-all duration-200 cursor-pointer focus:outline-none"
-                    :class="[
-                      errors.registrationDate
-                        ? 'border-red-500 bg-red-50/20 ring-2 ring-red-200 focus:border-red-500 focus:ring-red-200'
-                        : 'border-slate-200 focus:border-[#1C368D] focus:ring-1 focus:ring-[#1C368D]'
-                    ]"
-                  />
+                  <div class="w-full px-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-semibold text-sm sm:text-base flex items-center justify-between select-none shadow-2xs">
+                    <div class="flex items-center gap-2.5">
+                      <svg class="w-5 h-5 text-[#1C368D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{{ formattedDisplayDate }}</span>
+                    </div>
+                    <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-md">Otomatis</span>
+                  </div>
                 </div>
-                <p v-if="errors.registrationDate" class="mt-1.5 text-xs text-red-600 font-medium flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                  </svg>
-                  <span>{{ errors.registrationDate }}</span>
-                </p>
               </div>
             </div>
           </section>
@@ -390,7 +379,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { leadsService } from '../../services/leadsService'
 
@@ -415,6 +404,15 @@ const getTodayDateString = () => {
   const day = String(today.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
+
+const formattedDisplayDate = computed(() => {
+  const today = new Date()
+  return today.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+})
 
 const form = ref({
   schoolName: '',
@@ -574,14 +572,8 @@ const handleSubmit = async () => {
     errors.value.picWhatsapp = ''
   }
 
-  // 8. Validasi Tanggal Pendaftaran
-  if (!form.value.registrationDate) {
-    errors.value.registrationDate = '* Kolom ini wajib diisi'
-    hasErrors = true
-    if (!firstKey) firstKey = 'registrationDate'
-  } else {
-    errors.value.registrationDate = ''
-  }
+  // 8. Tanggal Pendaftaran selalu terisi otomatis dengan tanggal hari ini
+  errors.value.registrationDate = ''
 
   if (hasErrors) {
     errorMessage.value = 'Harap periksa kembali. Mohon lengkapi semua kolom bertanda bintang (*) yang ditandai warna merah.'
@@ -638,8 +630,12 @@ const handleSubmit = async () => {
   // Simpan ke localStorage agar data tetap persisten
   try {
     const existingSubmissions = JSON.parse(localStorage.getItem('tanggap_school_submissions') || '[]')
+    const cleanEmail = form.value.picEmail.toLowerCase().trim()
     existingSubmissions.push({
       ...form.value,
+      id: 'lead-' + Date.now(),
+      email: cleanEmail,
+      status: 'Menunggu ditinjau',
       submittedAt: new Date().toISOString()
     })
     localStorage.setItem('tanggap_school_submissions', JSON.stringify(existingSubmissions))

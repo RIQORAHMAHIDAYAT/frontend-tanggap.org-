@@ -68,10 +68,12 @@
       atau
     </div>
 
+    <!-- Tombol Continue With Google (Dinonaktifkan Sementara dengan Popup Pemberitahuan) -->
     <button 
       type="button"
-      @click="handleGoogleLogin"
-      class="w-full flex items-center justify-center px-4 py-3.5 border border-gray-200 shadow-sm rounded-full hover:bg-gray-50 transition-colors cursor-pointer active:scale-[0.99]"
+      @click="showGoogleFeatureNotice = true"
+      class="w-full flex items-center justify-center px-4 py-3.5 border border-gray-200 shadow-xs rounded-full hover:bg-gray-50 transition-colors cursor-pointer active:scale-[0.99]"
+      title="Masuk dengan Google (Segera Hadir)"
     >
       <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
         <path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" fill="#FFC107"/>
@@ -88,6 +90,41 @@
         Daftar Sekarang
       </router-link>
     </div>
+
+    <!-- Modal Popup: Fitur Google Belum Tersedia -->
+    <transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div
+        v-if="showGoogleFeatureNotice"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs select-none"
+        @click.self="showGoogleFeatureNotice = false"
+      >
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center animate-in fade-in zoom-in-95">
+          <div class="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-4 text-3xl">
+            ⚙️
+          </div>
+          <h3 class="text-xl font-extrabold text-[#1E40AF] mb-2 tracking-tight">
+            Fitur Belum Tersedia
+          </h3>
+          <p class="text-slate-600 text-sm leading-relaxed mb-6">
+            Masuk dengan Google saat ini sedang dalam tahap pengembangan dan belum dapat digunakan. Silakan gunakan <strong>Email & Password</strong> terdaftar Anda untuk masuk.
+          </p>
+          <button
+            @click="showGoogleFeatureNotice = false"
+            type="button"
+            class="w-full bg-[#20409A] hover:bg-[#1C368D] text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer text-sm"
+          >
+            Mengerti
+          </button>
+        </div>
+      </div>
+    </transition>
   </AuthLayout>
 </template>
 
@@ -104,11 +141,12 @@ const password = ref('')
 const showPassword = ref(false)
 const errorMsg = ref('')
 const isSubmitting = ref(false)
+const showGoogleFeatureNotice = ref(false)
 
 const getRedirectPathByRole = (role?: string): string => {
   const r = String(role || '').toLowerCase()
   if (r.includes('admin')) return '/dashboard_admin'
-  if (r.includes('guru') || r.includes('teacher')) return '/dashboard_guru'
+  if (r.includes('guru') || r.includes('teacher') || r.includes('sekolah')) return '/dashboard_guru'
   return '/dashboard'
 }
 
@@ -122,11 +160,12 @@ const handleLogin = async () => {
   let isApprovedTeacher = false
   let teacherSchool = ''
   let teacherName = ''
+
   try {
     const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
     if (rawApproved) {
       const approvedList = JSON.parse(rawApproved)
-      const matched = approvedList.find((a: any) => a.email.toLowerCase() === emailClean && a.status === 'Disetujui')
+      const matched = approvedList.find((a: any) => a.email && a.email.toLowerCase().trim() === emailClean && a.status === 'Disetujui')
       if (matched) {
         isApprovedTeacher = true
         teacherSchool = matched.schoolName || ''
@@ -137,19 +176,52 @@ const handleLogin = async () => {
     console.warn('Approved teacher lookup error:', e)
   }
 
+  // Cek juga dari data pengajuan sekolah tanggap_school_submissions & status overrides
+  if (!isApprovedTeacher) {
+    try {
+      const rawSubs = localStorage.getItem('tanggap_school_submissions')
+      const overrides = JSON.parse(localStorage.getItem('tanggap_leads_status_overrides') || '{}')
+      if (rawSubs) {
+        const subs = JSON.parse(rawSubs)
+        const matched = subs.find((s: any) => {
+          const sEmail = (s.picEmail || s.email || '').toLowerCase().trim()
+          const idStr = String(s.id || '')
+          const effectiveStatus = overrides[idStr] || s.status
+          return sEmail === emailClean && effectiveStatus === 'Disetujui'
+        })
+        if (matched) {
+          isApprovedTeacher = true
+          teacherSchool = matched.schoolName || ''
+          teacherName = matched.picName || matched.contactName || ''
+        }
+      }
+    } catch (e) {}
+  }
+
   // Cek jika akun terdaftar di penyimpanan akun lokal dan verifikasi password
   try {
     const rawAccounts = localStorage.getItem('tanggap_user_accounts')
     if (rawAccounts) {
       const accounts = JSON.parse(rawAccounts)
-      const localAcc = accounts.find((a: any) => a.email.toLowerCase() === emailClean)
-      if (localAcc && localAcc.password && localAcc.password !== password.value) {
-        errorMsg.value = 'Email atau password salah.'
-        isSubmitting.value = false
-        return
-      }
-      if (localAcc && localAcc.name) {
-        teacherName = localAcc.name
+      const localAcc = accounts.find((a: any) => a.email && a.email.toLowerCase().trim() === emailClean)
+      if (localAcc) {
+        if (localAcc.role === 'Guru BK' || localAcc.role === 'Guru/Sekolah') {
+          isApprovedTeacher = true
+          if (localAcc.school) teacherSchool = localAcc.school
+          if (localAcc.name) teacherName = localAcc.name
+        }
+        // Jika akun guru yang sudah di-ACC: izinkan password baru dan jangan tolak!
+        if (isApprovedTeacher) {
+          localAcc.password = password.value
+          localStorage.setItem('tanggap_user_accounts', JSON.stringify(accounts))
+        } else if (localAcc.password && localAcc.password !== password.value) {
+          errorMsg.value = 'Email atau password salah.'
+          isSubmitting.value = false
+          return
+        }
+        if (localAcc.name) {
+          teacherName = localAcc.name
+        }
       }
     }
   } catch {}
@@ -161,13 +233,15 @@ const handleLogin = async () => {
       password: password.value,
     })
 
-    // Jika email ini sudah di-ACC sebagai guru, pastikan role menjadi Guru BK
+    // Jika email ini sudah di-ACC sebagai guru, pastikan role menjadi Guru BK dan sekolah terpasang
     let finalRole = res.user?.role || (isApprovedTeacher ? 'Guru BK' : 'Siswa')
-    if (isApprovedTeacher) {
+    const lowerRole = (finalRole || '').toLowerCase()
+    if (isApprovedTeacher || lowerRole.includes('guru') || lowerRole.includes('sekolah')) {
       finalRole = 'Guru BK'
       if (res.user) {
         res.user.role = 'Guru BK'
-        if (teacherSchool) res.user.school = teacherSchool
+        res.user.school = teacherSchool || res.user.school || 'Sekolah Mitra'
+        if (teacherName) res.user.name = teacherName
         localStorage.setItem('tanggap_user', JSON.stringify(res.user))
         window.dispatchEvent(new Event('storage'))
       }
@@ -175,22 +249,22 @@ const handleLogin = async () => {
     router.push(getRedirectPathByRole(finalRole))
   } catch (err: unknown) {
     console.warn('Login API error, evaluating fallback:', err)
-    if (err && typeof err === 'object' && 'status' in err && ((err as { status: number }).status === 400 || (err as { status: number }).status === 401)) {
-      // Jika backend partner belum sync akun guru yang baru di-ACC tapi email ada di approved whitelist
-      if (isApprovedTeacher) {
-        const teacherUser = {
-          id: 'guru-' + Date.now(),
-          name: teacherName || emailClean.split('@')[0],
-          email: emailClean,
-          role: 'Guru BK',
-          school: teacherSchool
-        }
-        localStorage.setItem('tanggap_token', 'token-guru-' + Date.now())
-        localStorage.setItem('tanggap_user', JSON.stringify(teacherUser))
-        window.dispatchEvent(new Event('storage'))
-        router.push(getRedirectPathByRole('Guru BK'))
-        return
+    if (isApprovedTeacher) {
+      const teacherUser = {
+        id: 'guru-' + Date.now(),
+        name: teacherName || emailClean.split('@')[0],
+        email: emailClean,
+        role: 'Guru BK',
+        school: teacherSchool || 'Sekolah Mitra'
       }
+      localStorage.setItem('tanggap_token', 'token-guru-' + Date.now())
+      localStorage.setItem('tanggap_user', JSON.stringify(teacherUser))
+      window.dispatchEvent(new Event('storage'))
+      router.push('/dashboard_guru')
+      return
+    }
+
+    if (err && typeof err === 'object' && 'status' in err && ((err as { status: number }).status === 400 || (err as { status: number }).status === 401)) {
       errorMsg.value = (err as { message?: string }).message || 'Email atau password salah.'
     } else {
       // Fallback offline / server unreachable
@@ -216,18 +290,5 @@ const handleLogin = async () => {
   } finally {
     isSubmitting.value = false
   }
-}
-
-const handleGoogleLogin = () => {
-  const mockUser = {
-    id: 'user-google-1',
-    name: 'Google User',
-    email: 'user@gmail.com',
-    role: 'Siswa'
-  }
-  localStorage.setItem('tanggap_token', 'mock-token-google')
-  localStorage.setItem('tanggap_user', JSON.stringify(mockUser))
-  window.dispatchEvent(new Event('storage'))
-  router.push('/dashboard')
 }
 </script>

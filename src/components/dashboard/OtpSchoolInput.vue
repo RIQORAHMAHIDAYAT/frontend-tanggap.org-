@@ -8,14 +8,16 @@
       <input
         :ref="el => inputRefs[index] = el as HTMLInputElement"
         type="text"
-        inputmode="numeric"
-        maxlength="1"
+        inputmode="text"
+        autocapitalize="characters"
+        :maxlength="length"
         placeholder="-"
         :value="digits[index]"
         @input="onInput($event, index)"
         @keydown="onKeyDown($event, index)"
-        @paste="onPaste($event)"
-        class="w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-full border border-slate-300/90 bg-slate-50/50 hover:bg-slate-50 focus:bg-white text-center text-lg md:text-xl font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1E40AF] focus:ring-2 focus:ring-[#1E40AF]/20 transition-all"
+        @paste="onPaste($event, index)"
+        @focus="onFocus($event)"
+        class="w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-full border border-slate-300/90 bg-slate-50/50 hover:bg-slate-50 focus:bg-white text-center text-lg md:text-xl font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1E40AF] focus:ring-2 focus:ring-[#1E40AF]/20 transition-all uppercase"
         :aria-label="`Digit ke-${index + 1} kode sekolah`"
       />
     </div>
@@ -48,33 +50,64 @@ const inputRefs = ref<(HTMLInputElement | null)[]>([])
 watch(
   () => props.modelValue,
   (newVal) => {
-    const chars = (newVal || '').slice(0, props.length).split('')
+    const chars = (newVal || '').toUpperCase().slice(0, props.length).split('')
     digits.value = Array.from({ length: props.length }, (_, i) => chars[i] || '')
   },
   { immediate: true }
 )
 
 const emitValue = () => {
-  const code = digits.value.join('')
+  const code = digits.value.join('').toUpperCase()
   emit('update:modelValue', code)
   if (code.length === props.length && !digits.value.includes('')) {
     emit('complete', code)
   }
 }
 
+const onFocus = (event: FocusEvent) => {
+  const target = event.target as HTMLInputElement
+  target.select()
+}
+
 const onInput = (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
-  const val = target.value.trim()
+  const rawVal = target.value.replace(/\s+/g, '').toUpperCase()
 
-  if (val.length === 0) {
+  // 1. Jika pengguna menempel (PASTE) string lebih dari 2 karakter di HP / Desktop
+  if (rawVal.length > 2) {
+    const cleanChars = rawVal.slice(0, props.length).split('')
+    cleanChars.forEach((ch, idx) => {
+      const targetIdx = index === 0 ? idx : Math.min(index + idx, props.length - 1)
+      if (targetIdx < props.length) {
+        digits.value[targetIdx] = ch
+      }
+    })
+    target.value = digits.value[index] || ''
+    emitValue()
+    const nextIdx = Math.min(index + cleanChars.length, props.length - 1)
+    nextTick(() => {
+      inputRefs.value[nextIdx]?.focus()
+      inputRefs.value[nextIdx]?.select()
+    })
+    return
+  }
+
+  // 2. Jika input dikosongkan
+  if (rawVal.length === 0) {
     digits.value[index] = ''
     emitValue()
     return
   }
 
-  // Ambil karakter terakhir jika pengguna mengetik saat sudah ada angka
-  const char = val.slice(-1)
+  // 3. Jika pengguna mengetik 2 karakter dalam 1 kotak yang sudah terisi
+  let char = rawVal
+  if (rawVal.length === 2) {
+    const prevChar = digits.value[index]
+    char = rawVal.startsWith(prevChar) ? rawVal.slice(1) : rawVal.slice(-1)
+  }
+
   digits.value[index] = char
+  target.value = char
   emitValue()
 
   // Fokus ke input berikutnya jika belum di input terakhir
@@ -109,23 +142,26 @@ const onKeyDown = (event: KeyboardEvent, index: number) => {
   }
 }
 
-const onPaste = (event: ClipboardEvent) => {
+const onPaste = (event: ClipboardEvent, index: number = 0) => {
   event.preventDefault()
-  const pasted = event.clipboardData?.getData('text') || ''
-  const cleanChars = pasted.replace(/\s+/g, '').slice(0, props.length).split('')
+  const pasted = (event.clipboardData?.getData('text') || '').trim()
+  if (!pasted) return
+
+  const cleanChars = pasted.replace(/\s+/g, '').toUpperCase().slice(0, props.length).split('')
 
   cleanChars.forEach((ch, idx) => {
-    if (idx < props.length) {
-      digits.value[idx] = ch
+    const targetIdx = index === 0 ? idx : Math.min(index + idx, props.length - 1)
+    if (targetIdx < props.length) {
+      digits.value[targetIdx] = ch
     }
   })
 
   emitValue()
 
-  // Fokus ke kotak berikutnya setelah karakter paste terakhir
-  const nextIdx = Math.min(cleanChars.length, props.length - 1)
+  const nextIdx = Math.min(index + cleanChars.length, props.length - 1)
   nextTick(() => {
     inputRefs.value[nextIdx]?.focus()
+    inputRefs.value[nextIdx]?.select()
   })
 }
 </script>

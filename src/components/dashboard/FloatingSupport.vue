@@ -64,7 +64,19 @@ import { ref, onMounted } from 'vue'
 import telponIcon from '../../assets/telpon.png'
 
 const isOpen = ref(false)
-const userName = ref('Ahmat Fauzy')
+
+const getInitialName = () => {
+  try {
+    const raw = localStorage.getItem('tanggap_user')
+    if (raw) {
+      const user = JSON.parse(raw)
+      if (user.name) return user.name
+    }
+  } catch {}
+  return 'Pengguna'
+}
+
+const userName = ref(getInitialName())
 
 onMounted(() => {
   try {

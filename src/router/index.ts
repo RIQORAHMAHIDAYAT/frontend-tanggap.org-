@@ -193,7 +193,7 @@ router.beforeEach((to, _from, next) => {
       const r = String(u.role || '').toLowerCase()
       if (r.includes('admin')) {
         userRole = 'admin'
-      } else if (r.includes('guru') || r.includes('teacher')) {
+      } else if (r.includes('guru') || r.includes('teacher') || r.includes('sekolah')) {
         userRole = 'teacher'
       } else {
         userRole = 'student'

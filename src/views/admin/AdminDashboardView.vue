@@ -230,6 +230,14 @@
                 {{ item.status }}
               </span>
             </div>
+
+            <!-- Empty state jika belum ada data -->
+            <div
+              v-if="recentSubmissions.length === 0"
+              class="py-8 text-center text-slate-400 text-sm font-medium"
+            >
+              Belum ada data pengajuan sekolah.
+            </div>
           </div>
         </div>
       </section>
@@ -242,73 +250,113 @@ import { ref, onMounted } from 'vue'
 import AdminLayout from '../../components/layouts/AdminLayout.vue'
 import { api, isMockMode } from '../../services/api'
 
-// Metrics (Fallback default mockup)
-const metrics = ref({
-  pengajuan: 9,
-  sekolahAktif: 14,
-  pengguna: 128,
-  kelas: 8
-})
+interface AdminDashboardMetrics {
+  pengajuan: number
+  sekolahAktif: number
+  pengguna: number
+  kelas: number
+}
 
-const chartData = [
-  { label: 'Regulasi Emosi', val1: 42, val2: 53 },
-  { label: 'Empati', val1: 54, val2: 64 },
-  { label: 'Komunikasi Asertif', val1: 51, val2: 65 },
-  { label: 'De-eskalasi Konflik', val1: 56, val2: 67 }
+// Gunakan cache persisten dari database nyata agar saat di-refresh tidak ada 'flash' data dummy
+const getCachedMetrics = (): AdminDashboardMetrics => {
+  try {
+    const raw = localStorage.getItem('tanggap_admin_metrics_cache')
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return {
+    pengajuan: 0,
+    sekolahAktif: 0,
+    pengguna: 0,
+    kelas: 0
+  }
+}
+
+const metrics = ref<AdminDashboardMetrics>(getCachedMetrics())
+
+const defaultChartData = [
+  { label: 'Regulasi Emosi', val1: 0, val2: 0 },
+  { label: 'Empati', val1: 0, val2: 0 },
+  { label: 'Komunikasi Asertif', val1: 0, val2: 0 },
+  { label: 'De-eskalasi', val1: 0, val2: 0 }
 ]
 
-const recentSubmissions = ref([
-  {
-    schoolName: 'SMA Harapan Bangsa',
-    date: '12 Juni 2026',
-    status: 'Menunggu ditinjau'
-  },
-  {
-    schoolName: 'SMP Nusantara',
-    date: '29 Mei 2026',
-    status: 'Disetujui'
-  },
-  {
-    schoolName: 'SMK Teknologi Mandiri',
-    date: '3 Februari 2026',
-    status: 'Ditolak'
-  }
-])
+const getCachedChartData = () => {
+  try {
+    const raw = localStorage.getItem('tanggap_admin_chart_cache')
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return defaultChartData
+}
+
+const chartData = ref(getCachedChartData())
+
+const getInitialRecentSubmissions = () => {
+  try {
+    const rawCache = localStorage.getItem('tanggap_admin_recent_cache')
+    if (rawCache) {
+      const parsed = JSON.parse(rawCache)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {}
+  return []
+}
+
+const recentSubmissions = ref(getInitialRecentSubmissions())
 
 onMounted(async () => {
   if (isMockMode()) return
 
-  // 1. Ambil data metrics nyata dari Backend Partner
   try {
-    const statsRes = await api.get<{ success?: boolean; data?: any }>('admin/dashboard-stats')
-    const d = statsRes?.data
-    if (d) {
-      metrics.value = {
-        pengajuan: d.leadsSummary?.total ?? d.leadsSummary?.menungguDitinjau ?? 9,
-        sekolahAktif: d.totalSchools ?? 14,
-        pengguna: d.totalUsers ?? 128,
-        kelas: d.totalSimulations ?? 8
+    const [statsRes, leadsRes] = await Promise.allSettled([
+      api.get<{ success?: boolean; data?: any }>('admin/dashboard-stats'),
+      api.get<{ success?: boolean; data?: any[] }>('leads')
+    ])
+
+    // 1. Update Metrics & Chart dari data riil MySQL
+    if (statsRes.status === 'fulfilled' && statsRes.value?.data) {
+      const d = statsRes.value.data
+      const newMetrics: AdminDashboardMetrics = {
+        pengajuan: d.metrics?.pengajuan ?? d.leadsSummary?.menungguDitinjau ?? d.leadsSummary?.total ?? 0,
+        sekolahAktif: d.metrics?.sekolahAktif ?? d.totalSchools ?? 0,
+        pengguna: d.metrics?.pengguna ?? d.totalUsers ?? 0,
+        kelas: d.metrics?.kelas ?? d.totalSimulations ?? 0
       }
+      metrics.value = newMetrics
+      try {
+        localStorage.setItem('tanggap_admin_metrics_cache', JSON.stringify(newMetrics))
+      } catch {}
+
+      if (Array.isArray(d.chartData) && d.chartData.length > 0) {
+        chartData.value = d.chartData
+        try {
+          localStorage.setItem('tanggap_admin_chart_cache', JSON.stringify(d.chartData))
+        } catch {}
+      }
+    }
+
+    // 2. Update Recent Submissions dari data riil MySQL
+    let realLeads: any[] = []
+    if (leadsRes.status === 'fulfilled' && Array.isArray(leadsRes.value?.data)) {
+      realLeads = leadsRes.value.data
+    } else if (statsRes.status === 'fulfilled' && Array.isArray(statsRes.value?.data?.recentSubmissions)) {
+      realLeads = statsRes.value.data.recentSubmissions
+    }
+
+    if (realLeads.length > 0) {
+      const formatted = realLeads.slice(0, 5).map((item) => ({
+        schoolName: item.schoolName || item.name || 'Sekolah Mitra',
+        date: item.submittedAt || item.createdAt
+          ? new Date(item.submittedAt || item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+          : (item.date || item.registrationDate || 'Baru saja'),
+        status: item.status || 'Menunggu ditinjau'
+      }))
+      recentSubmissions.value = formatted
+      try {
+        localStorage.setItem('tanggap_admin_recent_cache', JSON.stringify(formatted))
+      } catch {}
     }
   } catch (err) {
     console.warn('Fallback: gagal mengambil admin dashboard stats:', err)
-  }
-
-  // 2. Ambil data recent submissions nyata dari Backend Partner
-  try {
-    const leadsRes = await api.get<{ success?: boolean; data?: any[] }>('leads')
-    const list = leadsRes?.data
-    if (Array.isArray(list) && list.length > 0) {
-      recentSubmissions.value = list.slice(0, 5).map((item) => ({
-        schoolName: item.schoolName || item.name || 'Sekolah Mitra',
-        date: item.createdAt
-          ? new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-          : 'Baru saja',
-        status: item.status || 'Menunggu ditinjau'
-      }))
-    }
-  } catch (err) {
-    console.warn('Fallback: gagal mengambil recent leads:', err)
   }
 })
 

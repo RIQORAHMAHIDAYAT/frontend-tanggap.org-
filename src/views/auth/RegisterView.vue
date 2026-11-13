@@ -182,17 +182,17 @@ const handleRegister = async () => {
 
     await authService.register({
       name: fullName.value,
-      email: email.value,
+      email: emailClean,
       password: password.value,
     })
     isModalOpen.value = true
   } catch (err: unknown) {
-    console.warn('Registration API error, fallback handling:', err)
-    if (err && typeof err === 'object' && 'status' in err && (err as { status: number }).status === 400) {
-      errorMsg.value = (err as { message?: string }).message || 'Pendaftaran gagal. Silakan periksa kembali data Anda.'
+    console.warn('Registration API error:', err)
+    const status = err && typeof err === 'object' && 'status' in err ? (err as { status: number }).status : 0
+    if (status === 400 || status === 422) {
+      errorMsg.value = (err as { message?: string }).message || 'Pendaftaran gagal. Pastikan format email valid dan password minimal 6 karakter.'
     } else {
-      // Jika jaringan/server partner offline, fallback graceful agar pengguna tetap bisa mencoba
-      isModalOpen.value = true
+      errorMsg.value = (err as { message?: string }).message || 'Gagal menghubungi server backend. Pastikan server Laravel sedang berjalan di port 8002.'
     }
   } finally {
     isSubmitting.value = false

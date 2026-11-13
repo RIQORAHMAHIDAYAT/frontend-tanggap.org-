@@ -120,15 +120,30 @@
                   </span>
                 </td>
 
-                <!-- Aksi Detail Button -->
+                <!-- Aksi Detail & Hapus Button -->
                 <td class="py-5 px-6 text-center">
-                  <button
-                    @click="openDetail(item)"
-                    type="button"
-                    class="px-4 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
-                  >
-                    Detail
-                  </button>
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      @click="openDetail(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                    >
+                      Detail
+                    </button>
+                    <button
+                      @click="confirmDeleteSchool(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                      title="Hapus Sekolah"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredSchools.length === 0">
+                <td colspan="6" class="py-12 text-center text-slate-400 font-medium">
+                  Tidak ada data sekolah.
                 </td>
               </tr>
             </tbody>
@@ -297,6 +312,17 @@
             </span>
           </div>
         </div>
+
+        <!-- Tombol Hapus Sekolah di Modal Detail -->
+        <div class="pt-3 border-t border-slate-100 flex justify-end">
+          <button
+            @click="confirmDeleteSchool(selectedSchool)"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer flex items-center gap-1.5"
+          >
+            <span>🗑️ Hapus Sekolah Ini</span>
+          </button>
+        </div>
       </div>
 
       <template #footer>
@@ -307,6 +333,47 @@
         >
           Tutup
         </button>
+      </template>
+    </AdminModal>
+
+    <!-- Modal Konfirmasi Hapus Sekolah -->
+    <AdminModal
+      :is-open="isDeleteModalOpen"
+      title="Konfirmasi Hapus Sekolah"
+      @close="isDeleteModalOpen = false"
+    >
+      <div v-if="schoolToDelete" class="space-y-4 py-2 text-center sm:text-left">
+        <div class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-2xl mb-2">
+          ⚠️
+        </div>
+        <h4 class="text-lg font-bold text-slate-800 text-center">
+          Hapus Data Sekolah Ini?
+        </h4>
+        <p class="text-slate-600 text-sm text-center leading-relaxed">
+          Apakah Anda yakin ingin menghapus <strong>{{ schoolToDelete.name }}</strong>? Data sekolah ini akan dihapus dari sistem dan database MySQL.
+        </p>
+      </div>
+
+      <template #footer>
+        <div class="flex items-center justify-end gap-3 w-full">
+          <button
+            @click="isDeleteModalOpen = false"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm cursor-pointer transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            @click="executeDeleteSchool"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm cursor-pointer transition-all shadow-md active:scale-95 flex items-center gap-1.5"
+          >
+            <span v-if="isDeleting">Menghapus...</span>
+            <span v-else>Ya, Hapus Sekolah</span>
+          </button>
+        </div>
       </template>
     </AdminModal>
   </AdminLayout>
@@ -330,56 +397,18 @@ interface SchoolItem {
 const searchQuery = ref('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 
-const schools = ref<SchoolItem[]>([
-  {
-    id: 1,
-    name: 'SMA Harapan Bangsa',
-    akreditasi: 'A',
-    alamat: 'Jl. Mercubuana',
-    pic: 'Michi Baker',
-    status: 'Menunggu ditinjau'
-  },
-  {
-    id: 2,
-    name: 'SMP Nusantara',
-    akreditasi: 'B',
-    alamat: 'Jl. Mercubuana',
-    pic: 'Ole Romeny',
-    status: 'Disetujui'
-  },
-  {
-    id: 3,
-    name: 'SMK Teknologi Mandiri',
-    akreditasi: 'A',
-    alamat: 'Jl. Mercubuana',
-    pic: 'Kevin Diks',
-    status: 'Ditolak'
-  },
-  {
-    id: 4,
-    name: 'SMA Cendekia',
-    akreditasi: 'A',
-    alamat: 'Jl. Mercubuana',
-    pic: 'Jay Idzes',
-    status: 'Disetujui'
-  },
-  {
-    id: 5,
-    name: 'Akademi Fukurodani',
-    akreditasi: 'Unggul',
-    alamat: 'Jl. Mercubuana',
-    pic: 'Emil Audero',
-    status: 'Menunggu ditinjau'
-  },
-  {
-    id: 6,
-    name: 'SMA Karasuno',
-    akreditasi: 'B',
-    alamat: 'Jl. Mercubuana',
-    pic: 'Marteen Paes',
-    status: 'Disetujui'
-  }
-])
+const getCachedSchools = (): SchoolItem[] => {
+  try {
+    const raw = localStorage.getItem('tanggap_admin_schools_cache')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {}
+  return []
+}
+
+const schools = ref<SchoolItem[]>(getCachedSchools())
 
 const toggleSort = () => {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -443,6 +472,9 @@ onMounted(async () => {
         pic: item.pic || item.contactName || 'Kepala Sekolah',
         status: item.status === 'Partner Aktif' || item.status === 'Terdaftar' ? 'Disetujui' : (item.status || 'Disetujui')
       }))
+      try {
+        localStorage.setItem('tanggap_admin_schools_cache', JSON.stringify(schools.value))
+      } catch {}
     }
   } catch (err) {
     console.warn('Fallback: gagal mengambil daftar sekolah:', err)
@@ -467,6 +499,42 @@ const statusBadgeClass = (status: string) => {
       return 'bg-[#FEE2E2] text-[#EF4444]'
     default:
       return 'bg-slate-100 text-slate-600'
+  }
+}
+
+// Fitur Hapus Sekolah
+const isDeleteModalOpen = ref(false)
+const schoolToDelete = ref<SchoolItem | null>(null)
+const isDeleting = ref(false)
+
+const confirmDeleteSchool = (school: SchoolItem) => {
+  schoolToDelete.value = school
+  isDeleteModalOpen.value = true
+}
+
+const executeDeleteSchool = async () => {
+  if (!schoolToDelete.value) return
+  const targetId = schoolToDelete.value.id
+  isDeleting.value = true
+
+  try {
+    if (!isMockMode()) {
+      await api.delete(`schools/${targetId}`)
+    }
+  } catch (err) {
+    console.warn('API delete school failed, deleting locally:', err)
+  }
+
+  // Hapus dari list di frontend
+  schools.value = schools.value.filter(s => String(s.id) !== String(targetId))
+  try {
+    localStorage.setItem('tanggap_admin_schools_cache', JSON.stringify(schools.value))
+  } catch {}
+
+  isDeleting.value = false
+  isDeleteModalOpen.value = false
+  if (selectedSchool.value && String(selectedSchool.value.id) === String(targetId)) {
+    isDetailModalOpen.value = false
   }
 }
 </script>

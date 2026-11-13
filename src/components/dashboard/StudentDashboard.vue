@@ -8,7 +8,7 @@
           Hai, {{ userName }}
         </h1>
         <p class="text-slate-600 font-medium text-base sm:text-lg mt-2">
-          Kelas XII D &nbsp;|&nbsp; SMK Dinamika Kota Banjar
+          {{ studentClassInfo }}
         </p>
       </div>
 
@@ -279,10 +279,44 @@ withDefaults(
     userName?: string
   }>(),
   {
-    userName: 'Ahmat Fauzy'
+    userName: 'Siswa'
   }
 )
 
+const getSchoolAndClassInfo = () => {
+  try {
+    const rawUser = localStorage.getItem('tanggap_user')
+    const user = rawUser ? JSON.parse(rawUser) : null
+    const schoolCode = (localStorage.getItem('tanggap_school_code') || '').toUpperCase()
+
+    const demoMap: Record<string, { school: string; class: string }> = {
+      'SMAN1A': { school: 'SMA Harapan Bangsa', class: 'Kelas X-A' },
+      '849201': { school: 'SMK Dinamika Kota Banjar', class: 'Kelas XII D' },
+      'DEMO01': { school: 'SMP Nusantara', class: 'Kelas VII-C' }
+    }
+
+    if (schoolCode && demoMap[schoolCode]) {
+      const match = demoMap[schoolCode]
+      return `${match.class} | ${match.school}`
+    }
+
+    const rawClasses = localStorage.getItem('tanggap_custom_classes')
+    if (rawClasses) {
+      const classes = JSON.parse(rawClasses)
+      const matched = classes.find((c: any) => c.code.toUpperCase() === schoolCode)
+      if (matched) {
+        return `${matched.name || 'Kelas Mitra'} | ${matched.school || user?.school || 'Sekolah Mitra'}`
+      }
+    }
+
+    if (user?.school) {
+      return `Siswa | ${user.school}`
+    }
+  } catch {}
+  return 'Kelas XII D | SMK Dinamika Kota Banjar'
+}
+
+const studentClassInfo = ref(getSchoolAndClassInfo())
 const progressPercent = ref(45)
 const streakDays = ref(0)
 const badgesCount = ref(0)

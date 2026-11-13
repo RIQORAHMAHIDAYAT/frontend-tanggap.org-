@@ -120,15 +120,30 @@
                   </span>
                 </td>
 
-                <!-- Aksi Detail Button -->
+                <!-- Aksi Detail & Hapus Button -->
                 <td class="py-5 px-6 text-center">
-                  <button
-                    @click="openDetail(user)"
-                    type="button"
-                    class="px-4 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
-                  >
-                    Detail
-                  </button>
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      @click="openDetail(user)"
+                      type="button"
+                      class="px-3.5 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                    >
+                      Detail
+                    </button>
+                    <button
+                      @click="confirmDeleteUser(user)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                      title="Hapus Pengguna"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredUsers.length === 0">
+                <td colspan="5" class="py-12 text-center text-slate-400 font-medium">
+                  Tidak ada data pengguna.
                 </td>
               </tr>
             </tbody>
@@ -321,6 +336,17 @@
             </button>
           </div>
         </div>
+
+        <!-- Tombol Hapus Pengguna di Modal Detail -->
+        <div class="pt-3 border-t border-slate-100 flex justify-end">
+          <button
+            @click="confirmDeleteUser(selectedUser)"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer flex items-center gap-1.5"
+          >
+            <span>🗑️ Hapus Pengguna Ini</span>
+          </button>
+        </div>
       </div>
 
       <template #footer>
@@ -331,6 +357,47 @@
         >
           Tutup
         </button>
+      </template>
+    </AdminModal>
+
+    <!-- Modal Konfirmasi Hapus Pengguna -->
+    <AdminModal
+      :is-open="isDeleteModalOpen"
+      title="Konfirmasi Hapus Pengguna"
+      @close="isDeleteModalOpen = false"
+    >
+      <div v-if="userToDelete" class="space-y-4 py-2 text-center sm:text-left">
+        <div class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-2xl mb-2">
+          ⚠️
+        </div>
+        <h4 class="text-lg font-bold text-slate-800 text-center">
+          Hapus Pengguna Ini?
+        </h4>
+        <p class="text-slate-600 text-sm text-center leading-relaxed">
+          Apakah Anda yakin ingin menghapus akun <strong>{{ userToDelete.name }}</strong> ({{ userToDelete.email }})? Data pengguna ini akan dihapus secara permanen dari sistem dan database MySQL.
+        </p>
+      </div>
+
+      <template #footer>
+        <div class="flex items-center justify-end gap-3 w-full">
+          <button
+            @click="isDeleteModalOpen = false"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm cursor-pointer transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            @click="executeDeleteUser"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm cursor-pointer transition-all shadow-md active:scale-95 flex items-center gap-1.5"
+          >
+            <span v-if="isDeleting">Menghapus...</span>
+            <span v-else>Ya, Hapus Pengguna</span>
+          </button>
+        </div>
       </template>
     </AdminModal>
   </AdminLayout>
@@ -354,56 +421,60 @@ interface UserItem {
 const searchQuery = ref('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 
-const users = ref<UserItem[]>([
-  {
-    id: 1,
-    name: 'Riqo rahma',
-    email: 'Riqorahma@gmail.com',
-    role: 'Siswa',
-    date: '13 Juni 2026',
-    status: 'Aktif'
-  },
-  {
-    id: 2,
-    name: 'Rahma riqo',
-    email: 'Riqorahma@gmail.com',
-    role: 'Siswa',
-    date: '13 Juni 2026',
-    status: 'Aktif'
-  },
-  {
-    id: 3,
-    name: 'Riqo Hidayat',
-    email: 'Riqorahma@gmail.com',
-    role: 'Guru/Sekolah',
-    date: '12 Juni 2026',
-    status: 'Nonaktif'
-  },
-  {
-    id: 4,
-    name: 'Rahma hidayat',
-    email: 'Riqorahma@gmail.com',
-    role: 'Guru/Sekolah',
-    date: '8 Mei 2026',
-    status: 'Aktif'
-  },
-  {
-    id: 5,
-    name: 'Dayat upamecano',
-    email: 'Riqorahma@gmail.com',
-    role: 'Siswa',
-    date: '8 Mei 2026',
-    status: 'Aktif'
-  },
-  {
-    id: 6,
-    name: 'Virgil Van Dijk',
-    email: 'Riqorahma@gmail.com',
-    role: 'Siswa',
-    date: '8 Mei 2026',
-    status: 'Aktif'
-  }
-])
+const getInitialUserList = (): UserItem[] => {
+  // 1. Utamakan cache pengguna nyata yang tersimpan agar saat refresh tidak ada flash data dummy
+  try {
+    const rawCache = localStorage.getItem('tanggap_admin_users_cache')
+    if (rawCache) {
+      const parsed = JSON.parse(rawCache)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed
+      }
+    }
+  } catch {}
+
+  const baseList: UserItem[] = []
+
+  try {
+    const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
+    if (rawApproved) {
+      const approvedList = JSON.parse(rawApproved)
+      for (const t of approvedList) {
+        if (t.email && !baseList.some(u => u.email.toLowerCase() === t.email.toLowerCase())) {
+          baseList.unshift({
+            id: 'approved-' + (t.id || Date.now()),
+            name: t.picName || 'Guru BK',
+            email: t.email,
+            role: 'Guru/Sekolah',
+            date: 'Hari Ini',
+            status: 'Aktif'
+          })
+        }
+      }
+    }
+
+    const rawAccs = localStorage.getItem('tanggap_user_accounts')
+    if (rawAccs) {
+      const accs = JSON.parse(rawAccs)
+      for (const a of accs) {
+        if (a.email && !baseList.some(u => u.email.toLowerCase() === a.email.toLowerCase())) {
+          baseList.unshift({
+            id: 'local-' + Date.now(),
+            name: a.name || 'Pengguna Baru',
+            email: a.email,
+            role: a.role === 'Guru BK' ? 'Guru/Sekolah' : 'Siswa',
+            date: 'Hari Ini',
+            status: 'Aktif'
+          })
+        }
+      }
+    }
+  } catch {}
+
+  return baseList
+}
+
+const users = ref<UserItem[]>(getInitialUserList())
 
 onMounted(async () => {
   // 1. Masukkan akun guru yang emailnya sudah di-ACC oleh Admin ke daftar pengguna
@@ -454,18 +525,60 @@ onMounted(async () => {
       const res = await api.get<{ success?: boolean; data?: any[] }>('users')
       const apiUsers = res?.data || (Array.isArray(res) ? res : [])
       if (Array.isArray(apiUsers) && apiUsers.length > 0) {
-        for (const u of apiUsers) {
-          if (!users.value.some((existing) => existing.email.toLowerCase() === u.email.toLowerCase())) {
-            users.value.unshift({
-              id: u.id,
-              name: u.name,
-              email: u.email,
-              role: u.role === 'Admin' ? 'Admin' : u.role === 'Guru/Sekolah' ? 'Guru/Sekolah' : 'Siswa',
-              date: u.date || 'Hari Ini',
-              status: u.status || 'Aktif',
-            })
+        // Tampilkan data nyata dari database MySQL
+        const mappedUsers: UserItem[] = apiUsers.map((u: any) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role === 'Admin' ? 'Admin' : u.role === 'Guru/Sekolah' ? 'Guru/Sekolah' : 'Siswa',
+          date: u.date || 'Hari Ini',
+          status: u.status || 'Aktif',
+        }))
+
+        // Gabungkan juga akun guru dari proposal yang disetujui jika belum ada di database
+        try {
+          const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
+          if (rawApproved) {
+            const approvedList = JSON.parse(rawApproved)
+            for (const t of approvedList) {
+              if (t.email && !mappedUsers.some(m => m.email.toLowerCase() === t.email.toLowerCase())) {
+                mappedUsers.unshift({
+                  id: 'approved-' + (t.id || Date.now()),
+                  name: t.picName || 'Guru BK',
+                  email: t.email,
+                  role: 'Guru/Sekolah',
+                  date: 'Hari Ini',
+                  status: 'Aktif'
+                })
+              }
+            }
           }
-        }
+        } catch {}
+
+        // Gabungkan juga akun dari pendaftar lokal jika belum tercatat di database
+        try {
+          const rawAccounts = localStorage.getItem('tanggap_user_accounts')
+          if (rawAccounts) {
+            const accs = JSON.parse(rawAccounts)
+            for (const a of accs) {
+              if (a.email && !mappedUsers.some(m => m.email.toLowerCase() === a.email.toLowerCase())) {
+                mappedUsers.unshift({
+                  id: 'local-' + Date.now(),
+                  name: a.name || 'Pengguna Baru',
+                  email: a.email,
+                  role: a.role === 'Guru BK' ? 'Guru/Sekolah' : 'Siswa',
+                  date: 'Hari Ini',
+                  status: 'Aktif'
+                })
+              }
+            }
+          }
+        } catch {}
+
+        users.value = mappedUsers
+        try {
+          localStorage.setItem('tanggap_admin_users_cache', JSON.stringify(mappedUsers))
+        } catch {}
       }
     } catch (err) {
       console.warn('API users fetch fallback:', err)
@@ -535,6 +648,52 @@ const toggleUserStatus = () => {
 const changeUserRole = (newRole: 'Siswa' | 'Guru/Sekolah' | 'Admin') => {
   if (selectedUser.value) {
     selectedUser.value.role = newRole
+  }
+}
+
+// Fitur Hapus Pengguna
+const isDeleteModalOpen = ref(false)
+const userToDelete = ref<UserItem | null>(null)
+const isDeleting = ref(false)
+
+const confirmDeleteUser = (user: UserItem) => {
+  userToDelete.value = user
+  isDeleteModalOpen.value = true
+}
+
+const executeDeleteUser = async () => {
+  if (!userToDelete.value) return
+  const targetId = userToDelete.value.id
+  isDeleting.value = true
+
+  try {
+    if (!isMockMode()) {
+      await api.delete(`users/${targetId}`)
+    }
+  } catch (err) {
+    console.warn('API delete user failed, deleting locally:', err)
+  }
+
+  // Hapus dari list
+  users.value = users.value.filter(u => String(u.id) !== String(targetId))
+  try {
+    localStorage.setItem('tanggap_admin_users_cache', JSON.stringify(users.value))
+  } catch {}
+
+  // Hapus dari storage lokal jika ada
+  try {
+    const raw = localStorage.getItem('tanggap_user_accounts')
+    if (raw) {
+      const list = JSON.parse(raw)
+      const updated = list.filter((u: any) => u.email !== userToDelete.value?.email)
+      localStorage.setItem('tanggap_user_accounts', JSON.stringify(updated))
+    }
+  } catch {}
+
+  isDeleting.value = false
+  isDeleteModalOpen.value = false
+  if (selectedUser.value && String(selectedUser.value.id) === String(targetId)) {
+    isDetailModalOpen.value = false
   }
 }
 </script>

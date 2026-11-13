@@ -124,7 +124,7 @@
               </div>
               <div class="flex items-baseline">
                 <span class="w-36 sm:w-44 shrink-0 font-medium text-slate-900">Jenis Kelamin</span>
-                <span class="font-medium text-slate-900">: {{ user.gender }}</span>
+                <span class="font-medium text-slate-900">: {{ user.gender && user.gender.trim() !== '' ? user.gender : '-' }}</span>
               </div>
             </div>
 
@@ -172,12 +172,14 @@
 
               <div>
                 <label class="block font-bold text-lg text-slate-900 mb-2">Jenis Kelamin</label>
-                <input
-                  :value="editForm.gender"
-                  type="text"
-                  disabled
-                  class="w-full border border-slate-300 bg-[#E5E7EB] text-slate-800 rounded-xl px-4 py-3 text-base cursor-not-allowed select-none"
-                />
+                <select
+                  v-model="editForm.gender"
+                  class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+                >
+                  <option value="">-- Belum Diisi --</option>
+                  <option value="Laki-laki">Laki-laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
               </div>
             </form>
           </div>
@@ -413,15 +415,37 @@ const switchTab = (tab: 'profil' | 'keamanan') => {
 }
 
 // User state
-const user = reactive({
-  name: 'Ahmat Fauzy',
-  email: 'ahmatfauzy0576@gmail.com',
-  school: 'SMK Dinamika Kota Banjar',
-  phone: '088232258814',
-  gender: 'Laki-laki',
-  initials: 'AF',
-  photo: ''
-})
+const getInitialProfileUser = () => {
+  try {
+    const raw = localStorage.getItem('tanggap_user')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      const name = parsed.name || 'Pengguna'
+      const parts = name.trim().split(/\s+/)
+      const initials = parsed.initials || (parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase())
+      return {
+        name,
+        email: parsed.email || 'pengguna@tanggap.org',
+        school: parsed.school || 'Sekolah Mitra',
+        phone: parsed.phone || '-',
+        gender: parsed.gender && parsed.gender !== 'Laki-laki' && parsed.gender !== 'Perempuan' ? '' : (parsed.gender || ''),
+        initials,
+        photo: parsed.photo || ''
+      }
+    }
+  } catch {}
+  return {
+    name: 'Pengguna',
+    email: 'pengguna@tanggap.org',
+    school: 'Sekolah Mitra',
+    phone: '-',
+    gender: '',
+    initials: 'TG',
+    photo: ''
+  }
+}
+
+const user = reactive(getInitialProfileUser())
 
 // Edit mode state
 const isEditing = ref(false)
@@ -470,7 +494,7 @@ const loadUserData = () => {
       if (parsed.email) user.email = parsed.email
       if (parsed.school) user.school = parsed.school
       if (parsed.phone) user.phone = parsed.phone
-      if (parsed.gender) user.gender = parsed.gender
+      user.gender = parsed.gender || ''
       if (parsed.photo) user.photo = parsed.photo
       if (parsed.initials) {
         user.initials = parsed.initials

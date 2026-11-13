@@ -174,29 +174,39 @@
 
               <!-- Pre-test Line (Light Blue #60A5FA) -->
               <polyline
+                v-if="hasAssessmentData"
                 fill="none"
                 stroke="#60A5FA"
                 stroke-width="3"
-                points="150,170 330,150 510,135 690,115"
+                :points="prePoints"
               />
               <!-- Pre-test Dots -->
-              <circle cx="150" cy="170" r="5" fill="#60A5FA" />
-              <circle cx="330" cy="150" r="5" fill="#60A5FA" />
-              <circle cx="510" cy="135" r="5" fill="#60A5FA" />
-              <circle cx="690" cy="115" r="5" fill="#60A5FA" />
+              <g v-if="hasAssessmentData">
+                <circle cx="150" :cy="getY(indicators[0]?.pre)" r="5" fill="#60A5FA" />
+                <circle cx="330" :cy="getY(indicators[1]?.pre)" r="5" fill="#60A5FA" />
+                <circle cx="510" :cy="getY(indicators[2]?.pre)" r="5" fill="#60A5FA" />
+                <circle cx="690" :cy="getY(indicators[3]?.pre)" r="5" fill="#60A5FA" />
+              </g>
 
               <!-- Post-test Line (Deep Blue #1E40AF) -->
               <polyline
+                v-if="hasAssessmentData"
                 fill="none"
                 stroke="#1E40AF"
                 stroke-width="3.5"
-                points="150,140 330,120 510,105 690,85"
+                :points="postPoints"
               />
               <!-- Post-test Dots -->
-              <circle cx="150" cy="140" r="5.5" fill="#1E40AF" />
-              <circle cx="330" cy="120" r="5.5" fill="#1E40AF" />
-              <circle cx="510" cy="105" r="5.5" fill="#1E40AF" />
-              <circle cx="690" cy="85" r="5.5" fill="#1E40AF" />
+              <g v-if="hasAssessmentData">
+                <circle cx="150" :cy="getY(indicators[0]?.post)" r="5.5" fill="#1E40AF" />
+                <circle cx="330" :cy="getY(indicators[1]?.post)" r="5.5" fill="#1E40AF" />
+                <circle cx="510" :cy="getY(indicators[2]?.post)" r="5.5" fill="#1E40AF" />
+                <circle cx="690" :cy="getY(indicators[3]?.post)" r="5.5" fill="#1E40AF" />
+              </g>
+
+              <g v-if="!hasAssessmentData" class="fill-slate-400 text-xs font-semibold" text-anchor="middle">
+                <text x="420" y="115">Belum ada data asesmen siswa</text>
+              </g>
 
               <!-- X-Axis Labels -->
               <g class="fill-slate-700 text-xs font-semibold" text-anchor="middle">
@@ -214,16 +224,29 @@
       <div class="bg-white rounded-3xl md:rounded-[32px] p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 class="text-2xl font-bold text-[#1E40AF] tracking-tight">
-              Daftar Siswa Terdaftar
+            <h2 class="text-2xl font-bold text-[#1E40AF] tracking-tight flex items-center gap-3">
+              <span>Daftar Siswa Terdaftar</span>
+              <span v-if="teacherClassCode" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-blue-100 text-[#1E40AF] border border-blue-200">
+                Token: {{ teacherClassCode }}
+              </span>
             </h2>
             <p class="text-slate-500 text-sm mt-0.5">
-              Siswa yang tergabung dalam kode kelas Anda.
+              Siswa yang tergabung dalam kode kelas Anda <strong v-if="teacherClassCode">({{ teacherClassCode }})</strong>.
             </p>
           </div>
-          <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 text-[#1E40AF] border border-blue-200 w-fit">
-            Total: {{ filteredStudents.length }} Siswa
-          </span>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="teacherClassCode"
+              @click="copyClassCode"
+              type="button"
+              class="text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+            >
+              <span>{{ isCopied ? '✓ Tersalin' : '📋 Salin Token' }}</span>
+            </button>
+            <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 text-[#1E40AF] border border-blue-200 w-fit">
+              Total: {{ filteredStudents.length }} Siswa
+            </span>
+          </div>
         </div>
 
         <div v-if="filteredStudents.length > 0" class="overflow-x-auto">
@@ -244,7 +267,7 @@
                 <td class="py-4 px-4">
                   <span
                     class="px-2.5 py-1 rounded-lg text-xs font-bold"
-                    :class="s.assessmentStatus === 'Selesai' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'"
+                    :class="s.assessmentStatus.includes('Selesai') ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'"
                   >
                     {{ s.assessmentStatus }}
                   </span>
@@ -329,10 +352,67 @@ interface StudentMonitoringItem {
   points?: number
 }
 
-const teacherName = ref('Ahmat Mundakir')
-const teacherInitials = ref('AM')
-const teacherSchool = ref('')
-const teacherClassCode = ref('')
+const getInitialTeacherMonitoring = () => {
+  try {
+    const raw = localStorage.getItem('tanggap_user')
+    if (raw) {
+      const u = JSON.parse(raw)
+      const name = u.name || 'Guru BK'
+      const initials = name.trim().split(/\s+/).map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+      return {
+        name,
+        initials,
+        school: u.school || '',
+        classCode: u.classCode || ''
+      }
+    }
+  } catch {}
+  return { name: 'Guru BK', initials: 'GB', school: '', classCode: '' }
+}
+
+const initialTeacherData = getInitialTeacherMonitoring()
+const teacherName = ref(initialTeacherData.name)
+const teacherInitials = ref(initialTeacherData.initials)
+const teacherSchool = ref(initialTeacherData.school)
+const teacherClassCode = ref(initialTeacherData.classCode)
+const isCopied = ref(false)
+
+const copyClassCode = async () => {
+  if (!teacherClassCode.value) return
+  const code = teacherClassCode.value.trim()
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(code)
+      isCopied.value = true
+      setTimeout(() => {
+        isCopied.value = false
+      }, 2500)
+      return
+    }
+  } catch {}
+
+  // Fallback document.execCommand dengan dukungan iOS & Android Mobile
+  try {
+    const textArea = document.createElement('textarea')
+    textArea.value = code
+    textArea.style.position = 'fixed'
+    textArea.style.top = '0'
+    textArea.style.left = '0'
+    textArea.style.opacity = '0'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    textArea.setSelectionRange(0, 99999)
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
+    isCopied.value = true
+    setTimeout(() => {
+      isCopied.value = false
+    }, 2500)
+  } catch {
+    prompt('Salin kode kelas ini:', code)
+  }
+}
 
 const teacherMenuItems = [
   { label: 'Dashboard', path: '/dashboard_guru' },
@@ -345,11 +425,36 @@ const selectedClass = ref('Semua Kelas')
 const selectedPeriod = ref('Pre-test & Post-test')
 
 const indicators = ref([
-  { name: 'Regulasi Emosi', icon: '😊', pre: 42, post: 54 },
-  { name: 'Empati', icon: '👥', pre: 55, post: 65 },
-  { name: 'Komunikasi Asertif', icon: '💬', pre: 52, post: 66 },
-  { name: 'De-eskalasi Konflik', icon: '🛡️', pre: 57, post: 68 }
+  { name: 'Regulasi Emosi', icon: '😊', pre: 0, post: 0 },
+  { name: 'Empati', icon: '👥', pre: 0, post: 0 },
+  { name: 'Komunikasi Asertif', icon: '💬', pre: 0, post: 0 },
+  { name: 'De-eskalasi Konflik', icon: '🛡️', pre: 0, post: 0 }
 ])
+
+const hasAssessmentData = computed(() => {
+  return indicators.value.some(i => (typeof i.pre === 'number' && i.pre > 0) || (typeof i.post === 'number' && i.post > 0))
+})
+
+const getY = (val: number | string | undefined) => {
+  const num = typeof val === 'number' ? val : (parseInt(String(val)) || 0)
+  return 200 - (Math.min(100, Math.max(0, num)) * 1.8)
+}
+
+const prePoints = computed(() => {
+  const y0 = getY(indicators.value[0]?.pre)
+  const y1 = getY(indicators.value[1]?.pre)
+  const y2 = getY(indicators.value[2]?.pre)
+  const y3 = getY(indicators.value[3]?.pre)
+  return `150,${y0} 330,${y1} 510,${y2} 690,${y3}`
+})
+
+const postPoints = computed(() => {
+  const y0 = getY(indicators.value[0]?.post)
+  const y1 = getY(indicators.value[1]?.post)
+  const y2 = getY(indicators.value[2]?.post)
+  const y3 = getY(indicators.value[3]?.post)
+  return `150,${y0} 330,${y1} 510,${y2} 690,${y3}`
+})
 
 const allStudents = ref<StudentMonitoringItem[]>([])
 
@@ -390,6 +495,12 @@ onMounted(async () => {
 
       if (monitoringRes.status === 'fulfilled' && Array.isArray(monitoringRes.value?.data)) {
         allStudents.value = monitoringRes.value.data
+      }
+
+      const activeCode = (monitoringRes.status === 'fulfilled' && (monitoringRes.value as any)?.classCode) ||
+        (overviewRes.status === 'fulfilled' && (overviewRes.value as any)?.classCode)
+      if (activeCode) {
+        teacherClassCode.value = activeCode
       }
     } catch (err) {
       console.warn('Teacher data fetch fallback:', err)

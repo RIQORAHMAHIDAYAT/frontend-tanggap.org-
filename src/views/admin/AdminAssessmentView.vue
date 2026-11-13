@@ -114,15 +114,25 @@
                   </span>
                 </td>
 
-                <!-- Aksi Detail Button -->
+                <!-- Aksi Detail & Hapus Button -->
                 <td class="py-5 px-6 text-center">
-                  <button
-                    @click="openDetail(item)"
-                    type="button"
-                    class="px-4 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
-                  >
-                    Detail
-                  </button>
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      @click="openDetail(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                    >
+                      Detail
+                    </button>
+                    <button
+                      @click="confirmDeleteAssessment(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                      title="Hapus Assessment"
+                    >
+                      Hapus
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -291,6 +301,17 @@
             </button>
           </div>
         </div>
+
+        <!-- Tombol Hapus Assessment di Modal Detail -->
+        <div class="pt-3 border-t border-slate-100 flex justify-end">
+          <button
+            @click="confirmDeleteAssessment(selectedItem)"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer flex items-center gap-1.5"
+          >
+            <span>🗑️ Hapus Assessment Ini</span>
+          </button>
+        </div>
       </div>
 
       <template #footer>
@@ -301,6 +322,47 @@
         >
           Tutup
         </button>
+      </template>
+    </AdminModal>
+
+    <!-- Modal Konfirmasi Hapus Assessment -->
+    <AdminModal
+      :is-open="isDeleteModalOpen"
+      title="Konfirmasi Hapus Assessment"
+      @close="isDeleteModalOpen = false"
+    >
+      <div v-if="itemToDelete" class="space-y-4 py-2 text-center sm:text-left">
+        <div class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-2xl mb-2">
+          ⚠️
+        </div>
+        <h4 class="text-lg font-bold text-slate-800 text-center">
+          Hapus Assessment Ini?
+        </h4>
+        <p class="text-slate-600 text-sm text-center leading-relaxed">
+          Apakah Anda yakin ingin menghapus assessment <strong>{{ itemToDelete.name }}</strong> (Kategori: {{ itemToDelete.category }})? Data assessment ini akan dihapus dari sistem.
+        </p>
+      </div>
+
+      <template #footer>
+        <div class="flex items-center justify-end gap-3 w-full">
+          <button
+            @click="isDeleteModalOpen = false"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm cursor-pointer transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            @click="executeDeleteAssessment"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm cursor-pointer transition-all shadow-md active:scale-95 flex items-center gap-1.5"
+          >
+            <span v-if="isDeleting">Menghapus...</span>
+            <span v-else>Ya, Hapus Assessment</span>
+          </button>
+        </div>
       </template>
     </AdminModal>
   </AdminLayout>
@@ -415,6 +477,30 @@ const openDetail = (item: AssessmentItem) => {
 const toggleStatus = () => {
   if (selectedItem.value) {
     selectedItem.value.status = selectedItem.value.status === 'Aktif' ? 'Draft' : 'Aktif'
+  }
+}
+
+// Fitur Hapus Assessment
+const isDeleteModalOpen = ref(false)
+const itemToDelete = ref<AssessmentItem | null>(null)
+const isDeleting = ref(false)
+
+const confirmDeleteAssessment = (item: AssessmentItem) => {
+  itemToDelete.value = item
+  isDeleteModalOpen.value = true
+}
+
+const executeDeleteAssessment = () => {
+  if (!itemToDelete.value) return
+  const targetId = itemToDelete.value.id
+  isDeleting.value = true
+
+  assessments.value = assessments.value.filter(a => a.id !== targetId)
+
+  isDeleting.value = false
+  isDeleteModalOpen.value = false
+  if (selectedItem.value && selectedItem.value.id === targetId) {
+    isDetailModalOpen.value = false
   }
 }
 </script>

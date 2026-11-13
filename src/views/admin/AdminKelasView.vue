@@ -111,15 +111,30 @@
                   {{ item.studentsCount }}
                 </td>
 
-                <!-- Aksi Detail Button -->
+                <!-- Aksi Detail & Hapus Button -->
                 <td class="py-5 px-6 text-center">
-                  <button
-                    @click="openDetail(item)"
-                    type="button"
-                    class="px-4 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
-                  >
-                    Detail
-                  </button>
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      @click="openDetail(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                    >
+                      Detail
+                    </button>
+                    <button
+                      @click="confirmDeleteClass(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                      title="Hapus Kelas"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredClasses.length === 0">
+                <td colspan="5" class="py-12 text-center text-slate-400 font-medium">
+                  Tidak ada data kelas.
                 </td>
               </tr>
             </tbody>
@@ -267,6 +282,17 @@
             <span class="font-bold text-slate-900">{{ selectedClass.studentsCount }} Siswa</span>
           </div>
         </div>
+
+        <!-- Tombol Hapus Kelas di Modal Detail -->
+        <div class="pt-3 border-t border-slate-100 flex justify-end">
+          <button
+            @click="confirmDeleteClass(selectedClass)"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer flex items-center gap-1.5"
+          >
+            <span>🗑️ Hapus Kelas Ini</span>
+          </button>
+        </div>
       </div>
 
       <template #footer>
@@ -277,6 +303,47 @@
         >
           Tutup
         </button>
+      </template>
+    </AdminModal>
+
+    <!-- Modal Konfirmasi Hapus Kelas -->
+    <AdminModal
+      :is-open="isDeleteModalOpen"
+      title="Konfirmasi Hapus Kelas"
+      @close="isDeleteModalOpen = false"
+    >
+      <div v-if="classToDelete" class="space-y-4 py-2 text-center sm:text-left">
+        <div class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-2xl mb-2">
+          ⚠️
+        </div>
+        <h4 class="text-lg font-bold text-slate-800 text-center">
+          Hapus Kelas Ini?
+        </h4>
+        <p class="text-slate-600 text-sm text-center leading-relaxed">
+          Apakah Anda yakin ingin menghapus kelas <strong>{{ classToDelete.name }}</strong> (Kode: {{ classToDelete.code }}) dari {{ classToDelete.school }}? Data kelas ini akan dihapus dari sistem dan database MySQL.
+        </p>
+      </div>
+
+      <template #footer>
+        <div class="flex items-center justify-end gap-3 w-full">
+          <button
+            @click="isDeleteModalOpen = false"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm cursor-pointer transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            @click="executeDeleteClass"
+            type="button"
+            :disabled="isDeleting"
+            class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm cursor-pointer transition-all shadow-md active:scale-95 flex items-center gap-1.5"
+          >
+            <span v-if="isDeleting">Menghapus...</span>
+            <span v-else>Ya, Hapus Kelas</span>
+          </button>
+        </div>
       </template>
     </AdminModal>
   </AdminLayout>
@@ -299,29 +366,18 @@ interface ClassItem {
 const searchQuery = ref('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 
-const classes = ref<ClassItem[]>([
-  {
-    id: 1,
-    name: 'Kelas XI IPA 1',
-    school: 'SMA Negeri 1',
-    code: 'SMAN1A',
-    studentsCount: 26
-  },
-  {
-    id: 2,
-    name: 'Kelas XI IPS 1',
-    school: 'SMA Negeri 1',
-    code: 'SMAN1B',
-    studentsCount: 28
-  },
-  {
-    id: 3,
-    name: 'Kelas Demo',
-    school: 'Tanggap.org Demo School',
-    code: 'DEMO01',
-    studentsCount: 30
-  }
-])
+const getCachedClasses = (): ClassItem[] => {
+  try {
+    const rawCache = localStorage.getItem('tanggap_admin_classes_cache')
+    if (rawCache) {
+      const parsed = JSON.parse(rawCache)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {}
+  return []
+}
+
+const classes = ref<ClassItem[]>(getCachedClasses())
 
 onMounted(async () => {
   // 1. Ambil custom classes dari localStorage (sekolah baru yang di-ACC Admin)
@@ -357,6 +413,9 @@ onMounted(async () => {
           }
         }
         classes.value = combined
+        try {
+          localStorage.setItem('tanggap_admin_classes_cache', JSON.stringify(combined))
+        } catch {}
         return
       }
     } catch (err) {
@@ -437,6 +496,53 @@ const selectedClass = ref<ClassItem | null>(null)
 const openDetail = (item: ClassItem) => {
   selectedClass.value = item
   isDetailModalOpen.value = true
+}
+
+// Fitur Hapus Kelas
+const isDeleteModalOpen = ref(false)
+const classToDelete = ref<ClassItem | null>(null)
+const isDeleting = ref(false)
+
+const confirmDeleteClass = (c: ClassItem) => {
+  classToDelete.value = c
+  isDeleteModalOpen.value = true
+}
+
+const executeDeleteClass = async () => {
+  if (!classToDelete.value) return
+  const targetId = classToDelete.value.id
+  isDeleting.value = true
+
+  try {
+    if (!isMockMode()) {
+      await api.delete(`classes/${targetId}`)
+    }
+  } catch (err) {
+    console.warn('API delete class failed, deleting locally:', err)
+  }
+
+  // Hapus dari list di frontend
+  classes.value = classes.value.filter(c => String(c.id) !== String(targetId) && c.code !== classToDelete.value?.code)
+  try {
+    localStorage.setItem('tanggap_admin_classes_cache', JSON.stringify(classes.value))
+  } catch {}
+
+  // Hapus dari localStorage tanggap_custom_classes jika ada
+  try {
+    const raw = localStorage.getItem('tanggap_custom_classes')
+    if (raw) {
+      const list = JSON.parse(raw)
+      const updated = list.filter((c: any) => c.code !== classToDelete.value?.code)
+      localStorage.setItem('tanggap_custom_classes', JSON.stringify(updated))
+      window.dispatchEvent(new Event('storage'))
+    }
+  } catch {}
+
+  isDeleting.value = false
+  isDeleteModalOpen.value = false
+  if (selectedClass.value && String(selectedClass.value.id) === String(targetId)) {
+    isDetailModalOpen.value = false
+  }
 }
 </script>
 

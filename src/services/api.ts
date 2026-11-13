@@ -33,7 +33,11 @@ export const isMockMode = (): boolean => {
  * @returns string
  */
 export const getBaseUrl = (): string => {
-  const url = import.meta.env.VITE_API_BASE_URL || 'https://backend-tanggap-org-8fj2.vercel.app/api'
+  let url = import.meta.env.VITE_API_BASE_URL || '/api'
+  // Jika masih menunjuk ke port 8001 lama atau bernilai /api, selalu gunakan proxy relatif /api
+  if (url.includes(':8001') || url === '/api') {
+    return '/api'
+  }
   return url.replace(/\/$/, '')
 }
 

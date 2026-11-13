@@ -86,6 +86,37 @@
         </div>
       </div>
 
+      <!-- 3. Fitur Utama Pendaftar Baru: Kenali Gaya Konflikmu (Asesmen Mandiri) -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 group hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-4 sm:gap-5 flex-1">
+          <div class="w-14 h-14 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] shrink-0">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-1.5">
+              <span>✦</span> Fitur Pendaftar Baru
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-[#1E40AF] mb-1">
+              Kenali Gaya Konflikmu (Asesmen Mandiri)
+            </h3>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+              Sebagai pendaftar baru, Anda dapat langsung mengikuti tes asesmen 4 fase untuk menemukan kecenderungan gaya respon dan temperamen Anda dalam menghadapi situasi konflik.
+            </p>
+          </div>
+        </div>
+        <div class="shrink-0 w-full md:w-auto flex justify-end">
+          <router-link
+            to="/assessment"
+            class="bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white font-bold px-7 py-3.5 rounded-xl shadow-md transition-all inline-flex items-center justify-center gap-2 text-base w-full sm:w-auto"
+          >
+            <span>Mulai Asesmen</span>
+            <span class="text-lg">→</span>
+          </router-link>
+        </div>
+      </div>
+
       <!-- 3. Grid 2-Kolom Seimbang (AMIGO & Action Toolkit) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         <!-- AMIGO Card -->
@@ -270,25 +301,37 @@ import toolkitBinderImg from '../../assets/dashboard/toolkit_binder_3d.png'
 import schoolCodeIllustration from '../../assets/dashboard/school_code_illustration.png'
 
 const route = useRoute()
-const userName = ref('Ahmat Fauzy')
-const schoolCode = ref('')
+
+const getInitialDashboardData = () => {
+  let name = 'Siswa'
+  let entered = false
+  let code = ''
+  try {
+    const rawUser = localStorage.getItem('tanggap_user')
+    if (rawUser) {
+      const u = JSON.parse(rawUser)
+      if (u.name) name = u.name
+    }
+    const savedCode = localStorage.getItem('tanggap_school_code')
+    if (savedCode && savedCode.trim().length >= 6) {
+      entered = true
+      code = savedCode.trim()
+    }
+  } catch {}
+  return { name, entered, code }
+}
+
+const initialDashboard = getInitialDashboardData()
+const userName = ref(initialDashboard.name)
+const schoolCode = ref(initialDashboard.code)
 const isSubmitting = ref(false)
 const toastMessage = ref('')
 const toastType = ref<'success' | 'info'>('success')
 const showJoinClassModal = ref(false)
-const hasEnteredCode = ref(false)
+const hasEnteredCode = ref(initialDashboard.entered)
 const codeErrorMsg = ref('')
 
 const checkSchoolStatus = () => {
-  if (route.query.view === 'siswa') {
-    hasEnteredCode.value = true
-    return
-  }
-  if (route.query.view === 'default') {
-    hasEnteredCode.value = false
-    return
-  }
-
   const savedCode = localStorage.getItem('tanggap_school_code')
   if (savedCode && savedCode.trim().length >= 6) {
     schoolCode.value = savedCode
@@ -349,12 +392,35 @@ const submitSchoolCode = async () => {
   // 1. Jika terhubung ke Backend Nyata (Live Mode)
   if (!isMockMode()) {
     try {
-      const res = await api.post<{ success: boolean; message?: string; data?: any }>('classes/join', {
-        code: schoolCode.value
+      let currentUserId = undefined
+      try {
+        const rawUser = localStorage.getItem('tanggap_user')
+        if (rawUser) {
+          const u = JSON.parse(rawUser)
+          if (u.id) currentUserId = u.id
+        }
+      } catch {}
+
+      const res = await api.post<{ success: boolean; message?: string; school?: { id: number; name: string }; class?: { id: number; name: string; code: string }; data?: any }>('classes/join', {
+        code: schoolCode.value,
+        userId: currentUserId
       })
 
       // Jika kode valid dan backend merespons sukses
       localStorage.setItem('tanggap_school_code', schoolCode.value)
+
+      // Perbarui juga data user lokal agar school_id dan classCode tersimpan
+      try {
+        const rawUser = localStorage.getItem('tanggap_user')
+        if (rawUser) {
+          const u = JSON.parse(rawUser)
+          u.school = res?.school?.name || u.school
+          u.school_id = res?.school?.id || u.school_id
+          u.classCode = schoolCode.value
+          localStorage.setItem('tanggap_user', JSON.stringify(u))
+        }
+      } catch {}
+
       hasEnteredCode.value = true
       showJoinClassModal.value = false
       window.dispatchEvent(new Event('storage'))
@@ -362,12 +428,30 @@ const submitSchoolCode = async () => {
       toastType.value = 'success'
       toastMessage.value = res.message || `Selamat! Kode kelas "${schoolCode.value}" terverifikasi. Selamat bergabung di kelas!`
     } catch (err: unknown) {
-      // Periksa apakah kode kelas ini berasal dari sekolah yang baru saja di-ACC oleh Admin
+      // 1. Dukungan fallback kode kelas resmi demo (SMAN1A, 849201, DEMO01) jika server offline / proxy pending
+      const demoCodes: Record<string, string> = {
+        'SMAN1A': 'SMA Harapan Bangsa',
+        '849201': 'SMK Dinamika Kota Banjar',
+        'DEMO01': 'SMP Nusantara'
+      }
+      const upperCode = schoolCode.value.toUpperCase()
+      if (demoCodes[upperCode]) {
+        localStorage.setItem('tanggap_school_code', upperCode)
+        hasEnteredCode.value = true
+        showJoinClassModal.value = false
+        window.dispatchEvent(new Event('storage'))
+        toastType.value = 'success'
+        toastMessage.value = `Selamat! Kode kelas "${upperCode}" (${demoCodes[upperCode]}) terverifikasi. Selamat bergabung di kelas!`
+        isSubmitting.value = false
+        return
+      }
+
+      // 2. Periksa apakah kode kelas ini berasal dari sekolah yang baru saja di-ACC oleh Admin
       try {
         const rawClasses = localStorage.getItem('tanggap_custom_classes')
         if (rawClasses) {
           const customClasses = JSON.parse(rawClasses)
-          const matched = customClasses.find((c: any) => c.code.toUpperCase() === schoolCode.value.toUpperCase())
+          const matched = customClasses.find((c: any) => c.code.toUpperCase() === upperCode)
           if (matched) {
             localStorage.setItem('tanggap_school_code', matched.code)
             hasEnteredCode.value = true

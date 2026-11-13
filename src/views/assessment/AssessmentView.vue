@@ -384,9 +384,19 @@ const onQuizComplete = async (answers: Record<number, number>) => {
   // Kirimkan jawaban ke backend di background (dengan graceful fallback)
   try {
     const schoolCode = localStorage.getItem('tanggap_school_code') || undefined
+    let currentUserId: string | number | undefined = undefined
+    try {
+      const rawUser = localStorage.getItem('tanggap_user')
+      if (rawUser) {
+        const u = JSON.parse(rawUser)
+        if (u.id) currentUserId = u.id
+      }
+    } catch {}
+
     await assessmentService.submitAssessment({
       answers,
       schoolCode,
+      userId: currentUserId,
     })
   } catch (err) {
     console.warn('Backend assessment submission fallback:', err)

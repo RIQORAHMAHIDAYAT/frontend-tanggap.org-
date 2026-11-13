@@ -181,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -199,15 +199,57 @@ const router = useRouter()
 const isDropdownOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
-const userName = ref('Ahmat Fauzy')
-const userInitials = ref('AF')
-const userPhoto = ref('')
-const hasSchoolCode = ref(false)
+const getInitialNavUser = () => {
+  if (props.customUserName) {
+    return {
+      name: props.customUserName,
+      initials: props.customUserInitials || 'GB',
+      photo: '',
+      hasCode: false
+    }
+  }
+  try {
+    const raw = localStorage.getItem('tanggap_user')
+    const parsed = raw ? JSON.parse(raw) : null
+    let name = parsed?.name || 'Pengguna'
+    let initials = 'TG'
+    if (parsed?.name) {
+      const parts = parsed.name.trim().split(/\s+/)
+      if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[1][0]).toUpperCase()
+      } else if (parts.length === 1 && parts[0].length > 0) {
+        initials = parts[0].substring(0, 2).toUpperCase()
+      }
+    }
+    const schoolCode = localStorage.getItem('tanggap_school_code')
+    return {
+      name,
+      initials,
+      photo: parsed?.photo || '',
+      hasCode: !!(schoolCode && schoolCode.trim().length >= 6)
+    }
+  } catch {
+    return { name: 'Pengguna', initials: 'TG', photo: '', hasCode: false }
+  }
+}
+
+const initialNav = getInitialNavUser()
+const userName = ref(initialNav.name)
+const userInitials = ref(initialNav.initials)
+const userPhoto = ref(initialNav.photo)
+const hasSchoolCode = ref(initialNav.hasCode)
+
+watch(() => props.customUserName, (newVal) => {
+  if (newVal) {
+    userName.value = newVal
+    userInitials.value = props.customUserInitials || 'GB'
+  }
+})
 
 const updateUserData = () => {
   if (props.customUserName) {
     userName.value = props.customUserName
-    userInitials.value = props.customUserInitials || 'AM'
+    userInitials.value = props.customUserInitials || 'GB'
     return
   }
 

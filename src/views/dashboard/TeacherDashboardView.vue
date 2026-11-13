@@ -8,10 +8,10 @@
       <!-- 1. Header Section (Matching guru.png & guru.1.png) -->
       <header class="space-y-2">
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#1E40AF] tracking-tight">
-          Halo, Bapak Ahmad Mundakir
+          Halo, {{ teacherName }}
         </h1>
         <p class="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-3xl">
-          Selamat datang diportal Guru BK Tanggap.org. Pantau perkembangan keterampilan resolusi konflik siswa di sekolah Anda.
+          Selamat datang diportal Guru BK Tanggap.org<span v-if="teacherSchool"> &bull; <strong>{{ teacherSchool }}</strong></span>. Pantau perkembangan keterampilan resolusi konflik siswa di sekolah Anda.
         </p>
       </header>
 
@@ -27,11 +27,41 @@
 
         <div class="flex-1 max-w-xl text-left">
           <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1E40AF] mb-3 leading-snug tracking-tight">
-            Program Resolusi Konflik<br class="hidden sm:inline"> di Sekolah Anda
+            Program Resolusi Konflik<br class="hidden sm:inline"> di {{ teacherSchool || 'Sekolah Anda' }}
           </h2>
           <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
             Bersama Tanggap.org, wujudkan lingkungan sekolah yang aman dan suportif.
           </p>
+        </div>
+      </div>
+
+      <!-- 2.1 Token / Kode Kelas Sekolah (Bagikan ke Siswa) -->
+      <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-800 rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-700/50">
+        <div class="flex items-center gap-4 sm:gap-5 flex-1">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white shrink-0 text-2xl shadow-inner">
+            🔑
+          </div>
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-400/20 text-blue-200 text-xs font-bold mb-1.5 border border-blue-300/30">
+              <span>✦</span> Token / Kode Kelas Sekolah Aktif
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white mb-1">
+              Kode Kelas: <span class="tracking-widest font-mono text-amber-300 font-extrabold bg-blue-950/60 px-3 py-1 rounded-xl border border-amber-300/30">{{ teacherClassCode || 'MEMUAT...' }}</span>
+            </h3>
+            <p class="text-blue-100 text-xs sm:text-sm leading-relaxed max-w-xl mt-1">
+              Bagikan 6 digit token ini kepada siswa <strong>{{ teacherSchool || 'sekolah Anda' }}</strong> agar mereka dapat bergabung di aplikasi. Siswa yang bergabung akan otomatis muncul di halaman Monitoring.
+            </p>
+          </div>
+        </div>
+
+        <div class="shrink-0 flex items-center gap-3 w-full md:w-auto justify-end">
+          <button
+            @click="copyClassCode"
+            type="button"
+            class="w-full sm:w-auto bg-white hover:bg-blue-50 text-[#1E40AF] font-bold px-6 py-3 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 text-sm"
+          >
+            <span>{{ isCopied ? '✓ Kode Berhasil Disalin!' : '📋 Salin Kode Kelas' }}</span>
+          </button>
         </div>
       </div>
 
@@ -116,6 +146,17 @@
             </div>
           </div>
         </div>
+
+        <!-- Notification saat belum ada data asesmen siswa yang masuk -->
+        <div
+          v-if="!hasAssessmentData"
+          class="mt-6 p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-[#1E40AF] text-xs sm:text-sm flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2.5">
+            <span class="text-base">ℹ️</span>
+            <span>Grafik perkembangan indikator akan otomatis terisi dan terupdate secara real-time setelah siswa {{ teacherSchool ? 'dari ' + teacherSchool : '' }} menyelesaikan tes asesmen.</span>
+          </div>
+        </div>
       </div>
 
       <!-- 4. Bottom Row: Ringkasan Hasil Assessment & Akses Cepat (Grid 2 Kolom) -->
@@ -146,7 +187,7 @@
                   Rata-rata Skor
                 </div>
                 <div class="text-2xl font-extrabold text-slate-900 mt-2">
-                  —
+                  {{ preAverageScore }}
                 </div>
               </div>
 
@@ -164,7 +205,7 @@
                   Rata-rata Skor
                 </div>
                 <div class="text-2xl font-extrabold text-slate-900 mt-2">
-                  —
+                  {{ postAverageScore }}
                 </div>
               </div>
             </div>
@@ -260,8 +301,63 @@ import FloatingSupport from '../../components/dashboard/FloatingSupport.vue'
 import schoolBuildingImg from '../../assets/dashboard/school_building_hero.png'
 import { api, isMockMode } from '../../services/api'
 
-const teacherName = ref('Ahmat Mundakir')
-const teacherInitials = ref('AM')
+const getInitialTeacher = () => {
+  try {
+    const raw = localStorage.getItem('tanggap_user')
+    if (raw) {
+      const u = JSON.parse(raw)
+      const name = u.name || 'Guru BK'
+      const initials = name.trim().split(/\s+/).map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+      const classCode = u.classCode || u.classroom?.code || localStorage.getItem('tanggap_school_code') || ''
+      return { name, initials, school: u.school || '', classCode }
+    }
+  } catch {}
+  return { name: 'Guru BK', initials: 'GB', school: '', classCode: '' }
+}
+
+const initialTeacher = getInitialTeacher()
+const teacherName = ref(initialTeacher.name)
+const teacherInitials = ref(initialTeacher.initials)
+const teacherSchool = ref(initialTeacher.school)
+const teacherClassCode = ref(initialTeacher.classCode)
+const isCopied = ref(false)
+
+const copyClassCode = async () => {
+  if (!teacherClassCode.value) return
+  const code = teacherClassCode.value.trim()
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(code)
+      isCopied.value = true
+      setTimeout(() => {
+        isCopied.value = false
+      }, 2500)
+      return
+    }
+  } catch {}
+
+  // Fallback document.execCommand dengan dukungan iOS & Android Mobile
+  try {
+    const textArea = document.createElement('textarea')
+    textArea.value = code
+    textArea.style.position = 'fixed'
+    textArea.style.top = '0'
+    textArea.style.left = '0'
+    textArea.style.opacity = '0'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    textArea.setSelectionRange(0, 99999)
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
+    isCopied.value = true
+    setTimeout(() => {
+      isCopied.value = false
+    }, 2500)
+  } catch {
+    prompt('Salin kode kelas ini:', code)
+  }
+}
 
 // Menu Khusus Guru BK (Matching Group 497.png)
 const teacherMenuItems = [
@@ -271,13 +367,16 @@ const teacherMenuItems = [
   { label: 'Action Toolkit', path: '/action-toolkit' }
 ]
 
-// 4 Indikator Resolusi Konflik (Matching chart pada guru.png)
+// 4 Indikator Resolusi Konflik (Real Data dari database MySQL)
 const indicatorStats = ref([
-  { name: 'Regulasi Emosi', pre: 42, post: 54 },
-  { name: 'Empati', pre: 55, post: 65 },
-  { name: 'Komunikasi Asertif', pre: 52, post: 66 },
-  { name: 'De-eskalasi Konflik', pre: 57, post: 68 }
+  { name: 'Regulasi Emosi', pre: 0, post: 0 },
+  { name: 'Empati', pre: 0, post: 0 },
+  { name: 'Komunikasi Asertif', pre: 0, post: 0 },
+  { name: 'De-eskalasi Konflik', pre: 0, post: 0 }
 ])
+const hasAssessmentData = ref(false)
+const preAverageScore = ref('—')
+const postAverageScore = ref('—')
 
 onMounted(async () => {
   try {
@@ -293,16 +392,48 @@ onMounted(async () => {
           .slice(0, 2)
           .toUpperCase()
       }
+      if (u.school) {
+        teacherSchool.value = u.school
+      }
+      if (u.classCode || u.classroom?.code) {
+        teacherClassCode.value = u.classCode || u.classroom?.code
+      }
     }
   } catch {}
 
   if (isMockMode()) return
 
   try {
-    const res = await api.get<{ success?: boolean; data?: any; indicatorStats?: any[] }>('teacher/dashboard-overview')
+    const res = await api.get<{
+      success?: boolean
+      hasData?: boolean
+      data?: any
+      indicatorStats?: any[]
+      classCode?: string
+      summary?: { preAvg?: string | number; postAvg?: string | number }
+    }>('teacher/dashboard-overview')
+
+    hasAssessmentData.value = !!(res?.hasData || res?.data?.hasData)
     const list = res?.data?.indicatorStats || res?.indicatorStats
     if (Array.isArray(list) && list.length > 0) {
       indicatorStats.value = list
+    }
+
+    if (res?.summary?.preAvg) preAverageScore.value = String(res.summary.preAvg)
+    if (res?.summary?.postAvg) postAverageScore.value = String(res.summary.postAvg)
+
+    const apiCode = res?.classCode || res?.data?.classCode
+    if (apiCode) {
+      teacherClassCode.value = apiCode
+      // Perbarui juga data user lokal
+      try {
+        const raw = localStorage.getItem('tanggap_user')
+        if (raw) {
+          const u = JSON.parse(raw)
+          u.classCode = apiCode
+          localStorage.setItem('tanggap_user', JSON.stringify(u))
+        }
+      } catch {}
     }
   } catch (err) {
     console.warn('Fallback: gagal mengambil teacher dashboard overview:', err)

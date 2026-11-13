@@ -107,26 +107,6 @@
             <p class="text-sm font-bold text-[#1E40AF]">Administrator Sistem</p>
           </div>
 
-          <router-link
-            to="/dashboard"
-            @click="isDropdownOpen = false"
-            class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-          >
-            <span class="text-blue-600">🎓</span>
-            <span>Dashboard Siswa</span>
-          </router-link>
-
-          <router-link
-            to="/dashboard_guru"
-            @click="isDropdownOpen = false"
-            class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-          >
-            <span class="text-blue-600">👨‍🏫</span>
-            <span>Dashboard Guru</span>
-          </router-link>
-
-          <div class="my-1 border-t border-slate-100"></div>
-
           <button
             type="button"
             @click="handleLogout"

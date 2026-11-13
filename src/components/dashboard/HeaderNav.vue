@@ -152,18 +152,6 @@
                 Pengaturan
               </router-link>
 
-              <!-- Akses Dashboard Peran Lain (Testing & Navigasi Cepat) -->
-              <div class="py-1 border-t border-b border-slate-100 my-1">
-                <router-link
-                  to="/dashboard_admin"
-                  @click="isDropdownOpen = false"
-                  class="flex items-center gap-2 py-1.5 text-sm font-semibold text-[#1E40AF] hover:text-blue-800 transition-colors"
-                >
-                  <span>🛡️</span>
-                  <span>Dashboard Admin</span>
-                </router-link>
-              </div>
-
               <!-- Tombol Keluar dari Sekolah (Hanya tampil jika sudah masuk kode sekolah) -->
               <button
                 v-if="hasSchoolCode"

@@ -10,6 +10,18 @@
         'max-md:rounded-b-[40px]'
       ]"
     >
+      <!-- Tombol Kembali Khusus Tampilan Mobile (di pojok kiri atas) -->
+      <router-link
+        to="/"
+        class="md:hidden absolute top-4 left-4 z-20 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all backdrop-blur-xs shadow-xs"
+        aria-label="Kembali ke Beranda"
+        title="Kembali ke Beranda"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+      </router-link>
+
       <div class="z-10 flex flex-col items-center">
         <!-- Logo Image -->
         <router-link to="/" class="flex flex-col items-center group cursor-pointer text-center">

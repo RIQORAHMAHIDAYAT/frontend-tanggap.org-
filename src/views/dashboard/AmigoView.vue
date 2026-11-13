@@ -67,7 +67,7 @@
                   <img
                     :src="amigoTentangImg"
                     alt="Ilustrasi AMIGO Boardgame"
-                    class="w-full max-w-[320px] lg:max-w-[380px] h-auto object-cover rounded-2xl sm:rounded-3xl shadow-md border border-white/60 pointer-events-none select-none"
+                    class="w-full max-w-[420px] lg:max-w-[480px] h-auto object-cover rounded-2xl sm:rounded-3xl shadow-md border border-white/60 pointer-events-none select-none"
                   />
                 </div>
               </div>
@@ -81,7 +81,7 @@
                   <img
                     :src="amigoTentangImg"
                     alt="Ilustrasi AMIGO Boardgame"
-                    class="w-full max-w-[280px] h-auto object-cover rounded-2xl shadow-md border border-white/60 pointer-events-none select-none"
+                    class="w-full max-w-[360px] h-auto object-cover rounded-2xl shadow-md border border-white/60 pointer-events-none select-none"
                   />
                 </div>
                 <p class="text-slate-600 text-sm sm:text-base leading-relaxed mt-2">
@@ -102,7 +102,7 @@
                   <img
                     :src="amigoMekanismeImg"
                     alt="Mekanisme & Aturan AMIGO"
-                    class="w-full max-w-[320px] lg:max-w-[380px] h-auto object-cover rounded-2xl sm:rounded-3xl shadow-md border border-white/60 pointer-events-none select-none"
+                    class="w-full max-w-[420px] lg:max-w-[480px] h-auto object-cover rounded-2xl sm:rounded-3xl shadow-md border border-white/60 pointer-events-none select-none"
                   />
                 </div>
 
@@ -144,7 +144,7 @@
                   <img
                     :src="amigoMekanismeImg"
                     alt="Mekanisme & Aturan AMIGO"
-                    class="w-full max-w-[280px] h-auto object-cover rounded-2xl shadow-md border border-white/60 pointer-events-none select-none"
+                    class="w-full max-w-[360px] h-auto object-cover rounded-2xl shadow-md border border-white/60 pointer-events-none select-none"
                   />
                 </div>
 
@@ -178,10 +178,10 @@
             >
               <!-- Desktop View (Kiri: Thumbnail Video dengan Tombol Play, Kanan: Judul & Subtitle) -->
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
-                <!-- Thumbnail Video with interactive play button -->
+                <!-- Thumbnail Video with interactive play button (Landscape) -->
                 <div
                   @click="openVideoModal"
-                  class="shrink-0 relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer group w-full max-w-[320px] lg:max-w-[380px] aspect-square"
+                  class="shrink-0 relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer group w-full max-w-[420px] lg:max-w-[480px] aspect-video"
                   title="Putar Video Tutorial"
                 >
                   <img
@@ -217,11 +217,11 @@
 
               <!-- Mobile View (Stacked matching Video Tutorial.hp.png) -->
               <div class="md:hidden flex flex-col items-start text-left">
-                <!-- Thumbnail Video on top -->
+                <!-- Thumbnail Video on top (Landscape) -->
                 <div class="w-full flex justify-center mb-6">
                   <div
                     @click="openVideoModal"
-                    class="w-full max-w-[280px] aspect-square relative rounded-2xl overflow-hidden shadow-md active:scale-98 transition-all cursor-pointer group"
+                    class="w-full max-w-[360px] aspect-video relative rounded-2xl overflow-hidden shadow-md active:scale-98 transition-all cursor-pointer group"
                   >
                     <img
                       :src="amigoTutorialImg"

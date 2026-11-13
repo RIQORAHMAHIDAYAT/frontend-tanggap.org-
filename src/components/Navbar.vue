@@ -81,9 +81,9 @@
           <div class="flex flex-col items-center mt-2 px-8">
             <div class="w-full max-w-sm flex flex-col text-center text-xl font-medium" role="menu">
               <div role="menuitem" @click="scrollToSection('program')" class="py-4 border-b border-white/50 hover:bg-white/10 cursor-pointer transition-colors">Program</div>
-              <router-link to="/tentang-amigo" @click="isMenuOpen = false" class="py-4 border-b border-white/50 hover:bg-white/10 cursor-pointer transition-colors block">AMIGO</router-link>
               <div role="menuitem" @click="scrollToSection('testimoni')" class="py-4 border-b border-white/50 hover:bg-white/10 cursor-pointer transition-colors">Testimoni</div>
               <div role="menuitem" @click="scrollToSection('faq')" class="py-4 border-b border-white/50 hover:bg-white/10 cursor-pointer transition-colors">FAQ</div>
+              <router-link to="/tentang-amigo" @click="isMenuOpen = false" class="py-4 border-b border-white/50 hover:bg-white/10 cursor-pointer transition-colors block">AMIGO</router-link>
             </div>
           </div>
 

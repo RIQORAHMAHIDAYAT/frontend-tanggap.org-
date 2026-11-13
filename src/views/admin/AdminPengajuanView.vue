@@ -89,7 +89,7 @@
                   </div>
                 </td>
               </tr>
-              <tr v-if="filteredSubmissions.length === 0">
+              <tr v-if="submissions.length === 0">
                 <td colspan="5" class="py-12 text-center text-slate-400 font-medium">
                   Tidak ada data pengajuan sekolah.
                 </td>

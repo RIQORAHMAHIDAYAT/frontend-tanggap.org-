@@ -1,50 +1,21 @@
 <template>
   <div class="min-h-screen bg-[#FAF9FF] text-slate-900 py-8 sm:py-12 px-4 sm:px-6 md:px-10 lg:px-16 selection:bg-blue-100 selection:text-blue-900">
-    <!-- Top Action Bar -->
-    <div class="max-w-5xl mx-auto mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <!-- Back Button -->
+    <!-- Top Action Bar: Back Button Only (Sesuai Desain) -->
+    <div class="max-w-5xl mx-auto mb-6 sm:mb-8">
       <button
         @click="handleBack"
         type="button"
-        class="inline-flex items-center gap-3 text-slate-700 hover:text-slate-950 font-bold text-xl sm:text-2xl transition-colors cursor-pointer group"
+        class="inline-flex items-center gap-2.5 text-[#5A6EB2] hover:text-[#3B4D8A] font-semibold text-2xl transition-colors cursor-pointer group"
       >
-        <svg
-          class="w-6 h-6 transition-transform duration-200 group-hover:-translate-x-1"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          viewBox="0 0 24 24"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-        </svg>
+        <span class="transition-transform duration-200 group-hover:-translate-x-1 font-bold">←</span>
         <span>Kembali</span>
       </button>
-
-      <!-- View / Tab Switcher (Data Diri & Keamanan) -->
-      <div class="inline-flex items-center p-1 bg-slate-200/80 rounded-2xl border border-slate-300/60 shadow-xs">
-        <button
-          @click="switchTab('profil')"
-          type="button"
-          :class="activeTab === 'profil' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-          class="px-5 py-2 rounded-xl text-sm transition-all duration-150 cursor-pointer"
-        >
-          Data Diri
-        </button>
-        <button
-          @click="switchTab('keamanan')"
-          type="button"
-          :class="activeTab === 'keamanan' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-          class="px-5 py-2 rounded-xl text-sm transition-all duration-150 cursor-pointer"
-        >
-          Keamanan
-        </button>
-      </div>
     </div>
 
     <!-- Main Card Container -->
     <div class="max-w-5xl mx-auto bg-white rounded-[32px] sm:rounded-[36px] border border-slate-200/80 shadow-[0_4px_30px_rgba(0,0,0,0.03)] p-8 sm:p-12 md:p-14">
       <!-- ============================================================== -->
-      <!-- TAB 1: DATA DIRI (Profil.png & edit Profil.png) -->
+      <!-- TAB 1: DATA DIRI (Profil / Pengaturan) -->
       <!-- ============================================================== -->
       <div v-if="activeTab === 'profil'">
         <!-- Card Header: Title & Action Button -->
@@ -53,83 +24,41 @@
             Data Diri
           </h2>
 
-          <!-- Action Buttons -->
-          <div>
-            <!-- View Mode: Perbarui Data Diri Button (Profil.png) -->
+          <!-- Action Buttons: Selesai & Batal -->
+          <div class="flex items-center gap-3">
+            <!-- Selesai (Green) -->
             <button
-              v-if="!isEditing"
-              @click="startEdit"
+              @click="saveProfile"
               type="button"
-              class="bg-[#E5E7EB] hover:bg-[#D1D5DB] text-slate-800 font-bold text-sm sm:text-base px-5 py-2.5 rounded-xl inline-flex items-center gap-2.5 transition-all shadow-xs cursor-pointer"
+              class="bg-[#00C853] hover:bg-[#00B048] active:scale-95 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-xl inline-flex items-center gap-2 transition-all shadow-xs cursor-pointer"
             >
-              <!-- Square Pencil Edit Icon -->
-              <svg class="w-4 h-4 text-slate-800 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              <!-- Floppy Disk Icon -->
+              <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
+                <path d="M17.414 2.586a2 2 0 00-1.414-.586H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-.586-1.414zM5 4h8v3H5V4zm10 12H5v-5h10v5z" />
               </svg>
-              <span>Perbarui Data Diri</span>
+              <span>Selesai</span>
             </button>
 
-            <!-- Edit Mode: Selesai & Batal Buttons (edit Profil.png) -->
-            <div v-else class="flex items-center gap-3">
-              <!-- Selesai (Green) -->
-              <button
-                @click="saveProfile"
-                type="button"
-                class="bg-[#00C853] hover:bg-[#00B048] text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-xl inline-flex items-center gap-2 transition-all shadow-xs cursor-pointer"
-              >
-                <!-- Floppy Disk Icon -->
-                <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
-                  <path d="M17.414 2.586a2 2 0 00-1.414-.586H4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-.586-1.414zM5 4h8v3H5V4zm10 12H5v-5h10v5z" />
-                </svg>
-                <span>Selesai</span>
-              </button>
-
-              <!-- Batal (Red) -->
-              <button
-                @click="cancelEdit"
-                type="button"
-                class="bg-[#FF334B] hover:bg-[#E52A40] text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-xl inline-flex items-center gap-2 transition-all shadow-xs cursor-pointer"
-              >
-                <!-- Undo / Cancel Refresh Icon -->
-                <svg class="w-4 h-4 fill-none stroke-current shrink-0" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
-                <span>Batal</span>
-              </button>
-            </div>
+            <!-- Batal (Red) -->
+            <button
+              @click="cancelEdit"
+              type="button"
+              class="bg-[#FF334B] hover:bg-[#E52A40] active:scale-95 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-xl inline-flex items-center gap-2 transition-all shadow-xs cursor-pointer"
+            >
+              <!-- Undo / Cancel Refresh Icon -->
+              <svg class="w-4 h-4 fill-none stroke-current shrink-0" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              <span>Batal</span>
+            </button>
           </div>
         </div>
 
-        <!-- 2-Column Content Grid: Left Info/Form, Right Foto Profil -->
+        <!-- 2-Column Content Grid: Left Form, Right Foto Profil -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 sm:mt-12 items-start">
-          <!-- Left Column -->
+          <!-- Left Column: Form Input Data Diri -->
           <div class="lg:col-span-7 xl:col-span-7">
-            <!-- VIEW MODE (Profil.png) -->
-            <div v-if="!isEditing" class="space-y-6 sm:space-y-7 text-base sm:text-lg">
-              <div class="flex items-baseline">
-                <span class="w-36 sm:w-44 shrink-0 font-medium text-slate-900">Nama</span>
-                <span class="font-medium text-slate-900">: {{ user.name }}</span>
-              </div>
-              <div class="flex items-baseline">
-                <span class="w-36 sm:w-44 shrink-0 font-medium text-slate-900">Email</span>
-                <span class="font-medium text-slate-900 break-all">: {{ user.email }}</span>
-              </div>
-              <div class="flex items-baseline">
-                <span class="w-36 sm:w-44 shrink-0 font-medium text-slate-900">Sekolah</span>
-                <span class="font-medium text-slate-900">: {{ user.school }}</span>
-              </div>
-              <div class="flex items-baseline">
-                <span class="w-36 sm:w-44 shrink-0 font-medium text-slate-900">No Telp</span>
-                <span class="font-medium text-slate-900">: {{ user.phone }}</span>
-              </div>
-              <div class="flex items-baseline">
-                <span class="w-36 sm:w-44 shrink-0 font-medium text-slate-900">Jenis Kelamin</span>
-                <span class="font-medium text-slate-900">: {{ user.gender && user.gender.trim() !== '' ? user.gender : '-' }}</span>
-              </div>
-            </div>
-
-            <!-- EDIT MODE (edit Profil.png) -->
-            <form v-else @submit.prevent="saveProfile" class="space-y-5">
+            <form @submit.prevent="saveProfile" class="space-y-5">
               <div>
                 <label class="block font-bold text-lg text-slate-900 mb-2">Email</label>
                 <input
@@ -174,9 +103,9 @@
                 <label class="block font-bold text-lg text-slate-900 mb-2">Jenis Kelamin</label>
                 <select
                   v-model="editForm.gender"
-                  class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+                  class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-[#EAECEF] cursor-pointer"
                 >
-                  <option value="">-- Belum Diisi --</option>
+                  <option value="">-- Pilih Jenis Kelamin --</option>
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
                 </select>
@@ -518,6 +447,12 @@ const loadUserData = () => {
     hasSchoolToken.value = false
     currentSchoolToken.value = ''
   }
+  // Sinkronkan ke editForm
+  editForm.name = user.name
+  editForm.email = user.email
+  editForm.school = user.school
+  editForm.phone = user.phone
+  editForm.gender = user.gender
 }
 
 onMounted(() => {
@@ -534,17 +469,13 @@ const handleBack = () => {
 }
 
 // Profile edit actions
-const startEdit = () => {
+const cancelEdit = () => {
   editForm.name = user.name
   editForm.email = user.email
   editForm.school = user.school
   editForm.phone = user.phone
   editForm.gender = user.gender
-  isEditing.value = true
-}
-
-const cancelEdit = () => {
-  isEditing.value = false
+  showToast('Perubahan dibatalkan', 'success')
 }
 
 const saveProfile = () => {
@@ -552,6 +483,7 @@ const saveProfile = () => {
   user.email = editForm.email
   user.school = editForm.school
   user.phone = editForm.phone
+  user.gender = editForm.gender
 
   // Recalculate initials
   const parts = user.name.trim().split(' ')

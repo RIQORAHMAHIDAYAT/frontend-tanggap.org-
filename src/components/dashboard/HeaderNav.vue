@@ -142,14 +142,22 @@
               </div>
             </div>
 
-            <!-- Bottom Section: Pengaturan & Keluar -->
+            <!-- Bottom Section: Pengaturan, Keamanan & Keluar -->
             <div class="py-3 px-6 space-y-1">
               <router-link
-                to="/pengaturan"
+                to="/pengaturan?tab=profil"
                 @click="isDropdownOpen = false"
                 class="block py-2 text-slate-900 hover:text-[#1E40AF] font-medium text-base transition-colors"
               >
                 Pengaturan
+              </router-link>
+
+              <router-link
+                to="/pengaturan?tab=keamanan"
+                @click="isDropdownOpen = false"
+                class="block py-2 text-slate-900 hover:text-[#1E40AF] font-medium text-base transition-colors"
+              >
+                Keamanan
               </router-link>
 
               <!-- Tombol Keluar dari Sekolah (Hanya tampil jika sudah masuk kode sekolah) -->

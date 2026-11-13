@@ -63,11 +63,11 @@
                     Amigo adalah media permainan kartu berbasis role-play yang membantu kamu memahami konflik, melatih empati, dan menemukan solusi bersama melalui simulasi situasi solusi yang dekat dengan kehidupan sehari-hari.
                   </p>
                 </div>
-                <div class="shrink-0">
+                <div class="shrink-0 flex items-center justify-center">
                   <img
-                    :src="amigoBoxImg"
+                    :src="amigoTentangImg"
                     alt="Ilustrasi AMIGO Boardgame"
-                    class="w-full max-w-[340px] lg:max-w-[420px] h-auto object-contain pointer-events-none select-none"
+                    class="w-full max-w-[320px] lg:max-w-[380px] h-auto object-cover rounded-2xl sm:rounded-3xl shadow-md border border-white/60 pointer-events-none select-none"
                   />
                 </div>
               </div>
@@ -79,9 +79,9 @@
                 </h2>
                 <div class="w-full flex justify-center my-4">
                   <img
-                    :src="amigoBoxImg"
+                    :src="amigoTentangImg"
                     alt="Ilustrasi AMIGO Boardgame"
-                    class="w-full max-w-[280px] h-auto object-contain pointer-events-none select-none"
+                    class="w-full max-w-[280px] h-auto object-cover rounded-2xl shadow-md border border-white/60 pointer-events-none select-none"
                   />
                 </div>
                 <p class="text-slate-600 text-sm sm:text-base leading-relaxed mt-2">
@@ -100,9 +100,9 @@
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
                 <div class="shrink-0 flex items-center justify-center">
                   <img
-                    :src="amigoBoxImg"
-                    alt="Ilustrasi AMIGO Boardgame"
-                    class="w-full max-w-[320px] lg:max-w-[380px] h-auto object-contain pointer-events-none select-none"
+                    :src="amigoMekanismeImg"
+                    alt="Mekanisme & Aturan AMIGO"
+                    class="w-full max-w-[320px] lg:max-w-[380px] h-auto object-cover rounded-2xl sm:rounded-3xl shadow-md border border-white/60 pointer-events-none select-none"
                   />
                 </div>
 
@@ -140,6 +140,14 @@
                   Mekanisme & Aturan Main
                 </h2>
 
+                <div class="w-full flex justify-center mb-6">
+                  <img
+                    :src="amigoMekanismeImg"
+                    alt="Mekanisme & Aturan AMIGO"
+                    class="w-full max-w-[280px] h-auto object-cover rounded-2xl shadow-md border border-white/60 pointer-events-none select-none"
+                  />
+                </div>
+
                 <div class="space-y-5 w-full">
                   <div
                     v-for="step in steps"
@@ -173,19 +181,23 @@
                 <!-- Thumbnail Video with interactive play button -->
                 <div
                   @click="openVideoModal"
-                  class="shrink-0 relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer group max-w-lg w-full"
+                  class="shrink-0 relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer group w-full max-w-[320px] lg:max-w-[380px] aspect-square"
                   title="Putar Video Tutorial"
                 >
                   <img
-                    :src="videoTutorialImg"
+                    :src="amigoTutorialImg"
                     alt="Video Tutorial Bermain AMIGO"
-                    class="w-full h-auto object-cover group-hover:scale-102 transition-transform duration-300"
+                    class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                   />
-                  <!-- Hover subtle overlay effect -->
-                  <div class="absolute inset-0 bg-[#1E40AF]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <!-- Hover subtle overlay effect with Play Button -->
+                  <div class="absolute inset-0 bg-slate-900/30 flex items-center justify-center group-hover:bg-slate-900/40 transition-colors">
+                    <div class="w-16 h-16 rounded-full bg-white/95 text-[#1E40AF] flex items-center justify-center text-2xl shadow-xl pl-1 group-hover:scale-110 transition-transform">
+                      ▶
+                    </div>
+                  </div>
                 </div>
 
-                <div class="flex-1 max-w-lg">
+                <div class="flex-1 max-w-xl">
                   <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1E40AF] mb-3 tracking-tight">
                     Video Tutorial Bermain AMIGO
                   </h2>
@@ -206,15 +218,22 @@
               <!-- Mobile View (Stacked matching Video Tutorial.hp.png) -->
               <div class="md:hidden flex flex-col items-start text-left">
                 <!-- Thumbnail Video on top -->
-                <div
-                  @click="openVideoModal"
-                  class="w-full relative rounded-2xl overflow-hidden shadow-sm active:scale-98 transition-all cursor-pointer mb-5"
-                >
-                  <img
-                    :src="videoTutorialImg"
-                    alt="Video Tutorial Bermain AMIGO"
-                    class="w-full h-auto object-cover"
-                  />
+                <div class="w-full flex justify-center mb-6">
+                  <div
+                    @click="openVideoModal"
+                    class="w-full max-w-[280px] aspect-square relative rounded-2xl overflow-hidden shadow-md active:scale-98 transition-all cursor-pointer group"
+                  >
+                    <img
+                      :src="amigoTutorialImg"
+                      alt="Video Tutorial Bermain AMIGO"
+                      class="w-full h-full object-cover"
+                    />
+                    <div class="absolute inset-0 bg-slate-900/25 flex items-center justify-center">
+                      <div class="w-14 h-14 rounded-full bg-white/95 text-[#1E40AF] flex items-center justify-center text-xl shadow-lg pl-1">
+                        ▶
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <h2 class="text-2xl font-extrabold text-[#1E40AF] mb-2 leading-snug">
@@ -300,8 +319,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
-import amigoBoxImg from '../../assets/dashboard/amigo_box_3d.png'
-import videoTutorialImg from '../../assets/dashboard/amigo_video_tutorial.png'
+import amigoTentangImg from '../../assets/dashboard/amigo_real_tentang.png'
+import amigoMekanismeImg from '../../assets/dashboard/amigo_real_mekanisme.png'
+import amigoTutorialImg from '../../assets/dashboard/amigo_real_tutorial.png'
 
 type TabId = 'tentang' | 'mekanisme' | 'video'
 
@@ -318,12 +338,12 @@ const steps = [
   {
     number: 1,
     title: 'Kenali kartu dan jenis permainan',
-    description: 'Setiap kartu berisi situasi dan peraan yang berbeda.'
+    description: 'Setiap kartu berisi situasi dan peran yang berbeda.'
   },
   {
     number: 2,
     title: 'Ikuti langkah demi langkah',
-    description: 'Pelajari alur permainan situasi panduan.'
+    description: 'Pelajari alur permainan sesuai panduan.'
   },
   {
     number: 3,

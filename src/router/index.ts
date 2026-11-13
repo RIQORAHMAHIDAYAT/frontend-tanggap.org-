@@ -20,6 +20,7 @@ import AdminKelasView from '../views/admin/AdminKelasView.vue'
 import AdminAssessmentView from '../views/admin/AdminAssessmentView.vue'
 import AdminMonitoringAssessmentView from '../views/admin/AdminMonitoringAssessmentView.vue'
 import AdminKontenView from '../views/admin/AdminKontenView.vue'
+import AmigoLandingView from '../views/AmigoLandingView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -58,6 +59,11 @@ const router = createRouter({
     {
       path: '/proposal-demokit',
       redirect: '/pengajuan-sekolah'
+    },
+    {
+      path: '/tentang-amigo',
+      name: 'tentang-amigo',
+      component: AmigoLandingView
     },
 
     // RUTE SISWA / USER (Wajib Login)

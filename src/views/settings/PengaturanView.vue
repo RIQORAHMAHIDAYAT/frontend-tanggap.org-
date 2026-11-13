@@ -334,15 +334,6 @@ watch(
   { immediate: true }
 )
 
-const switchTab = (tab: 'profil' | 'keamanan') => {
-  activeTab.value = tab
-  if (tab === 'keamanan') {
-    router.replace({ path: route.path, query: { tab: 'keamanan' } })
-  } else {
-    router.replace({ path: route.path, query: {} })
-  }
-}
-
 // User state
 const getInitialProfileUser = () => {
   try {
@@ -376,8 +367,7 @@ const getInitialProfileUser = () => {
 
 const user = reactive(getInitialProfileUser())
 
-// Edit mode state
-const isEditing = ref(false)
+// Edit form state
 const editForm = reactive({ ...user })
 
 // Password form state
@@ -509,7 +499,6 @@ const saveProfile = () => {
     console.error('Error saving user data:', err)
   }
 
-  isEditing.value = false
   showToast('Data diri berhasil diperbarui!')
 }
 

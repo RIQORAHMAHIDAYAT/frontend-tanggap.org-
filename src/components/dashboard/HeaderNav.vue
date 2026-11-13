@@ -302,7 +302,7 @@ const handleLogout = () => {
     console.error('Failed to clear session', err)
   }
   isDropdownOpen.value = false
-  router.push('/login')
+  router.replace('/login')
 }
 
 const handleClickOutside = (event: MouseEvent) => {

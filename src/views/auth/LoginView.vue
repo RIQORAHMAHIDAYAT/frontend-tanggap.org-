@@ -1,5 +1,16 @@
 <template>
   <AuthLayout :reverse="false">
+    <!-- Tombol Kembali ke Beranda -->
+    <div class="mb-4 text-left">
+      <router-link
+        to="/"
+        class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#1C368D] transition-colors group cursor-pointer"
+      >
+        <span class="text-base group-hover:-translate-x-1 transition-transform">←</span>
+        <span>Kembali ke Beranda</span>
+      </router-link>
+    </div>
+
     <div class="mb-8 sm:mb-10 text-center">
       <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#1C368D] mb-3 sm:mb-4 whitespace-nowrap tracking-tight">
         Selamat Datang Kembali

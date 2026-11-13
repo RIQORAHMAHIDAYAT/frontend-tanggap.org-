@@ -154,7 +154,7 @@ const handleClickOutside = (event: MouseEvent) => {
 const handleLogout = () => {
   isDropdownOpen.value = false
   authService.logout()
-  router.push('/login')
+  router.replace('/login')
 }
 
 onMounted(() => {

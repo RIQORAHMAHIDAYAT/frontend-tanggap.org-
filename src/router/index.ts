@@ -203,9 +203,12 @@ router.beforeEach((to, _from, next) => {
     }
   }
 
-  // 1. Jika rute membutuhkan login dan user belum login -> arahkan ke /login
+  // 1. Jika rute membutuhkan login dan user belum login -> arahkan ke /login (atau ke Landing Page jika user menekan Back dari /login)
   if (to.meta.requiresAuth && !isLoggedIn) {
-    return next({ path: '/login', query: { redirect: to.fullPath } })
+    if (_from.path === '/login' || _from.path === '/register') {
+      return next({ path: '/', replace: true })
+    }
+    return next({ path: '/login', query: { redirect: to.fullPath }, replace: true })
   }
 
   // 2. Proteksi khusus role Admin

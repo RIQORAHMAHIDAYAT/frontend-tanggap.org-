@@ -120,20 +120,48 @@
       <!-- 3. Grid 2-Kolom Seimbang (AMIGO & Action Toolkit) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         <!-- AMIGO Card -->
-        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 group hover:shadow-md transition-shadow relative overflow-hidden">
-          <div class="flex-1 min-w-0">
-            <!-- Gamepad Icon in circle -->
-            <div class="w-12 h-12 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] mb-5">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 group hover:shadow-md transition-shadow relative overflow-hidden">
+          <!-- Mobile Header: Icon + Title side-by-side -->
+          <div class="flex items-center gap-3 sm:hidden w-full">
+            <div class="w-11 h-11 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] shrink-0">
               <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
               </svg>
             </div>
-
-            <h3 class="text-2xl font-bold text-[#1E40AF] mb-2">
+            <h3 class="text-2xl font-bold text-[#1E40AF]">
               AMIGO
             </h3>
-            <p class="text-slate-600 text-sm leading-relaxed mb-6">
-              Kenali AMIGO dan eksplrorasi cara bermainnya.
+          </div>
+
+          <!-- Mobile Centered Illustration -->
+          <div class="w-full flex justify-center sm:hidden my-1">
+            <img
+              :src="amigoBoxImg"
+              alt="AMIGO Board Game"
+              class="w-48 h-auto object-contain select-none pointer-events-none"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+
+          <!-- Text & Link Content -->
+          <div class="flex-1 min-w-0 w-full">
+            <!-- Desktop only: Icon & Title -->
+            <div class="hidden sm:block">
+              <div class="w-12 h-12 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] mb-5">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                </svg>
+              </div>
+
+              <h3 class="text-2xl font-bold text-[#1E40AF] mb-2">
+                AMIGO
+              </h3>
+            </div>
+
+            <p class="text-slate-600 text-sm leading-relaxed mb-4 sm:mb-6">
+              Kenali AMIGO dan eksplorasi cara bermainnya.
             </p>
 
             <router-link
@@ -145,30 +173,61 @@
             </router-link>
           </div>
 
-          <!-- AMIGO 3D Illustration -->
-          <div class="shrink-0">
+          <!-- Desktop only: Illustration on the right -->
+          <div class="hidden sm:flex shrink-0 items-center justify-center">
             <img
               :src="amigoBoxImg"
-              alt="AMIGO Boardgame 3D"
-              class="w-44 sm:w-52 h-auto object-contain select-none pointer-events-none"
+              alt="AMIGO Board Game"
+              class="w-48 lg:w-56 h-auto object-contain select-none pointer-events-none"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
             />
           </div>
         </div>
 
         <!-- Action Toolkit Card -->
-        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 group hover:shadow-md transition-shadow relative overflow-hidden">
-          <div class="flex-1 min-w-0">
-            <!-- Folder Icon in circle -->
-            <div class="w-12 h-12 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] mb-5">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 group hover:shadow-md transition-shadow relative overflow-hidden">
+          <!-- Mobile Header: Icon + Title side-by-side -->
+          <div class="flex items-center gap-3 sm:hidden w-full">
+            <div class="w-11 h-11 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] shrink-0">
               <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
               </svg>
             </div>
-
-            <h3 class="text-2xl font-bold text-[#1E40AF] mb-2">
+            <h3 class="text-2xl font-bold text-[#1E40AF]">
               Action Toolkit
             </h3>
-            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+          </div>
+
+          <!-- Mobile Centered Illustration -->
+          <div class="w-full flex justify-center sm:hidden my-1">
+            <img
+              :src="toolkitBinderImg"
+              alt="Action Toolkit"
+              class="w-48 h-auto object-contain select-none pointer-events-none"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+
+          <!-- Text & Link Content -->
+          <div class="flex-1 min-w-0 w-full">
+            <!-- Desktop only: Icon & Title -->
+            <div class="hidden sm:block">
+              <div class="w-12 h-12 rounded-full bg-[#EEF4FF] flex items-center justify-center text-[#1E40AF] mb-5">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                </svg>
+              </div>
+
+              <h3 class="text-2xl font-bold text-[#1E40AF] mb-2">
+                Action Toolkit
+              </h3>
+            </div>
+
+            <p class="text-slate-600 text-sm leading-relaxed mb-4 sm:mb-6">
               Temukan berbagai media dan lembar aktivitas untuk membantu menghadapi situasi sosial dan konflik.
             </p>
 
@@ -181,12 +240,15 @@
             </router-link>
           </div>
 
-          <!-- Action Toolkit Binder 3D Illustration -->
-          <div class="shrink-0">
+          <!-- Desktop only: Illustration on the right -->
+          <div class="hidden sm:flex shrink-0 items-center justify-center">
             <img
               :src="toolkitBinderImg"
-              alt="Action Toolkit Binder 3D"
-              class="w-44 sm:w-52 h-auto object-contain select-none pointer-events-none"
+              alt="Action Toolkit"
+              class="w-48 lg:w-56 h-auto object-contain select-none pointer-events-none"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
             />
           </div>
         </div>
@@ -296,8 +358,8 @@ import StudentDashboard from '../../components/dashboard/StudentDashboard.vue'
 import { api, isMockMode } from '../../services/api'
 
 import heroStudentsImg from '../../assets/dashboard/hero_students_new.png'
-import amigoBoxImg from '../../assets/dashboard/amigo_box_3d.png'
-import toolkitBinderImg from '../../assets/dashboard/toolkit_binder_3d.png'
+import amigoBoxImg from '../../assets/dashboard/amigo_card_fan.png'
+import toolkitBinderImg from '../../assets/dashboard/action_toolkit_card.png'
 import schoolCodeIllustration from '../../assets/dashboard/school_code_illustration.png'
 
 const route = useRoute()

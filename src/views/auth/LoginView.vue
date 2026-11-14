@@ -178,7 +178,33 @@ const loadGoogleScript = (): Promise<void> => {
 
 onMounted(() => {
   // Preload Google SDK agar langsung siap saat tombol diklik
-  loadGoogleScript().catch(() => {
+  loadGoogleScript().then(() => {
+    const google = (window as any).google
+    if (google?.accounts?.id) {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (response: any) => {
+          if (response?.credential) {
+            isGoogleLoading.value = true
+            try {
+              const res = await authService.loginWithGoogle({
+                credential: response.credential,
+              })
+              const userRole = res.user?.role || 'Siswa'
+              router.push(getRedirectPathByRole(userRole))
+            } catch (err: any) {
+              console.error('One Tap error:', err)
+              errorMsg.value = err?.message || 'Login dengan Google gagal di server.'
+            } finally {
+              isGoogleLoading.value = false
+            }
+          }
+        },
+      })
+      // Tampilkan Google One Tap jika browser mendukung dan ada sesi Google aktif
+      google.accounts.id.prompt()
+    }
+  }).catch(() => {
     // Silent catch, akan dicoba kembali saat tombol diklik
   })
 })
@@ -205,12 +231,15 @@ const handleGoogleLogin = async () => {
     const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: 'email profile openid',
+      prompt: 'select_account',
       callback: async (tokenResponse: any) => {
         if (tokenResponse.error) {
           isGoogleLoading.value = false
-          if (tokenResponse.error !== 'access_denied') {
-            errorMsg.value = 'Gagal autentikasi Google: ' + tokenResponse.error
+          // Jika user menutup popup atau membatalkan, tidak perlu tampilkan error merah
+          if (tokenResponse.error === 'access_denied') {
+            return
           }
+          errorMsg.value = 'Gagal autentikasi Google: ' + tokenResponse.error
           return
         }
 
@@ -230,12 +259,19 @@ const handleGoogleLogin = async () => {
       },
       error_callback: (err: any) => {
         isGoogleLoading.value = false
-        console.error('Google popup error:', err)
-        errorMsg.value = 'Jendela login Google dibatalkan atau dicegah oleh peramban.'
+        // Jangan tampilkan pesan error jika user hanya sengaja menutup jendela popup
+        if (err?.type === 'popup_closed' || err?.type === 'user_cancel') {
+          return
+        }
+        if (err?.type === 'popup_blocked_by_browser') {
+          errorMsg.value = 'Jendela login Google diblokir peramban. Silakan izinkan pop-up di browser Anda.'
+          return
+        }
+        console.warn('Google popup notice:', err)
       }
     })
 
-    tokenClient.requestAccessToken({ prompt: 'consent' })
+    tokenClient.requestAccessToken({ prompt: 'select_account' })
   } catch (err: any) {
     isGoogleLoading.value = false
     console.error('Google Sign-in exception:', err)

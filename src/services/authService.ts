@@ -64,6 +64,11 @@ export const authService = {
     if (user) {
       localStorage.setItem('tanggap_user', JSON.stringify(user))
     }
+    if ((user as any)?.classCode) {
+      localStorage.setItem('tanggap_school_code', (user as any).classCode)
+    } else {
+      localStorage.removeItem('tanggap_school_code')
+    }
     window.dispatchEvent(new Event('storage'))
     return { ...res, token, user }
   },
@@ -85,6 +90,7 @@ export const authService = {
       }
       localStorage.setItem('tanggap_token', mockRes.token!)
       localStorage.setItem('tanggap_user', JSON.stringify(mockRes.user))
+      localStorage.removeItem('tanggap_school_code')
       window.dispatchEvent(new Event('storage'))
       return mockRes
     }
@@ -98,6 +104,11 @@ export const authService = {
     }
     if (user) {
       localStorage.setItem('tanggap_user', JSON.stringify(user))
+    }
+    if ((user as any)?.classCode) {
+      localStorage.setItem('tanggap_school_code', (user as any).classCode)
+    } else {
+      localStorage.removeItem('tanggap_school_code')
     }
     window.dispatchEvent(new Event('storage'))
     return { ...res, token, user }

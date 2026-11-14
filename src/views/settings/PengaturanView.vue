@@ -84,7 +84,7 @@
                 <input
                   v-model="editForm.school"
                   type="text"
-                  required
+                  placeholder="Belum terhubung ke sekolah"
                   class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -236,7 +236,7 @@
             <div>
               <h3 class="text-lg font-bold text-slate-900 mb-1">Status Token Sekolah Siswa</h3>
               <p class="text-slate-600 text-sm max-w-xl">
-                Akun Anda saat ini terhubung dengan kode sekolah: <span class="font-bold text-slate-900 font-mono tracking-wider bg-slate-200 px-2 py-0.5 rounded">{{ currentSchoolToken }}</span> (SMK Dinamika Kota Banjar). Anda dapat menghapus token ini untuk kembali melihat antarmuka Dashboard Default.
+                Akun Anda saat ini terhubung dengan kode sekolah: <span class="font-bold text-slate-900 font-mono tracking-wider bg-slate-200 px-2 py-0.5 rounded">{{ currentSchoolToken }}</span><span v-if="user.school"> ({{ user.school }})</span>. Anda dapat menghapus token ini untuk kembali melihat antarmuka Dashboard Default.
               </p>
             </div>
             <button
@@ -346,8 +346,8 @@ const getInitialProfileUser = () => {
       return {
         name,
         email: parsed.email || 'pengguna@tanggap.org',
-        school: parsed.school || 'Sekolah Mitra',
-        phone: parsed.phone || '-',
+        school: parsed.school || '',
+        phone: parsed.phone && parsed.phone !== '-' ? parsed.phone : '',
         gender: parsed.gender && parsed.gender !== 'Laki-laki' && parsed.gender !== 'Perempuan' ? '' : (parsed.gender || ''),
         initials,
         photo: parsed.photo || ''
@@ -357,8 +357,8 @@ const getInitialProfileUser = () => {
   return {
     name: 'Pengguna',
     email: 'pengguna@tanggap.org',
-    school: 'Sekolah Mitra',
-    phone: '-',
+    school: '',
+    phone: '',
     gender: '',
     initials: 'TG',
     photo: ''

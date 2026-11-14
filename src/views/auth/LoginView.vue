@@ -369,7 +369,7 @@ const handleLogin = async () => {
       finalRole = 'Guru BK'
       if (res.user) {
         res.user.role = 'Guru BK'
-        res.user.school = teacherSchool || res.user.school || 'Sekolah Mitra'
+        res.user.school = teacherSchool || res.user.school || ''
         if (teacherName) res.user.name = teacherName
         localStorage.setItem('tanggap_user', JSON.stringify(res.user))
         window.dispatchEvent(new Event('storage'))
@@ -384,7 +384,7 @@ const handleLogin = async () => {
         name: teacherName || emailClean.split('@')[0],
         email: emailClean,
         role: 'Guru BK',
-        school: teacherSchool || 'Sekolah Mitra'
+        school: teacherSchool || ''
       }
       localStorage.setItem('tanggap_token', 'token-guru-' + Date.now())
       localStorage.setItem('tanggap_user', JSON.stringify(teacherUser))

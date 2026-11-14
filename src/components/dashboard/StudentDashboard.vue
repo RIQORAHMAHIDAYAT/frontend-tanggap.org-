@@ -367,7 +367,7 @@ const getSchoolAndClassInfo = () => {
       const classes = JSON.parse(rawClasses)
       const matched = classes.find((c: any) => c.code.toUpperCase() === schoolCode)
       if (matched) {
-        return `${matched.name || 'Kelas Mitra'} | ${matched.school || user?.school || 'Sekolah Mitra'}`
+        return `${matched.name || 'Kelas Terdaftar'} | ${matched.school || user?.school || ''}`
       }
     }
 
@@ -375,7 +375,7 @@ const getSchoolAndClassInfo = () => {
       return `Siswa | ${user.school}`
     }
   } catch {}
-  return 'Kelas XII D | SMK Dinamika Kota Banjar'
+  return 'Siswa'
 }
 
 const studentClassInfo = ref(getSchoolAndClassInfo())

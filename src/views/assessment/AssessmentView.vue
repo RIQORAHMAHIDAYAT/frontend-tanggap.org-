@@ -168,14 +168,15 @@
               </div>
 
               <div>
-                <button
-                  @click="handlePostTestClick"
-                  type="button"
+                <a
+                  :href="postTestUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   class="bg-[#1E40AF] hover:bg-blue-800 text-white font-bold px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl shadow-xs transition-all active:scale-95 inline-flex items-center gap-2 text-sm sm:text-base cursor-pointer"
                 >
                   <span>Mulai Post-test</span>
                   <span>→</span>
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -280,16 +281,8 @@ const progressPercent = ref(0)
 const calculatedResult = ref<AssessmentResultData | null>(null)
 const hasSchoolCode = ref(false)
 
-// Placeholder untuk Link Post-test (Nanti tinggal isi URL di sini jika form sudah siap)
-const postTestUrl = ref('')
-
-const handlePostTestClick = () => {
-  if (postTestUrl.value && postTestUrl.value.trim().length > 0) {
-    window.open(postTestUrl.value, '_blank', 'noopener,noreferrer')
-  } else {
-    alert('Link Post-test belum tersedia saat ini. Form akan dibuka oleh guru/fasilitator setelah rangkaian materi dan AMIGO selesai dilaksanakan.')
-  }
-}
+// Link Google Form Post-test Siswa
+const postTestUrl = ref('https://docs.google.com/forms/d/e/1FAIpQLSc1Fq1hMu3KEJWXjQCBE4F_PhkzvIKo0c0aMFdXOpbU4x1DmQ/viewform')
 
 const checkSchoolStatus = () => {
   if (route.query.status === 'locked') {

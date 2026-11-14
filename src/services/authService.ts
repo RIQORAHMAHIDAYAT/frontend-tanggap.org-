@@ -69,6 +69,41 @@ export const authService = {
   },
 
   /**
+   * Endpoint: POST /auth/google
+   */
+  async loginWithGoogle(payload: { access_token?: string; credential?: string; id_token?: string }): Promise<AuthResponse> {
+    if (isMockMode()) {
+      const mockRes: AuthResponse = {
+        token: 'mock-google-token-' + Date.now(),
+        user: {
+          id: 'user-google-1',
+          name: 'Pengguna Google Demo',
+          email: 'google.demo@tanggap.org',
+          role: 'Siswa'
+        },
+        message: 'Login Google berhasil (Mock Mode)'
+      }
+      localStorage.setItem('tanggap_token', mockRes.token!)
+      localStorage.setItem('tanggap_user', JSON.stringify(mockRes.user))
+      window.dispatchEvent(new Event('storage'))
+      return mockRes
+    }
+
+    const res = await api.post<AuthResponse>('auth/google', payload)
+    const token = res.token || (res as any)?.data?.token
+    const user = res.user || (res as any)?.data?.user
+
+    if (token) {
+      localStorage.setItem('tanggap_token', token)
+    }
+    if (user) {
+      localStorage.setItem('tanggap_user', JSON.stringify(user))
+    }
+    window.dispatchEvent(new Event('storage'))
+    return { ...res, token, user }
+  },
+
+  /**
    * Endpoint: POST /auth/register
    */
   async register(payload: RegisterPayload): Promise<AuthResponse> {

@@ -68,20 +68,27 @@
       atau
     </div>
 
-    <!-- Tombol Continue With Google (Dinonaktifkan Sementara dengan Popup Pemberitahuan) -->
+    <!-- Tombol Continue With Google -->
     <button 
       type="button"
-      @click="showGoogleFeatureNotice = true"
-      class="w-full flex items-center justify-center px-4 py-3.5 border border-gray-200 shadow-xs rounded-full hover:bg-gray-50 transition-colors cursor-pointer active:scale-[0.99]"
-      title="Masuk dengan Google (Segera Hadir)"
+      :disabled="isGoogleLoading || isSubmitting"
+      @click="handleGoogleLogin"
+      class="w-full flex items-center justify-center px-4 py-3.5 border border-gray-200 shadow-xs rounded-full hover:bg-gray-50 transition-colors cursor-pointer active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+      title="Masuk dengan Google"
     >
-      <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <svg v-if="!isGoogleLoading" class="w-5 h-5 mr-3" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
         <path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" fill="#FFC107"/>
         <path d="m6.3 12.9 7.1 5.3C15.2 15.1 19.3 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 16.5 2 9.9 6.4 6.3 12.9z" fill="#FF3D00"/>
         <path d="M24 46c5.4 0 10.2-2 14.1-5.4l-7-5.8c-2.1 1.4-4.5 2.2-7.1 2.2-4.9 0-9.1-3.1-10.8-7.4l-7.3 5.6C9.7 41.8 16.4 46 24 46z" fill="#4CAF50"/>
         <path d="M44.5 20H24v8.5h11.8c-.8 2.2-2.1 4-3.9 5.3l7 5.8c4.1-3.8 6.6-9.5 6.6-15.1 0-1.3-.2-2.7-.5-4z" fill="#1976D2"/>
       </svg>
-      <span class="text-gray-600 font-medium">Continue With Google</span>
+      <svg v-else class="animate-spin -ml-1 mr-3 h-5 w-5 text-[#20409A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+      <span class="text-gray-600 font-medium">
+        {{ isGoogleLoading ? 'Menghubungkan ke Google...' : 'Continue With Google' }}
+      </span>
     </button>
 
     <div class="mt-8 text-center text-sm">
@@ -129,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthLayout from '../../components/layouts/AuthLayout.vue'
 import { authService } from '../../services/authService'
@@ -141,13 +148,99 @@ const password = ref('')
 const showPassword = ref(false)
 const errorMsg = ref('')
 const isSubmitting = ref(false)
+const isGoogleLoading = ref(false)
 const showGoogleFeatureNotice = ref(false)
+
+const GOOGLE_CLIENT_ID = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || '354097984425-4gbg3j9e2jes4cl3cs39dr98kap2huqc.apps.googleusercontent.com'
+
+const loadGoogleScript = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== 'undefined' && (window as any).google?.accounts) {
+      resolve()
+      return
+    }
+    const existingScript = document.getElementById('google-jssdk')
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve())
+      existingScript.addEventListener('error', () => reject(new Error('Gagal memuat Google Sign-In SDK')))
+      return
+    }
+    const script = document.createElement('script')
+    script.id = 'google-jssdk'
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.defer = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Gagal memuat Google Sign-In SDK'))
+    document.head.appendChild(script)
+  })
+}
+
+onMounted(() => {
+  // Preload Google SDK agar langsung siap saat tombol diklik
+  loadGoogleScript().catch(() => {
+    // Silent catch, akan dicoba kembali saat tombol diklik
+  })
+})
 
 const getRedirectPathByRole = (role?: string): string => {
   const r = String(role || '').toLowerCase()
   if (r.includes('admin')) return '/dashboard_admin'
   if (r.includes('guru') || r.includes('teacher') || r.includes('sekolah')) return '/dashboard_guru'
   return '/dashboard'
+}
+
+const handleGoogleLogin = async () => {
+  errorMsg.value = ''
+  isGoogleLoading.value = true
+
+  try {
+    await loadGoogleScript()
+    const google = (window as any).google
+
+    if (!google?.accounts?.oauth2) {
+      throw new Error('Layanan Google Sign-In belum siap. Silakan muat ulang halaman.')
+    }
+
+    const tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'email profile openid',
+      callback: async (tokenResponse: any) => {
+        if (tokenResponse.error) {
+          isGoogleLoading.value = false
+          if (tokenResponse.error !== 'access_denied') {
+            errorMsg.value = 'Gagal autentikasi Google: ' + tokenResponse.error
+          }
+          return
+        }
+
+        try {
+          const res = await authService.loginWithGoogle({
+            access_token: tokenResponse.access_token,
+          })
+
+          const userRole = res.user?.role || 'Siswa'
+          router.push(getRedirectPathByRole(userRole))
+        } catch (loginErr: any) {
+          console.error('Google backend auth error:', loginErr)
+          errorMsg.value = loginErr?.message || 'Login dengan Google gagal di server.'
+        } finally {
+          isGoogleLoading.value = false
+        }
+      },
+      error_callback: (err: any) => {
+        isGoogleLoading.value = false
+        console.error('Google popup error:', err)
+        errorMsg.value = 'Jendela login Google dibatalkan atau dicegah oleh peramban.'
+      }
+    })
+
+    tokenClient.requestAccessToken({ prompt: 'consent' })
+  } catch (err: any) {
+    isGoogleLoading.value = false
+    console.error('Google Sign-in exception:', err)
+    errorMsg.value = err?.message || 'Gagal memulai login dengan Google.'
+  }
 }
 
 const handleLogin = async () => {

@@ -23,14 +23,14 @@
       </router-link>
 
       <div class="z-10 flex flex-col items-center">
-        <!-- Logo Image -->
-        <router-link to="/" class="flex flex-col items-center group cursor-pointer text-center">
-          <img 
-            src="../../assets/logo_sementara.png" 
-            alt="Logo Resolusi Konflik" 
-            class="mb-4 sm:mb-6 w-28 sm:w-32 h-auto object-contain transition-transform duration-300 group-hover:scale-105"
-          >
-          <h2 class="text-white text-xl md:text-2xl font-medium tracking-wide text-center">Resolusi Konflik Remaja</h2>
+        <!-- Logo Branding Text (Tajam, Bersih, Vektor Alami) -->
+        <router-link to="/" class="flex flex-col items-center group cursor-pointer text-center px-4 select-none">
+          <span class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4 sm:mb-6 md:mb-7 transition-transform duration-300 group-hover:scale-105">
+            tanggap<span class="text-sky-300">.org</span>
+          </span>
+          <h2 class="text-blue-100/90 text-sm sm:text-base md:text-lg font-medium tracking-wide text-center">
+            Resolusi Konflik Remaja
+          </h2>
         </router-link>
       </div>
     </div>

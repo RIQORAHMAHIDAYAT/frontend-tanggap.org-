@@ -12,7 +12,7 @@ onMounted(async () => {
   if (!token || isMockMode()) return
 
   try {
-    const freshUser = await authService.me()
+    const freshUser: any = await authService.getProfile()
     if (freshUser && freshUser.role) {
       const raw = localStorage.getItem('tanggap_user')
       const current = raw ? JSON.parse(raw) : {}

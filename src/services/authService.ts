@@ -158,6 +158,13 @@ export const authService = {
   },
 
   /**
+   * Alias untuk getProfile()
+   */
+  async me(): Promise<AuthResponse['user']> {
+    return this.getProfile()
+  },
+
+  /**
    * Logout user & bersihkan token
    */
   logout() {

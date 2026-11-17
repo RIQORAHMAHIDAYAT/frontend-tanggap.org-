@@ -226,7 +226,13 @@ router.beforeEach((to, _from, next) => {
     }
   }
 
-  // 4. Jika user sudah login dan mengakses /login atau /register -> redirect ke dashboard sesuai perannya
+  // 4. Jika user dengan role Guru/Admin mengakses /dashboard siswa biasa -> arahkan langsung ke dashboard yang tepat
+  if (to.path === '/dashboard') {
+    if (userRole === 'teacher') return next({ path: '/dashboard_guru', replace: true })
+    if (userRole === 'admin') return next({ path: '/dashboard_admin', replace: true })
+  }
+
+  // 5. Jika user sudah login dan mengakses /login atau /register -> redirect ke dashboard sesuai perannya
   if ((to.path === '/login' || to.path === '/register') && isLoggedIn) {
     if (userRole === 'admin') return next('/dashboard_admin')
     if (userRole === 'teacher') return next('/dashboard_guru')

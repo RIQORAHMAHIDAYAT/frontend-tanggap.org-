@@ -350,7 +350,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 import OtpSchoolInput from '../../components/dashboard/OtpSchoolInput.vue'
 import FloatingSupport from '../../components/dashboard/FloatingSupport.vue'
@@ -362,7 +362,32 @@ import amigoBoxImg from '../../assets/dashboard/amigo_card_fan.png'
 import toolkitBinderImg from '../../assets/dashboard/action_toolkit_card.png'
 import schoolCodeIllustration from '../../assets/dashboard/school_code_illustration.png'
 
+const router = useRouter()
 const route = useRoute()
+
+// Guard role: Jika yang membuka adalah Guru BK atau Admin, langsung redirect ke dashboard yang tepat
+const checkRoleAndRedirect = () => {
+  try {
+    const rawUser = localStorage.getItem('tanggap_user')
+    if (rawUser) {
+      const u = JSON.parse(rawUser)
+      const r = String(u.role || '').toLowerCase()
+      if (r.includes('guru') || r.includes('teacher') || r.includes('sekolah')) {
+        router.replace('/dashboard_guru')
+        return true
+      }
+      if (r.includes('admin')) {
+        router.replace('/dashboard_admin')
+        return true
+      }
+    }
+  } catch {}
+  return false
+}
+
+if (typeof window !== 'undefined') {
+  checkRoleAndRedirect()
+}
 
 const getInitialDashboardData = () => {
   let name = 'Siswa'
@@ -417,6 +442,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
 }
 
 onMounted(() => {
+  if (checkRoleAndRedirect()) return
+
   try {
     const raw = localStorage.getItem('tanggap_user')
     if (raw) {

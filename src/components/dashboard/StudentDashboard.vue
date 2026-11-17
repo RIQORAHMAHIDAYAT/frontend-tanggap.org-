@@ -332,7 +332,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import amigoBoxImg from '../../assets/dashboard/amigo_card_fan.png'
 import toolkitBinderImg from '../../assets/dashboard/action_toolkit_card.png'
 
@@ -349,8 +349,28 @@ const getSchoolAndClassInfo = () => {
   try {
     const rawUser = localStorage.getItem('tanggap_user')
     const user = rawUser ? JSON.parse(rawUser) : null
-    const schoolCode = (localStorage.getItem('tanggap_school_code') || '').toUpperCase()
+    const schoolCode = (localStorage.getItem('tanggap_school_code') || '').toUpperCase().trim()
 
+    // 1. Cek kelas terdaftar dari cache admin atau custom classes
+    const rawClasses = localStorage.getItem('tanggap_custom_classes') || localStorage.getItem('tanggap_admin_classes_cache')
+    if (rawClasses && schoolCode) {
+      try {
+        const classes = JSON.parse(rawClasses)
+        const matched = classes.find((c: any) => c.code && c.code.toUpperCase() === schoolCode)
+        if (matched) {
+          const schoolName = matched.school || user?.school || 'Sekolah Mitra'
+          return `${matched.name || ('Kelas ' + schoolCode)} | ${schoolName}`
+        }
+      } catch {}
+    }
+
+    // 2. Jika user memiliki relasi sekolah di profilnya
+    if (user?.school) {
+      const classLabel = schoolCode ? `Kelas ${schoolCode}` : 'Siswa'
+      return `${classLabel} | ${user.school}`
+    }
+
+    // 3. Fallback resmi demo jika kode cocok
     const demoMap: Record<string, { school: string; class: string }> = {
       'SMAN1A': { school: 'SMA Harapan Bangsa', class: 'Kelas X-A' },
       '849201': { school: 'SMK Dinamika Kota Banjar', class: 'Kelas XII D' },
@@ -361,26 +381,30 @@ const getSchoolAndClassInfo = () => {
       const match = demoMap[schoolCode]
       return `${match.class} | ${match.school}`
     }
-
-    const rawClasses = localStorage.getItem('tanggap_custom_classes')
-    if (rawClasses) {
-      const classes = JSON.parse(rawClasses)
-      const matched = classes.find((c: any) => c.code.toUpperCase() === schoolCode)
-      if (matched) {
-        return `${matched.name || 'Kelas Terdaftar'} | ${matched.school || user?.school || ''}`
-      }
-    }
-
-    if (user?.school) {
-      return `Siswa | ${user.school}`
-    }
   } catch {}
   return 'Siswa'
 }
 
 const studentClassInfo = ref(getSchoolAndClassInfo())
-const progressPercent = ref(45)
+const progressPercent = ref(0)
 const streakDays = ref(0)
 const badgesCount = ref(0)
 const showChallengeModal = ref(false)
+
+onMounted(() => {
+  try {
+    const rawUser = localStorage.getItem('tanggap_user')
+    if (rawUser) {
+      const user = JSON.parse(rawUser)
+      if (user.streak_days) streakDays.value = user.streak_days
+      if (user.badges_count) badgesCount.value = user.badges_count
+      studentClassInfo.value = getSchoolAndClassInfo()
+    }
+
+    const hasDoneAssessment = localStorage.getItem('tanggap_has_assessment') || localStorage.getItem('tanggap_my_assessment')
+    if (hasDoneAssessment) {
+      progressPercent.value = 100
+    }
+  } catch {}
+})
 </script>

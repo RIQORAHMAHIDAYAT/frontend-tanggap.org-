@@ -120,7 +120,7 @@
                   </span>
                 </td>
 
-                <!-- Aksi Detail & Hapus Button -->
+                <!-- Aksi Detail, Edit & Hapus Button -->
                 <td class="py-5 px-6 text-center">
                   <div class="flex items-center justify-center gap-2">
                     <button
@@ -129,6 +129,14 @@
                       class="px-3 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
                     >
                       Detail
+                    </button>
+                    <button
+                      @click="openEdit(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                      title="Edit Sekolah"
+                    >
+                      Edit
                     </button>
                     <button
                       @click="confirmDeleteSchool(item)"
@@ -313,14 +321,21 @@
           </div>
         </div>
 
-        <!-- Tombol Hapus Sekolah di Modal Detail -->
-        <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <!-- Tombol Aksi di Modal Detail: Edit & Hapus -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <button
+            @click="openEdit(selectedSchool)"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs sm:text-sm transition-all border border-amber-300 cursor-pointer"
+          >
+            Edit Sekolah Ini
+          </button>
           <button
             @click="confirmDeleteSchool(selectedSchool)"
             type="button"
-            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer flex items-center gap-1.5"
+            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer"
           >
-            <span>🗑️ Hapus Sekolah Ini</span>
+            Hapus Sekolah Ini
           </button>
         </div>
       </div>
@@ -333,6 +348,114 @@
         >
           Tutup
         </button>
+      </template>
+    </AdminModal>
+
+    <!-- Modal Edit Sekolah -->
+    <AdminModal
+      :is-open="isEditModalOpen"
+      :title="schoolToEdit ? `Edit Data Sekolah - ${schoolToEdit.name}` : 'Edit Data Sekolah'"
+      @close="isEditModalOpen = false"
+    >
+      <form @submit.prevent="submitEditSchool" class="space-y-4">
+        <div v-if="editErrorMsg" class="p-3 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs sm:text-sm flex items-center gap-2">
+          <span>⚠️</span>
+          <span>{{ editErrorMsg }}</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nama Sekolah / Instansi
+          </label>
+          <input
+            v-model="editForm.name"
+            required
+            type="text"
+            placeholder="Contoh: Universitas Negeri Yogyakarta"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Akreditasi
+            </label>
+            <select
+              v-model="editForm.akreditasi"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] bg-white text-slate-800 text-sm"
+            >
+              <option value="Unggul">Unggul</option>
+              <option value="A">A</option>
+              <option value="Baik Sekali">Baik Sekali</option>
+              <option value="B">B</option>
+              <option value="Baik">Baik</option>
+              <option value="C">C</option>
+              <option value="Belum Terakreditasi">Belum Terakreditasi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Status Kerjasama
+            </label>
+            <select
+              v-model="editForm.status"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] bg-white text-slate-800 text-sm"
+            >
+              <option value="Disetujui">Disetujui</option>
+              <option value="Menunggu ditinjau">Menunggu ditinjau</option>
+              <option value="Ditolak">Ditolak</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            PIC / Kontak Sekolah
+          </label>
+          <input
+            v-model="editForm.pic"
+            required
+            type="text"
+            placeholder="Contoh: Ahmad Mundakir, S.Pd"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Alamat Sekolah
+          </label>
+          <textarea
+            v-model="editForm.alamat"
+            required
+            rows="3"
+            placeholder="Contoh: Jl. Colombo Yogyakarta No.1, Karang Malang, Sleman, DIY"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm resize-none"
+          ></textarea>
+        </div>
+      </form>
+
+      <template #footer>
+        <div class="flex items-center justify-end gap-3 w-full">
+          <button
+            @click="isEditModalOpen = false"
+            type="button"
+            :disabled="isSubmittingEdit"
+            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm cursor-pointer transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            @click="submitEditSchool"
+            type="button"
+            :disabled="isSubmittingEdit"
+            class="px-5 py-2.5 rounded-xl bg-[#1E40AF] hover:bg-blue-800 disabled:opacity-60 text-white font-bold text-xs sm:text-sm cursor-pointer transition-all shadow-md active:scale-95 flex items-center gap-2"
+          >
+            <span v-if="isSubmittingEdit">Menyimpan...</span>
+            <span v-else>Simpan Perubahan</span>
+          </button>
+        </div>
       </template>
     </AdminModal>
 
@@ -487,6 +610,91 @@ const selectedSchool = ref<SchoolItem | null>(null)
 const openDetail = (item: SchoolItem) => {
   selectedSchool.value = item
   isDetailModalOpen.value = true
+}
+
+// ==========================================
+// Fitur Edit Sekolah
+// ==========================================
+const isEditModalOpen = ref(false)
+const schoolToEdit = ref<SchoolItem | null>(null)
+const isSubmittingEdit = ref(false)
+const editErrorMsg = ref('')
+const editForm = ref({
+  name: '',
+  akreditasi: 'A',
+  alamat: '',
+  pic: '',
+  status: 'Disetujui' as 'Menunggu ditinjau' | 'Disetujui' | 'Ditolak'
+})
+
+const openEdit = (item: SchoolItem) => {
+  schoolToEdit.value = item
+  editErrorMsg.value = ''
+  editForm.value = {
+    name: item.name,
+    akreditasi: item.akreditasi || 'A',
+    alamat: item.alamat || '',
+    pic: item.pic || '',
+    status: item.status || 'Disetujui'
+  }
+  isDetailModalOpen.value = false
+  isEditModalOpen.value = true
+}
+
+const submitEditSchool = async () => {
+  if (!schoolToEdit.value) return
+  const cleanName = editForm.value.name.trim()
+  const cleanAlamat = editForm.value.alamat.trim()
+  const cleanPic = editForm.value.pic.trim()
+
+  if (!cleanName || !cleanAlamat || !cleanPic) {
+    editErrorMsg.value = 'Nama sekolah, alamat, dan PIC wajib diisi.'
+    return
+  }
+
+  isSubmittingEdit.value = true
+  editErrorMsg.value = ''
+
+  const targetId = schoolToEdit.value.id
+
+  try {
+    if (!isMockMode()) {
+      await api.put(`schools/${targetId}`, {
+        name: cleanName,
+        akreditasi: editForm.value.akreditasi,
+        alamat: cleanAlamat,
+        pic: cleanPic,
+        status: editForm.value.status
+      })
+    }
+  } catch (err: any) {
+    console.warn('API update school notice:', err)
+    if (err?.status === 422 || err?.data?.message) {
+      editErrorMsg.value = err?.data?.message || err?.message || 'Gagal memperbarui data sekolah.'
+      isSubmittingEdit.value = false
+      return
+    }
+  }
+
+  // Update di state lokal schools
+  const idx = schools.value.findIndex(s => String(s.id) === String(targetId))
+  if (idx !== -1) {
+    schools.value[idx] = {
+      ...schools.value[idx],
+      name: cleanName,
+      akreditasi: editForm.value.akreditasi,
+      alamat: cleanAlamat,
+      pic: cleanPic,
+      status: editForm.value.status
+    }
+  }
+
+  try {
+    localStorage.setItem('tanggap_admin_schools_cache', JSON.stringify(schools.value))
+  } catch {}
+
+  isSubmittingEdit.value = false
+  isEditModalOpen.value = false
 }
 
 const statusBadgeClass = (status: string) => {

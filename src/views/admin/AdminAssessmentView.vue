@@ -307,9 +307,9 @@
           <button
             @click="confirmDeleteAssessment(selectedItem)"
             type="button"
-            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer flex items-center gap-1.5"
+            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer"
           >
-            <span>🗑️ Hapus Assessment Ini</span>
+            Hapus Assessment Ini
           </button>
         </div>
       </div>

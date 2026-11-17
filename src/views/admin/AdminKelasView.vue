@@ -111,7 +111,7 @@
                   {{ item.studentsCount }}
                 </td>
 
-                <!-- Aksi Detail & Hapus Button -->
+                <!-- Aksi Detail, Edit & Hapus Button -->
                 <td class="py-5 px-6 text-center">
                   <div class="flex items-center justify-center gap-2">
                     <button
@@ -120,6 +120,14 @@
                       class="px-3 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
                     >
                       Detail
+                    </button>
+                    <button
+                      @click="openEdit(item)"
+                      type="button"
+                      class="px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 active:scale-95 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                      title="Edit Kelas"
+                    >
+                      Edit
                     </button>
                     <button
                       @click="confirmDeleteClass(item)"
@@ -283,14 +291,21 @@
           </div>
         </div>
 
-        <!-- Tombol Hapus Kelas di Modal Detail -->
-        <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <!-- Tombol Aksi di Modal Detail: Edit & Hapus -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <button
+            @click="openEdit(selectedClass)"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs sm:text-sm transition-all border border-amber-300 cursor-pointer"
+          >
+            Edit Kelas Ini
+          </button>
           <button
             @click="confirmDeleteClass(selectedClass)"
             type="button"
-            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer flex items-center gap-1.5"
+            class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs sm:text-sm transition-all border border-red-200 cursor-pointer"
           >
-            <span>🗑️ Hapus Kelas Ini</span>
+            Hapus Kelas Ini
           </button>
         </div>
       </div>
@@ -303,6 +318,108 @@
         >
           Tutup
         </button>
+      </template>
+    </AdminModal>
+
+    <!-- Modal Edit Kelas -->
+    <AdminModal
+      :is-open="isEditModalOpen"
+      :title="classToEdit ? `Edit Kelas - ${classToEdit.name}` : 'Edit Kelas'"
+      @close="isEditModalOpen = false"
+    >
+      <form @submit.prevent="submitEditClass" class="space-y-4">
+        <div v-if="editErrorMsg" class="p-3 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs sm:text-sm flex items-center gap-2">
+          <span>⚠️</span>
+          <span>{{ editErrorMsg }}</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nama Kelas
+          </label>
+          <input
+            v-model="editForm.name"
+            required
+            type="text"
+            placeholder="Contoh: Kelas UNY 151"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Sekolah Mitra
+          </label>
+          <select
+            v-if="availableSchools.length > 0"
+            v-model="editForm.school"
+            @change="onSchoolSelectChange"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] bg-white text-slate-800 text-sm"
+          >
+            <option v-for="s in availableSchools" :key="s.id || s.name" :value="s.name">
+              {{ s.name }}
+            </option>
+          </select>
+          <input
+            v-else
+            v-model="editForm.school"
+            required
+            type="text"
+            placeholder="Contoh: Universitas Negeri Yogyakarta"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Kode Akses Kelas
+            </label>
+            <input
+              v-model="editForm.code"
+              required
+              type="text"
+              @input="editForm.code = editForm.code.replace(/\s+/g, '').toUpperCase()"
+              placeholder="Contoh: UNY151"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] font-mono uppercase font-bold text-blue-700 text-sm"
+            />
+            <span class="text-[11px] text-slate-400 mt-1 block">3-15 karakter (tanpa spasi)</span>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Jumlah Siswa
+            </label>
+            <input
+              v-model.number="editForm.studentsCount"
+              type="number"
+              min="0"
+              placeholder="30"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+            />
+          </div>
+        </div>
+      </form>
+
+      <template #footer>
+        <div class="flex items-center justify-end gap-3 w-full">
+          <button
+            @click="isEditModalOpen = false"
+            type="button"
+            :disabled="isSubmittingEdit"
+            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm cursor-pointer transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            @click="submitEditClass"
+            type="button"
+            :disabled="isSubmittingEdit"
+            class="px-5 py-2.5 rounded-xl bg-[#1E40AF] hover:bg-blue-800 disabled:opacity-60 text-white font-bold text-xs sm:text-sm cursor-pointer transition-all shadow-md active:scale-95 flex items-center gap-2"
+          >
+            <span v-if="isSubmittingEdit">Menyimpan...</span>
+            <span v-else>Simpan Perubahan</span>
+          </button>
+        </div>
       </template>
     </AdminModal>
 
@@ -359,9 +476,17 @@ interface ClassItem {
   id: number | string
   name: string
   school: string
+  schoolId?: number
   code: string
   studentsCount: number
 }
+
+interface SchoolOption {
+  id: number
+  name: string
+}
+
+const availableSchools = ref<SchoolOption[]>([])
 
 const searchQuery = ref('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
@@ -380,6 +505,26 @@ const getCachedClasses = (): ClassItem[] => {
 const classes = ref<ClassItem[]>(getCachedClasses())
 
 onMounted(async () => {
+  // Load daftar sekolah mitra untuk dropdown edit
+  try {
+    const rawSchools = localStorage.getItem('tanggap_admin_schools_cache')
+    if (rawSchools) {
+      const parsedSchools = JSON.parse(rawSchools)
+      if (Array.isArray(parsedSchools) && parsedSchools.length > 0) {
+        availableSchools.value = parsedSchools.map((s: any) => ({ id: s.id, name: s.name }))
+      }
+    }
+  } catch {}
+
+  if (!isMockMode()) {
+    try {
+      const schoolRes = await api.get<{ data?: any[] }>('schools')
+      if (Array.isArray(schoolRes?.data) && schoolRes.data.length > 0) {
+        availableSchools.value = schoolRes.data.map((s: any) => ({ id: s.id, name: s.name }))
+      }
+    } catch {}
+  }
+
   // 1. Ambil custom classes dari localStorage (sekolah baru yang di-ACC Admin)
   let customList: ClassItem[] = []
   try {
@@ -401,6 +546,7 @@ onMounted(async () => {
           id: c.id || c.code || idx + 1,
           name: c.name || c.className || `Kelas ${c.code}`,
           school: c.school || 'Sekolah Mitra',
+          schoolId: c.schoolId || c.school_id,
           code: c.code || `KLS00${idx + 1}`,
           studentsCount: c.studentsCount || (25 + (idx % 10))
         }))
@@ -496,6 +642,123 @@ const selectedClass = ref<ClassItem | null>(null)
 const openDetail = (item: ClassItem) => {
   selectedClass.value = item
   isDetailModalOpen.value = true
+}
+
+// ==========================================
+// Fitur Edit Kelas
+// ==========================================
+const isEditModalOpen = ref(false)
+const classToEdit = ref<ClassItem | null>(null)
+const isSubmittingEdit = ref(false)
+const editErrorMsg = ref('')
+const editForm = ref({
+  name: '',
+  school: '',
+  schoolId: undefined as number | undefined,
+  code: '',
+  studentsCount: 30
+})
+
+const onSchoolSelectChange = () => {
+  const matched = availableSchools.value.find(s => s.name === editForm.value.school)
+  if (matched) {
+    editForm.value.schoolId = matched.id
+  }
+}
+
+const openEdit = (item: ClassItem) => {
+  classToEdit.value = item
+  editErrorMsg.value = ''
+  editForm.value = {
+    name: item.name,
+    school: item.school,
+    schoolId: item.schoolId,
+    code: item.code,
+    studentsCount: item.studentsCount
+  }
+  isDetailModalOpen.value = false
+  isEditModalOpen.value = true
+}
+
+const submitEditClass = async () => {
+  if (!classToEdit.value) return
+  const cleanName = editForm.value.name.trim()
+  const cleanCode = editForm.value.code.replace(/\s+/g, '').toUpperCase()
+
+  if (!cleanName || !cleanCode) {
+    editErrorMsg.value = 'Nama kelas dan kode kelas tidak boleh kosong.'
+    return
+  }
+
+  if (cleanCode.length < 3) {
+    editErrorMsg.value = 'Kode kelas minimal 3 karakter.'
+    return
+  }
+
+  isSubmittingEdit.value = true
+  editErrorMsg.value = ''
+
+  const targetId = classToEdit.value.id
+  const matched = availableSchools.value.find(s => s.name === editForm.value.school)
+  const resolvedSchoolId = matched?.id || editForm.value.schoolId
+
+  try {
+    if (!isMockMode()) {
+      await api.put(`classes/${targetId}`, {
+        name: cleanName,
+        code: cleanCode,
+        schoolId: resolvedSchoolId,
+        school_id: resolvedSchoolId
+      })
+    }
+  } catch (err: any) {
+    console.warn('API update class notice:', err)
+    if (err?.status === 422 || err?.data?.message) {
+      editErrorMsg.value = err?.data?.message || err?.message || 'Kode kelas sudah digunakan oleh kelas lain.'
+      isSubmittingEdit.value = false
+      return
+    }
+  }
+
+  // Update di state lokal classes
+  const idx = classes.value.findIndex(c => String(c.id) === String(targetId))
+  if (idx !== -1) {
+    classes.value[idx] = {
+      ...classes.value[idx],
+      name: cleanName,
+      school: editForm.value.school,
+      schoolId: resolvedSchoolId,
+      code: cleanCode,
+      studentsCount: editForm.value.studentsCount
+    }
+  }
+
+  try {
+    localStorage.setItem('tanggap_admin_classes_cache', JSON.stringify(classes.value))
+  } catch {}
+
+  // Update tanggap_custom_classes jika ada
+  try {
+    const raw = localStorage.getItem('tanggap_custom_classes')
+    if (raw) {
+      const list = JSON.parse(raw)
+      const cIdx = list.findIndex((c: any) => String(c.id) === String(targetId) || c.code === classToEdit.value?.code)
+      if (cIdx !== -1) {
+        list[cIdx] = {
+          ...list[cIdx],
+          name: cleanName,
+          school: editForm.value.school,
+          code: cleanCode,
+          studentsCount: editForm.value.studentsCount
+        }
+        localStorage.setItem('tanggap_custom_classes', JSON.stringify(list))
+        window.dispatchEvent(new Event('storage'))
+      }
+    }
+  } catch {}
+
+  isSubmittingEdit.value = false
+  isEditModalOpen.value = false
 }
 
 // Fitur Hapus Kelas

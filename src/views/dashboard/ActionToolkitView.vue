@@ -114,21 +114,22 @@
             <button
               @click="openDetail(item)"
               type="button"
-              class="text-base font-semibold text-[#1E40AF] hover:text-blue-800 transition-colors cursor-pointer hover:underline"
+              class="text-base font-semibold text-[#1E40AF] hover:text-blue-800 transition-colors cursor-pointer hover:underline inline-flex items-center gap-1.5"
             >
-              Lihat detail
+              <span>Lihat detail</span>
+              <span>→</span>
             </button>
 
             <!-- Download Button (Matching Action_Toolkit.png) -->
             <button
               @click="downloadItem(item)"
               type="button"
-              class="text-slate-900 hover:text-[#1E40AF] transition-colors p-1.5 cursor-pointer"
+              class="w-9 h-9 rounded-full bg-blue-50 text-[#1E40AF] hover:bg-blue-100 flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-2xs"
               :title="'Unduh ' + item.title"
               :aria-label="'Unduh ' + item.title"
             >
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </button>
           </div>
@@ -303,14 +304,16 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 
-// Assets (Action Toolkit uses toolkit_taking_action.png)
-import toolkitTakingActionImg from '../../assets/toolkit_taking_action.png'
+// Assets (Action Toolkit illustrations)
+import toolkit1Img from '../../assets/dashboard/action_toolkit_1.png'
+import toolkit2Img from '../../assets/dashboard/action_toolkit_2.png'
+import toolkit3Img from '../../assets/dashboard/action_toolkit_3.png'
 import iconUrutan from '../../assets/icon_urutan.png'
 
 interface ToolkitItem {
   id: string
   title: string
-  category: 'Bimbingan dan Konseling (BK)' | 'Mediasi Mandiri'
+  category: 'Bimbingan dan Konseling' | 'Mediasi Mandiri'
   description: string
   longDescription?: string
   image: string
@@ -332,11 +335,11 @@ let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const categoryList = [
   'Semua Konten',
-  'Bimbingan dan Konseling (BK)',
+  'Bimbingan dan Konseling',
   'Mediasi Mandiri'
 ]
 
-// Data Galeri Action Toolkit (Menggunakan Berkas Dokumen Toolkit Taking Action)
+// Data Galeri Action Toolkit
 const items: ToolkitItem[] = [
   {
     id: 'toolkit-1',
@@ -344,7 +347,7 @@ const items: ToolkitItem[] = [
     category: 'Mediasi Mandiri',
     description: 'Perangkat bantu untuk mendukung proses mediasi dan penyelesaian konflik secara mandiri.',
     longDescription: 'Panduan praktis terstruktur yang memandu dua individu atau kelompok kecil yang berselisih untuk duduk bersama tanpa eskalasi emosi. Dilengkapi aturan bicara bergantian, teknik validasi perasaan, dan format kesepakatan damai tertulis.',
-    image: toolkitTakingActionImg,
+    image: toolkit1Img,
     tags: ['Mediasi Mandiri', 'Langkah Praktis', 'Resolusi Damai'],
     format: 'PDF Siap Cetak (A4)',
     pages: '12 Halaman',
@@ -354,10 +357,10 @@ const items: ToolkitItem[] = [
   {
     id: 'toolkit-2',
     title: 'Mediasi Mandiri',
-    category: 'Bimbingan dan Konseling (BK)',
+    category: 'Bimbingan dan Konseling',
     description: 'Perangkat bantu untuk mendukung proses mediasi dan penyelesaian konflik secara mandiri.',
     longDescription: 'Instrumen reflektif terstruktur untuk mengenali pemicu amarah dan menstabilkan diri saat emosi memuncak dalam sesi bimbingan konseling.',
-    image: toolkitTakingActionImg,
+    image: toolkit2Img,
     tags: ['BK', 'Krisis Emosi', 'Refleksi Diri'],
     format: 'PDF Interaktif & Cetak',
     pages: '6 Halaman',
@@ -370,7 +373,7 @@ const items: ToolkitItem[] = [
     category: 'Mediasi Mandiri',
     description: 'Perangkat bantu untuk mendukung proses mediasi dan penyelesaian konflik secara mandiri.',
     longDescription: 'Template alur dialog mediasi 5 tahap bagi konselor sebaya atau pengurus OSIS.',
-    image: toolkitTakingActionImg,
+    image: toolkit3Img,
     tags: ['Konselor Sebaya', 'OSIS', 'Template Mediasi'],
     format: 'PDF Form Siap Isi',
     pages: '8 Halaman',

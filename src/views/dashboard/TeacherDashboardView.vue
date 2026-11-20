@@ -36,22 +36,17 @@
       </div>
 
       <!-- 2.1 Token / Kode Kelas Sekolah (Bagikan ke Siswa) -->
-      <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-800 rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-700/50">
-        <div class="flex items-center gap-4 sm:gap-5 flex-1">
-          <div class="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white shrink-0 text-2xl shadow-inner">
-            🔑
+      <div class="bg-[#1E40AF] rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-700/50">
+        <div class="flex-1">
+          <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-400/20 text-blue-200 text-xs font-bold mb-1.5 border border-blue-300/30">
+            <span>✦</span> Token / Kode Kelas Sekolah Aktif
           </div>
-          <div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-400/20 text-blue-200 text-xs font-bold mb-1.5 border border-blue-300/30">
-              <span>✦</span> Token / Kode Kelas Sekolah Aktif
-            </div>
-            <h3 class="text-xl sm:text-2xl font-bold text-white mb-1">
-              Kode Kelas: <span class="tracking-widest font-mono text-amber-300 font-extrabold bg-blue-950/60 px-3 py-1 rounded-xl border border-amber-300/30">{{ teacherClassCode || 'MEMUAT...' }}</span>
-            </h3>
-            <p class="text-blue-100 text-xs sm:text-sm leading-relaxed max-w-xl mt-1">
-              Bagikan 6 digit token ini kepada siswa <strong>{{ teacherSchool || 'sekolah Anda' }}</strong> agar mereka dapat bergabung di aplikasi. Siswa yang bergabung akan otomatis muncul di halaman Monitoring.
-            </p>
-          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white mb-1">
+            Kode Kelas: <span class="tracking-widest font-mono text-amber-300 font-extrabold bg-blue-950/60 px-3 py-1 rounded-xl border border-amber-300/30">{{ teacherClassCode || 'MEMUAT...' }}</span>
+          </h3>
+          <p class="text-blue-100 text-xs sm:text-sm leading-relaxed max-w-xl mt-1">
+            Bagikan 6 digit token ini kepada siswa <strong>{{ teacherSchool || 'sekolah Anda' }}</strong> agar mereka dapat bergabung di aplikasi. Siswa yang bergabung akan otomatis muncul di halaman Monitoring.
+          </p>
         </div>
 
         <div class="shrink-0 flex items-center gap-3 w-full md:w-auto justify-end">

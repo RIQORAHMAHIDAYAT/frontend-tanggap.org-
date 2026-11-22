@@ -492,6 +492,7 @@ const updateStatus = async (newStatus: 'Menunggu ditinjau' | 'Disetujui' | 'Dito
           const clsList = rawCls ? JSON.parse(rawCls) : []
           if (!clsList.some((c: any) => c.code === patchRes.classroom?.code)) {
             clsList.push({
+              id: patchRes.classroom.id || patchRes.classroom.code,
               code: patchRes.classroom.code,
               name: patchRes.classroom.name,
               school: selectedItem.value.schoolName

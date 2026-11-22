@@ -551,9 +551,9 @@ onMounted(async () => {
           studentsCount: c.studentsCount || (25 + (idx % 10))
         }))
 
-        // Gabungkan API data dengan custom classes
-        const combined = [...customList]
-        for (const item of mappedApi) {
+        // Prioritaskan data resmi dari database API (memiliki id primary key asli)
+        const combined = [...mappedApi]
+        for (const item of customList) {
           if (!combined.some(c => c.code === item.code)) {
             combined.push(item)
           }
@@ -698,7 +698,13 @@ const submitEditClass = async () => {
   isSubmittingEdit.value = true
   editErrorMsg.value = ''
 
-  const targetId = classToEdit.value.id
+  // Resolusi ID: pastikan targetId valid dan bukan 'undefined'
+  let targetId = classToEdit.value.id
+  if (!targetId || targetId === 'undefined') {
+    const foundInList = classes.value.find(c => c.code === classToEdit.value?.code && c.id && c.id !== 'undefined')
+    targetId = foundInList?.id || classToEdit.value.code
+  }
+
   const matched = availableSchools.value.find(s => s.name === editForm.value.school)
   const resolvedSchoolId = matched?.id || editForm.value.schoolId
 
@@ -721,10 +727,11 @@ const submitEditClass = async () => {
   }
 
   // Update di state lokal classes
-  const idx = classes.value.findIndex(c => String(c.id) === String(targetId))
+  const idx = classes.value.findIndex(c => (targetId && String(c.id) === String(targetId)) || c.code === classToEdit.value?.code)
   if (idx !== -1) {
     classes.value[idx] = {
       ...classes.value[idx],
+      id: classes.value[idx].id || targetId,
       name: cleanName,
       school: editForm.value.school,
       schoolId: resolvedSchoolId,
@@ -773,7 +780,11 @@ const confirmDeleteClass = (c: ClassItem) => {
 
 const executeDeleteClass = async () => {
   if (!classToDelete.value) return
-  const targetId = classToDelete.value.id
+  let targetId = classToDelete.value.id
+  if (!targetId || targetId === 'undefined') {
+    const found = classes.value.find(c => c.code === classToDelete.value?.code && c.id && c.id !== 'undefined')
+    targetId = found?.id || classToDelete.value.code
+  }
   isDeleting.value = true
 
   try {

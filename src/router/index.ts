@@ -20,6 +20,8 @@ import AdminKelasView from '../views/admin/AdminKelasView.vue'
 import AdminAssessmentView from '../views/admin/AdminAssessmentView.vue'
 import AdminMonitoringAssessmentView from '../views/admin/AdminMonitoringAssessmentView.vue'
 import AdminKontenView from '../views/admin/AdminKontenView.vue'
+import AdminGamificationView from '../views/admin/AdminGamificationView.vue'
+import GamificationView from '../views/dashboard/GamificationView.vue'
 import AmigoLandingView from '../views/AmigoLandingView.vue'
 
 const router = createRouter({
@@ -89,6 +91,13 @@ const router = createRouter({
       path: '/action-toolkit',
       name: 'action-toolkit',
       component: ActionToolkitView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/gamifikasi',
+      name: 'gamifikasi',
+      alias: ['/simulasi-empati'],
+      component: GamificationView,
       meta: { requiresAuth: true }
     },
     {
@@ -169,6 +178,12 @@ const router = createRouter({
       path: '/dashboard_admin/manajemen-konten',
       name: 'admin_konten',
       component: AdminKontenView,
+      meta: { requiresAuth: true, role: 'admin' }
+    },
+    {
+      path: '/dashboard_admin/manajemen-gamifikasi',
+      name: 'admin_gamifikasi',
+      component: AdminGamificationView,
       meta: { requiresAuth: true, role: 'admin' }
     },
 

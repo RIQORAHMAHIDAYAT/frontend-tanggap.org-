@@ -1,7 +1,6 @@
 <template>
   <DashboardLayout>
     <div class="space-y-6 md:space-y-8 select-none">
-      <!-- 1. Header Section (Matching amigo.png) -->
       <header class="space-y-2">
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#1E40AF] tracking-tight">
           AMIGO Board Game
@@ -11,9 +10,7 @@
         </p>
       </header>
 
-      <!-- 2. Main Card Container with Tabs -->
       <div class="bg-white rounded-2xl sm:rounded-3xl md:rounded-[36px] p-3.5 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs">
-        <!-- Navigation Tab Headers (Desktop & Mobile) -->
         <div class="flex items-center justify-between sm:justify-start gap-1 sm:gap-6 md:gap-10 border-b border-slate-100 overflow-x-auto pb-1 scrollbar-none w-full">
           <button
             v-for="tab in tabs"
@@ -29,17 +26,14 @@
           >
             <span class="hidden sm:inline">{{ tab.label }}</span>
             <span class="sm:hidden">{{ tab.shortLabel }}</span>
-            <!-- Active indicator underline bar -->
             <span
               v-if="activeTab === tab.id"
               class="absolute bottom-0 left-0 right-0 h-1 bg-[#1E40AF] rounded-full transition-all duration-300"
-            />
+            ></span>
           </button>
         </div>
 
-        <!-- 3. Tab Contents Inside Light Blue Container -->
         <div class="mt-4 sm:mt-8">
-          <!-- TAB 1: Tentang AMIGO (Matching amigo.png & tentang AMIGO.png) -->
           <transition
             enter-active-class="transition duration-200 ease-out"
             enter-from-class="opacity-0 translate-y-1"
@@ -54,7 +48,6 @@
               key="tentang"
               class="bg-[#F0F5FF] rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 border border-blue-100/70"
             >
-              <!-- Desktop View (Grid 2 Kolom Seimbang) -->
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
                 <div class="flex-1 max-w-xl">
                   <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1E40AF] mb-4 tracking-tight">
@@ -73,7 +66,6 @@
                 </div>
               </div>
 
-              <!-- Mobile View (Stacked matching tentang AMIGO.png) -->
               <div class="md:hidden flex flex-col items-start text-left">
                 <h2 class="text-2xl font-extrabold text-[#1E40AF] mb-4">
                   Tentang AMIGO
@@ -91,13 +83,11 @@
               </div>
             </div>
 
-            <!-- TAB 2: Mekanisme & Aturan Main (Matching Mekanisme & Aturan Main.png) -->
             <div
               v-else-if="activeTab === 'mekanisme'"
               key="mekanisme"
               class="bg-[#F0F5FF] rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 border border-blue-100/70"
             >
-              <!-- Desktop View (Kiri: Ilustrasi AMIGO, Kanan: 4 Langkah Aturan) -->
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
                 <div class="shrink-0 flex items-center justify-center">
                   <img
@@ -114,7 +104,6 @@
                     Mekanisme & Aturan Main
                   </h2>
 
-                  <!-- 4 Numbered Steps -->
                   <div class="space-y-5">
                     <div
                       v-for="step in steps"
@@ -137,7 +126,6 @@
                 </div>
               </div>
 
-              <!-- Mobile View (Stacked matching Mekanisme & Aturan Main.hp.png) -->
               <div class="md:hidden flex flex-col items-start text-left">
                 <h2 class="text-xl sm:text-2xl font-extrabold text-[#1E40AF] mb-4">
                   Mekanisme & Aturan Main
@@ -175,15 +163,12 @@
               </div>
             </div>
 
-            <!-- TAB 3: Video Tutorial (Matching Video Tutorial.png & .hp.png) -->
             <div
               v-else-if="activeTab === 'video'"
               key="video"
               class="bg-[#F0F5FF] rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 border border-blue-100/70"
             >
-              <!-- Desktop View (Kiri: Thumbnail Video dengan Tombol Play, Kanan: Judul & Subtitle) -->
               <div class="hidden md:flex items-center justify-between gap-8 lg:gap-12">
-                <!-- Thumbnail Video with interactive play button (Landscape) -->
                 <div
                   @click="openVideoModal"
                   class="shrink-0 relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer group w-full max-w-[420px] lg:max-w-[480px] aspect-video"
@@ -196,7 +181,6 @@
                     loading="lazy"
                     decoding="async"
                   />
-                  <!-- Hover subtle overlay effect with Play Button -->
                   <div class="absolute inset-0 bg-slate-900/30 flex items-center justify-center group-hover:bg-slate-900/40 transition-colors">
                     <div class="w-16 h-16 rounded-full bg-white/95 text-[#1E40AF] flex items-center justify-center text-2xl shadow-xl pl-1 group-hover:scale-110 transition-transform">
                       ▶
@@ -222,9 +206,7 @@
                 </div>
               </div>
 
-              <!-- Mobile View (Stacked matching Video Tutorial.hp.png) -->
               <div class="md:hidden flex flex-col items-start text-left">
-                <!-- Thumbnail Video on top (Landscape) -->
                 <div class="w-full flex justify-center mb-5">
                   <div
                     @click="openVideoModal"
@@ -266,7 +248,6 @@
       </div>
     </div>
 
-    <!-- Video Modal Player (Interaktif saat video diklik) -->
     <transition
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="opacity-0 scale-95"
@@ -281,7 +262,6 @@
         @click.self="showVideoModal = false"
       >
         <div class="bg-white rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl border border-slate-100 relative">
-          <!-- Modal Header -->
           <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
             <h3 class="text-lg sm:text-xl font-bold text-[#1E40AF]">
               🎬 Video Panduan AMIGO Board Game
@@ -296,7 +276,6 @@
             </button>
           </div>
 
-          <!-- Video Player Container (16:9 Aspect Ratio) -->
           <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center shadow-inner relative">
             <iframe
               class="w-full h-full"
@@ -305,10 +284,9 @@
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
-            />
+            ></iframe>
           </div>
 
-          <!-- Modal Footer -->
           <div class="mt-4 flex justify-between items-center text-xs sm:text-sm text-slate-500">
             <span>Panduan resmi dari tim Tanggap.org</span>
             <button

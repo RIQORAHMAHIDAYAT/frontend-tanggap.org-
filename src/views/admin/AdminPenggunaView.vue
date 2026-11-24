@@ -1,7 +1,6 @@
 <template>
   <AdminLayout>
     <div class="space-y-6 sm:space-y-8 select-none">
-      <!-- Title & Subtitle Section -->
       <header class="space-y-2">
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
           Manajemen Pengguna
@@ -11,10 +10,8 @@
         </p>
       </header>
 
-      <!-- Action & Filter Bar (Matching Manajemen Pengguna.png) -->
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 max-w-2xl">
-          <!-- Search Input -->
           <div class="relative flex-1">
             <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +26,6 @@
             />
           </div>
 
-          <!-- Sort Button -->
           <div class="relative">
             <button
               @click="toggleSort"
@@ -52,20 +48,31 @@
           </div>
         </div>
 
-        <!-- Tambah Pengguna Primary Button -->
-        <button
-          @click="isAddModalOpen = true"
-          type="button"
-          class="px-6 py-3 bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer shrink-0"
-        >
-          <span class="text-xl leading-none font-normal">+</span>
-          <span>Tambah Pengguna</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+          <button
+            @click="openQuickTeacherModal"
+            type="button"
+            class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+            title="Daftarkan akun guru dan custom kode kelas kustom secara instan untuk seminar"
+          >
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+            </svg>
+            <span>+ Buat Akun Guru & Token</span>
+          </button>
+
+          <button
+            @click="isAddModalOpen = true"
+            type="button"
+            class="px-5 py-3 bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+          >
+            <span class="text-xl leading-none font-normal">+</span>
+            <span>Tambah Pengguna</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Main Data Table Card -->
       <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <!-- Mobile Swipe Indicator Hint -->
         <div class="sm:hidden px-6 pt-4 text-xs font-semibold text-slate-400 flex items-center gap-1.5 select-none">
           <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -90,27 +97,22 @@
                 :key="user.id"
                 class="hover:bg-slate-50/70 transition-colors"
               >
-                <!-- Nama -->
                 <td class="py-5 px-6 sm:px-8 font-bold text-slate-900">
                   {{ user.name }}
                 </td>
 
-                <!-- Email -->
                 <td class="py-5 px-6 text-slate-600 font-medium">
                   {{ user.email }}
                 </td>
 
-                <!-- Role -->
                 <td class="py-5 px-6 font-semibold text-slate-700">
                   {{ user.role }}
                 </td>
 
-                <!-- Tanggal Daftar -->
                 <td class="py-5 px-6 text-slate-600 font-medium">
                   {{ user.date }}
                 </td>
 
-                <!-- Status Badge -->
                 <td class="py-5 px-6">
                   <span
                     class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold inline-block whitespace-nowrap"
@@ -120,7 +122,6 @@
                   </span>
                 </td>
 
-                <!-- Aksi Detail & Hapus Button -->
                 <td class="py-5 px-6 text-center">
                   <div class="flex items-center justify-center gap-2">
                     <button
@@ -142,7 +143,7 @@
                 </td>
               </tr>
               <tr v-if="filteredUsers.length === 0">
-                <td colspan="5" class="py-12 text-center text-slate-400 font-medium">
+                <td colspan="6" class="py-12 text-center text-slate-400 font-medium">
                   Tidak ada data pengguna.
                 </td>
               </tr>
@@ -150,7 +151,6 @@
           </table>
         </div>
 
-        <!-- Pagination Section -->
         <div class="p-6 border-t border-slate-100 flex items-center justify-end gap-2">
           <button
             type="button"
@@ -189,7 +189,149 @@
       </div>
     </div>
 
-    <!-- Modal Tambah Pengguna -->
+    <AdminModal
+      :is-open="isQuickTeacherModalOpen"
+      title="Registrasi Cepat Akun Guru & Token Kelas"
+      @close="closeQuickTeacherModal"
+    >
+      <div class="space-y-4 text-slate-800">
+        <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200/70 text-xs text-blue-900 leading-relaxed">
+          <p class="font-bold mb-0.5">Jalur Cepat Seminar & Uji Coba Sekolah:</p>
+          <p>
+            Formulir ini otomatis mendaftarkan akun Guru, mengaitkan sekolah, dan menerbitkan kode kelas kustom. 
+            Jika email guru sudah pernah terdaftar, sistem akan <strong>otomatis meng-upgrade akunnya</strong> tanpa error duplikasi.
+          </p>
+        </div>
+
+        <div v-if="quickTeacherSuccessMsg" class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-800 space-y-2">
+          <div class="font-bold flex items-center gap-1.5 text-emerald-900">
+            <span>✓</span>
+            <span>{{ quickTeacherSuccessMsg }}</span>
+          </div>
+          <div v-if="quickTeacherResult" class="bg-white p-3 rounded-lg border border-emerald-200 text-xs space-y-1 font-mono text-slate-700">
+            <p><strong>Email:</strong> {{ quickTeacherResult.user.email }}</p>
+            <p><strong>Role:</strong> {{ quickTeacherResult.user.role }}</p>
+            <p><strong>Sekolah:</strong> {{ quickTeacherResult.school.name }}</p>
+            <p><strong>Kode Kelas (Token Siswa):</strong> <span class="text-[#1E40AF] font-bold text-sm">{{ quickTeacherResult.classroom.classCode }}</span></p>
+            <p><strong>Password:</strong> {{ quickTeacherResult.defaultPassword }}</p>
+          </div>
+          <button
+            type="button"
+            @click="copyQuickTeacherCredentials"
+            class="mt-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer transition-colors"
+          >
+            {{ isCredentialsCopied ? 'Tersalin ke Clipboard!' : 'Salin Data Akun & Kode Kelas' }}
+          </button>
+        </div>
+
+        <form v-else @submit.prevent="submitQuickTeacher" class="space-y-4">
+          <div v-if="quickTeacherErrorMsg" class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold">
+            {{ quickTeacherErrorMsg }}
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Nama Lengkap Guru <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="quickTeacherForm.name"
+              required
+              type="text"
+              placeholder="Contoh: Ibu Sri Wahyuni, S.Pd"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Alamat Email Guru <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="quickTeacherForm.email"
+              required
+              type="email"
+              placeholder="sri.wahyuni@gmail.com"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+            />
+            <span class="text-[11px] text-slate-400 mt-1 block">
+              Aman jika email ini sudah terdaftar sebelumnya; akun akan langsung di-upgrade menjadi Guru.
+            </span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Nama Sekolah / Instansi <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="quickTeacherForm.schoolName"
+              required
+              type="text"
+              placeholder="Contoh: SMAN 1 Yogyakarta"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Custom Kode Kelas (Token Siswa) <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="quickTeacherForm.classCode"
+              required
+              type="text"
+              placeholder="Contoh: SMAN1-BK atau PILOT01"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm font-mono uppercase"
+            />
+            <span class="text-[11px] text-slate-400 mt-1 block">
+              Kode ini yang akan dibagikan ke siswa agar langsung terhubung dengan Guru BK sekolah ini.
+            </span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Password Akun Guru (Opsional)
+            </label>
+            <input
+              v-model="quickTeacherForm.password"
+              type="text"
+              placeholder="Default: Tanggap123!"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1E40AF] text-sm"
+            />
+            <span class="text-[11px] text-slate-400 mt-1 block">
+              Biarkan kosong jika ingin menggunakan password default (Tanggap123!).
+            </span>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button
+              @click="closeQuickTeacherModal"
+              type="button"
+              class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm cursor-pointer transition-colors"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              :disabled="isQuickTeacherSubmitting"
+              class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm cursor-pointer transition-colors shadow-sm disabled:opacity-60"
+            >
+              {{ isQuickTeacherSubmitting ? 'Memproses...' : 'Proses Akun Guru & Token' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <template v-if="quickTeacherSuccessMsg" #footer>
+        <button
+          @click="closeQuickTeacherModal"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-[#1E40AF] hover:bg-blue-800 text-white font-bold text-sm cursor-pointer transition-colors"
+        >
+          Selesai & Tutup
+        </button>
+      </template>
+    </AdminModal>
+
     <AdminModal
       :is-open="isAddModalOpen"
       title="Tambah Pengguna Baru"
@@ -267,7 +409,6 @@
       </template>
     </AdminModal>
 
-    <!-- Detail Modal -->
     <AdminModal
       :is-open="isDetailModalOpen"
       :title="selectedUser ? `Detail Pengguna - ${selectedUser.name}` : 'Detail Pengguna'"
@@ -302,7 +443,6 @@
           </div>
         </div>
 
-        <!-- Role Management (Hanya Admin) -->
         <div>
           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
             Ubah Role Pengguna (Akses Admin)
@@ -337,7 +477,6 @@
           </div>
         </div>
 
-        <!-- Tombol Hapus Pengguna di Modal Detail -->
         <div class="pt-3 border-t border-slate-100 flex justify-end">
           <button
             @click="confirmDeleteUser(selectedUser)"
@@ -360,7 +499,6 @@
       </template>
     </AdminModal>
 
-    <!-- Modal Konfirmasi Hapus Pengguna -->
     <AdminModal
       :is-open="isDeleteModalOpen"
       title="Konfirmasi Hapus Pengguna"
@@ -422,7 +560,6 @@ const searchQuery = ref('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 
 const getInitialUserList = (): UserItem[] => {
-  // 1. Utamakan cache pengguna nyata yang tersimpan agar saat refresh tidak ada flash data dummy
   try {
     const rawCache = localStorage.getItem('tanggap_admin_users_cache')
     if (rawCache) {
@@ -477,7 +614,6 @@ const getInitialUserList = (): UserItem[] => {
 const users = ref<UserItem[]>(getInitialUserList())
 
 onMounted(async () => {
-  // 1. Masukkan akun guru yang emailnya sudah di-ACC oleh Admin ke daftar pengguna
   try {
     const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
     if (rawApproved) {
@@ -499,7 +635,6 @@ onMounted(async () => {
     console.warn('Error reading approved teachers:', e)
   }
 
-  // 2. Masukkan akun pendaftar lokal lainnya
   try {
     const rawAccounts = localStorage.getItem('tanggap_user_accounts')
     if (rawAccounts) {
@@ -519,13 +654,11 @@ onMounted(async () => {
     }
   } catch {}
 
-  // 3. Ambil data pengguna dari backend jika live mode
   if (!isMockMode()) {
     try {
       const res = await api.get<{ success?: boolean; data?: any[] }>('users')
       const apiUsers = res?.data || (Array.isArray(res) ? res : [])
       if (Array.isArray(apiUsers) && apiUsers.length > 0) {
-        // Tampilkan data nyata dari database MySQL
         const mappedUsers: UserItem[] = apiUsers.map((u: any) => ({
           id: u.id,
           name: u.name,
@@ -535,7 +668,6 @@ onMounted(async () => {
           status: u.status || 'Aktif',
         }))
 
-        // Gabungkan juga akun guru dari proposal yang disetujui jika belum ada di database
         try {
           const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
           if (rawApproved) {
@@ -555,7 +687,6 @@ onMounted(async () => {
           }
         } catch {}
 
-        // Gabungkan juga akun dari pendaftar lokal jika belum tercatat di database
         try {
           const rawAccounts = localStorage.getItem('tanggap_user_accounts')
           if (rawAccounts) {
@@ -651,10 +782,187 @@ const changeUserRole = (newRole: 'Siswa' | 'Guru/Sekolah' | 'Admin') => {
   }
 }
 
-// Fitur Hapus Pengguna
 const isDeleteModalOpen = ref(false)
 const userToDelete = ref<UserItem | null>(null)
 const isDeleting = ref(false)
+
+const isQuickTeacherModalOpen = ref(false)
+const isQuickTeacherSubmitting = ref(false)
+const quickTeacherErrorMsg = ref('')
+const quickTeacherSuccessMsg = ref('')
+const isCredentialsCopied = ref(false)
+const quickTeacherResult = ref<{
+  user: { id?: number | string; name: string; email: string; role: string; school?: string; status?: string }
+  school: { id?: number | string; name: string }
+  classroom: { id?: number | string; name: string; classCode: string }
+  isNewUser: boolean
+  defaultPassword?: string
+} | null>(null)
+
+const quickTeacherForm = ref({
+  name: '',
+  email: '',
+  schoolName: '',
+  classCode: '',
+  password: 'Tanggap123!'
+})
+
+const openQuickTeacherModal = () => {
+  quickTeacherErrorMsg.value = ''
+  quickTeacherSuccessMsg.value = ''
+  quickTeacherResult.value = null
+  isCredentialsCopied.value = false
+  quickTeacherForm.value = {
+    name: '',
+    email: '',
+    schoolName: '',
+    classCode: '',
+    password: 'Tanggap123!'
+  }
+  isQuickTeacherModalOpen.value = true
+}
+
+const closeQuickTeacherModal = () => {
+  isQuickTeacherModalOpen.value = false
+}
+
+const copyQuickTeacherCredentials = async () => {
+  if (!quickTeacherResult.value) return
+  const data = quickTeacherResult.value
+  const text = `📋 *DATA AKUN GURU & KODE KELAS TANGGAP.ORG*
+Nama Guru: ${data.user.name}
+Email: ${data.user.email}
+Password: ${data.defaultPassword || 'Tanggap123!'}
+Sekolah: ${data.school.name}
+Role Akun: ${data.user.role}
+Kode Kelas Siswa: *${data.classroom.classCode}*
+
+Link Login Guru: https://tanggap.org/masuk
+Siswa dapat memasukkan Kode Kelas di atas saat registrasi atau di fitur gamifikasi Tanggap.org.`
+
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+    }
+    isCredentialsCopied.value = true
+    setTimeout(() => {
+      isCredentialsCopied.value = false
+    }, 3000)
+  } catch (err) {
+    console.error('Gagal menyalin kredensial:', err)
+  }
+}
+
+const submitQuickTeacher = async () => {
+  if (
+    !quickTeacherForm.value.name.trim() ||
+    !quickTeacherForm.value.email.trim() ||
+    !quickTeacherForm.value.schoolName.trim() ||
+    !quickTeacherForm.value.classCode.trim()
+  ) {
+    quickTeacherErrorMsg.value = 'Mohon lengkapi Nama Guru, Email, Nama Sekolah, dan Kode Kelas.'
+    return
+  }
+
+  isQuickTeacherSubmitting.value = true
+  quickTeacherErrorMsg.value = ''
+  quickTeacherSuccessMsg.value = ''
+
+  try {
+    const payload = {
+      name: quickTeacherForm.value.name.trim(),
+      email: quickTeacherForm.value.email.trim(),
+      schoolName: quickTeacherForm.value.schoolName.trim(),
+      classCode: quickTeacherForm.value.classCode.trim().toUpperCase(),
+      password: quickTeacherForm.value.password ? quickTeacherForm.value.password.trim() : 'Tanggap123!'
+    }
+
+    let responseData: any = null
+
+    if (!isMockMode()) {
+      const res = await api.post<{ success: boolean; message: string; data: any }>('admin/quick-provision-teacher', payload)
+      if (res && res.data) {
+        responseData = res.data
+        quickTeacherSuccessMsg.value = res.message || 'Akun Guru dan Kode Kelas berhasil disiapkan!'
+      }
+    }
+
+    if (!responseData) {
+      responseData = {
+        user: {
+          id: 'quick-' + Date.now(),
+          name: payload.name,
+          email: payload.email,
+          role: 'Guru/Sekolah',
+          school: payload.schoolName,
+          status: 'Aktif'
+        },
+        school: {
+          id: 1,
+          name: payload.schoolName
+        },
+        classroom: {
+          id: 1,
+          name: `Kelas BK - ${payload.schoolName}`,
+          classCode: payload.classCode
+        },
+        isNewUser: true,
+        defaultPassword: payload.password
+      }
+      quickTeacherSuccessMsg.value = `Akun Guru (${payload.email}) dan Kode Kelas (${payload.classCode}) berhasil disiapkan!`
+    }
+
+    quickTeacherResult.value = responseData
+
+    const existingIndex = users.value.findIndex(u => u.email.toLowerCase() === payload.email.toLowerCase())
+    if (existingIndex !== -1) {
+      users.value[existingIndex] = {
+        ...users.value[existingIndex],
+        name: payload.name,
+        role: 'Guru/Sekolah',
+        status: 'Aktif'
+      }
+    } else {
+      users.value.unshift({
+        id: responseData.user.id || Date.now(),
+        name: payload.name,
+        email: payload.email,
+        role: 'Guru/Sekolah',
+        date: 'Hari Ini',
+        status: 'Aktif'
+      })
+    }
+
+    try {
+      localStorage.setItem('tanggap_admin_users_cache', JSON.stringify(users.value))
+
+      const rawApproved = localStorage.getItem('tanggap_approved_teacher_emails')
+      const approvedList = rawApproved ? JSON.parse(rawApproved) : []
+      if (!approvedList.some((t: any) => t.email.toLowerCase() === payload.email.toLowerCase())) {
+        approvedList.push({
+          id: responseData.user.id,
+          picName: payload.name,
+          email: payload.email,
+          schoolName: payload.schoolName,
+          classCode: payload.classCode
+        })
+        localStorage.setItem('tanggap_approved_teacher_emails', JSON.stringify(approvedList))
+      }
+    } catch {}
+  } catch (err: any) {
+    console.error('Error quickProvisionTeacher:', err)
+    quickTeacherErrorMsg.value = err?.message || 'Terjadi kesalahan saat memproses akun guru dan kode kelas.'
+  } finally {
+    isQuickTeacherSubmitting.value = false
+  }
+}
 
 const confirmDeleteUser = (user: UserItem) => {
   userToDelete.value = user
@@ -674,13 +982,11 @@ const executeDeleteUser = async () => {
     console.warn('API delete user failed, deleting locally:', err)
   }
 
-  // Hapus dari list
   users.value = users.value.filter(u => String(u.id) !== String(targetId))
   try {
     localStorage.setItem('tanggap_admin_users_cache', JSON.stringify(users.value))
   } catch {}
 
-  // Hapus dari storage lokal jika ada
   try {
     const raw = localStorage.getItem('tanggap_user_accounts')
     if (raw) {

@@ -14,7 +14,6 @@
     ]"
     aria-label="Sidebar Navigasi"
   >
-    <!-- Top Branding in Sidebar (Matching Figma screenshot) -->
     <div class="h-20 flex items-center justify-between px-6 md:px-8 shrink-0">
       <router-link to="/dashboard" class="flex items-center gap-2 group" @click="onLinkClick">
         <span class="text-2xl md:text-3xl font-bold tracking-tight text-white group-hover:opacity-90 transition-opacity">
@@ -22,7 +21,6 @@
         </span>
       </router-link>
 
-      <!-- Close button on Mobile only -->
       <button
         v-if="isMobile"
         @click="$emit('toggle-sidebar')"
@@ -35,7 +33,6 @@
       </button>
     </div>
 
-    <!-- Navigation Menu Items (Matching Figma screenshot) -->
     <nav class="flex-1 px-5 py-6 space-y-2.5">
       <router-link
         v-for="item in activeMenuItems"
@@ -81,6 +78,7 @@ const route = useRoute()
 const defaultMenuItems = [
   { label: 'Dashboard', path: '/dashboard' },
   { label: 'Assessment', path: '/assessment' },
+  { label: 'Gamifikasi', path: '/gamifikasi' },
   { label: 'Amigo', path: '/amigo' },
   { label: 'Action Toolkit', path: '/action-toolkit' }
 ]
@@ -92,8 +90,6 @@ const isActive = (path: string) => {
 }
 
 const onLinkClick = () => {
-  // Hanya menutup drawer jika sedang di perangkat mobile/layar kecil (< 1024px)
-  // Di desktop/laptop, sidebar TETAP terbuka lebar sesuai instruksi pengguna
   if (props.isMobile) {
     emit('navigate-mobile')
   }

@@ -5,7 +5,6 @@
     :menu-items="teacherMenuItems"
   >
     <div class="space-y-6 md:space-y-8 select-none">
-      <!-- 1. Header Section (Matching guru.png & guru.1.png) -->
       <header class="space-y-2">
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#1E40AF] tracking-tight">
           Halo, {{ teacherName }}
@@ -15,7 +14,6 @@
         </p>
       </header>
 
-      <!-- 2. Hero Card: Program Resolusi Konflik di Sekolah Anda -->
       <div class="bg-[#F0F5FF] rounded-3xl p-6 sm:p-8 md:p-10 border border-blue-100 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs">
         <div class="shrink-0 flex items-center justify-center">
           <img
@@ -35,7 +33,6 @@
         </div>
       </div>
 
-      <!-- 2.1 Token / Kode Kelas Sekolah (Bagikan ke Siswa) -->
       <div class="bg-[#1E40AF] rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-700/50">
         <div class="flex-1">
           <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-400/20 text-blue-200 text-xs font-bold mb-1.5 border border-blue-300/30">
@@ -60,9 +57,7 @@
         </div>
       </div>
 
-      <!-- 3. Perkembangan Indikator (Bar Chart Card) -->
       <div class="bg-white rounded-3xl md:rounded-[32px] p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs">
-        <!-- Chart Header & Legends -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h2 class="text-2xl font-bold text-[#1E40AF] tracking-tight">
@@ -73,7 +68,6 @@
             </p>
           </div>
 
-          <!-- Legends -->
           <div class="flex items-center gap-6 text-sm font-semibold text-slate-700">
             <div class="flex items-center gap-2">
               <span class="w-3.5 h-3.5 rounded-full bg-[#60A5FA]"></span>
@@ -86,9 +80,7 @@
           </div>
         </div>
 
-        <!-- SVG/CSS Grouped Bar Chart -->
         <div class="relative pt-4 pb-2">
-          <!-- Y-Axis Labels & Grid Lines -->
           <div class="space-y-8 relative">
             <div
               v-for="val in [100, 75, 50, 25, 0]"
@@ -100,41 +92,34 @@
             </div>
           </div>
 
-          <!-- Grouped Bars Overlay -->
           <div class="absolute inset-x-0 top-4 bottom-6 ml-11 flex justify-around items-end px-2 sm:px-6">
             <div
               v-for="item in indicatorStats"
               :key="item.name"
               class="flex flex-col items-center group relative"
             >
-              <!-- Pair of Bars -->
               <div class="flex items-end gap-1.5 sm:gap-2.5 h-44 sm:h-52">
-                <!-- Pre-test Bar (Light Blue #60A5FA) -->
                 <div
                   class="w-6 sm:w-10 md:w-12 bg-[#60A5FA] rounded-t-lg transition-all duration-700 hover:brightness-105 relative cursor-pointer"
                   :style="{ height: `${item.pre}%` }"
                   :title="`Pre-test: ${item.pre}%`"
                 >
-                  <!-- Tooltip -->
                   <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-0.5 px-1.5 rounded pointer-events-none whitespace-nowrap z-10 font-bold">
                     {{ item.pre }}%
                   </div>
                 </div>
 
-                <!-- Post-test Bar (Deep Blue #1E40AF) -->
                 <div
                   class="w-6 sm:w-10 md:w-12 bg-[#1E40AF] rounded-t-lg transition-all duration-700 hover:brightness-110 relative cursor-pointer"
                   :style="{ height: `${item.post}%` }"
                   :title="`Post-test: ${item.post}%`"
                 >
-                  <!-- Tooltip -->
                   <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-0.5 px-1.5 rounded pointer-events-none whitespace-nowrap z-10 font-bold">
                     {{ item.post }}%
                   </div>
                 </div>
               </div>
 
-              <!-- Category Label Below -->
               <span class="text-xs sm:text-sm font-semibold text-slate-700 mt-4 text-center whitespace-normal max-w-[90px] sm:max-w-[130px] leading-tight">
                 {{ item.name }}
               </span>
@@ -142,7 +127,6 @@
           </div>
         </div>
 
-        <!-- Notification saat belum ada data asesmen siswa yang masuk -->
         <div
           v-if="!hasAssessmentData"
           class="mt-6 p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-[#1E40AF] text-xs sm:text-sm flex items-center justify-between"
@@ -154,9 +138,7 @@
         </div>
       </div>
 
-      <!-- 4. Bottom Row: Ringkasan Hasil Assessment & Akses Cepat (Grid 2 Kolom) -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        <!-- Card Kiri: Ringkasan Hasil Assessment -->
         <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
             <h3 class="text-2xl font-bold text-[#1E40AF] mb-1 tracking-tight">
@@ -166,9 +148,7 @@
               Perbandingan hasil keseluruhan siswa di sekolah Anda.
             </p>
 
-            <!-- 2 Metric Boxes -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- Box 1: Pre-test -->
               <div class="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-xs">
                 <div class="w-12 h-12 rounded-full bg-[#DCE9FE] flex items-center justify-center text-[#1E40AF] mb-3">
                   <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -186,7 +166,6 @@
                 </div>
               </div>
 
-              <!-- Box 2: Post-test -->
               <div class="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-xs">
                 <div class="w-12 h-12 rounded-full bg-[#DCE9FE] flex items-center justify-center text-[#1E40AF] mb-3">
                   <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -206,7 +185,6 @@
             </div>
           </div>
 
-          <!-- Bottom Note -->
           <div class="flex items-center gap-2 text-xs text-slate-500 mt-6 pt-4 border-t border-slate-100">
             <div class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] font-bold shrink-0">
               i
@@ -215,7 +193,6 @@
           </div>
         </div>
 
-        <!-- Card Kanan: Akses Cepat -->
         <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
             <h3 class="text-2xl font-bold text-[#1E40AF] mb-1 tracking-tight">
@@ -226,7 +203,6 @@
             </p>
 
             <div class="space-y-4">
-              <!-- Tile 1: Monitoring Assessment -->
               <router-link
                 to="/monitoring_guru"
                 class="bg-[#F0F5FF] hover:bg-blue-100/70 rounded-2xl p-4 sm:p-5 flex items-center justify-between transition-all group cursor-pointer block border border-blue-50"
@@ -252,7 +228,6 @@
                 </div>
               </router-link>
 
-              <!-- Tile 2: Unduh Impact Report -->
               <button
                 @click="downloadReport"
                 type="button"
@@ -284,7 +259,6 @@
       </div>
     </div>
 
-    <!-- Floating Support Button -->
     <FloatingSupport />
   </DashboardLayout>
 </template>
@@ -331,7 +305,6 @@ const copyClassCode = async () => {
     }
   } catch {}
 
-  // Fallback document.execCommand dengan dukungan iOS & Android Mobile
   try {
     const textArea = document.createElement('textarea')
     textArea.value = code
@@ -354,7 +327,6 @@ const copyClassCode = async () => {
   }
 }
 
-// Menu Khusus Guru BK (Matching Group 497.png)
 const teacherMenuItems = [
   { label: 'Dashboard', path: '/dashboard_guru' },
   { label: 'Monitoring', path: '/monitoring_guru' },
@@ -362,7 +334,6 @@ const teacherMenuItems = [
   { label: 'Action Toolkit', path: '/action-toolkit' }
 ]
 
-// 4 Indikator Resolusi Konflik (Real Data dari database MySQL)
 const indicatorStats = ref([
   { name: 'Regulasi Emosi', pre: 0, post: 0 },
   { name: 'Empati', pre: 0, post: 0 },
@@ -420,7 +391,6 @@ onMounted(async () => {
     const apiCode = res?.classCode || res?.data?.classCode
     if (apiCode) {
       teacherClassCode.value = apiCode
-      // Perbarui juga data user lokal
       try {
         const raw = localStorage.getItem('tanggap_user')
         if (raw) {

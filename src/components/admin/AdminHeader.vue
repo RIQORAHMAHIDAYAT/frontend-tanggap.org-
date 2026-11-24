@@ -2,7 +2,6 @@
   <header
     class="h-20 px-6 md:px-8 flex items-center justify-between relative z-20 shrink-0 select-none bg-white border-b border-slate-200/80 shadow-xs transition-all duration-300 ease-in-out"
   >
-    <!-- Left Section: 2-Line Morphing Hamburger Button -->
     <div class="flex items-center gap-3 sm:gap-4 min-w-0">
       <button
         @click="$emit('toggle-sidebar')"
@@ -12,11 +11,9 @@
         aria-label="Toggle Menu Navigasi"
       >
         <div class="w-8 h-5 flex flex-col justify-center gap-1.5">
-          <!-- Top Bar -->
           <span
             class="block w-7 sm:w-8 h-1 rounded-full bg-[#1E40AF] transition-all duration-300 ease-in-out"
           ></span>
-          <!-- Bottom Bar -->
           <span
             class="block h-1 rounded-full bg-[#1E40AF] transition-all duration-300 ease-in-out origin-left"
             :class="[
@@ -26,7 +23,6 @@
         </div>
       </button>
 
-      <!-- Logo tanggap.org: HANYA tampil di header kiri saat sidebar TERTUTUP (desktop / tablet) -->
       <transition
         enter-active-class="transition duration-300 ease-out"
         enter-from-class="opacity-0 -translate-x-2"
@@ -45,7 +41,6 @@
       </transition>
     </div>
 
-    <!-- Center Section: Logo tanggap.org HANYA di mobile saat sidebar tertutup -->
     <div
       v-if="!sidebarOpen"
       class="sm:hidden absolute left-1/2 -translate-x-1/2 pointer-events-auto select-none"
@@ -58,7 +53,6 @@
       </router-link>
     </div>
 
-    <!-- Right Section: Admin Profile Dropdown (Matching Figma Screenshot) -->
     <div class="flex items-center gap-4 shrink-0 relative" ref="dropdownRef">
       <button
         @click="isDropdownOpen = !isDropdownOpen"
@@ -67,17 +61,14 @@
         aria-haspopup="true"
         :aria-expanded="isDropdownOpen"
       >
-        <!-- Circle Avatar Photo -->
         <div class="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden border border-slate-300 shadow-xs shrink-0 bg-slate-100">
           <img :src="adminAvatar" alt="Admin Avatar" class="w-full h-full object-cover" />
         </div>
 
-        <!-- Admin Name Label -->
         <span class="text-slate-900 font-bold text-sm sm:text-base tracking-tight hidden sm:inline-block">
           Admin
         </span>
 
-        <!-- Chevron Down Arrow -->
         <svg
           class="w-4 h-4 text-slate-700 transition-transform duration-200"
           :class="{ 'rotate-180': isDropdownOpen }"
@@ -89,7 +80,6 @@
         </svg>
       </button>
 
-      <!-- Dropdown Menu -->
       <transition
         enter-active-class="transition duration-150 ease-out"
         enter-from-class="transform scale-95 opacity-0"

@@ -196,6 +196,23 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1.5 bg-slate-100 rounded-xl px-2.5 py-1">
+                <svg class="w-4 h-4 text-[#1E40AF] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <select
+                  v-model.number="activeQuestion.timeLimit"
+                  class="bg-transparent text-xs font-bold text-slate-700 focus:outline-none cursor-pointer py-0.5"
+                >
+                  <option :value="15">15 Detik</option>
+                  <option :value="20">20 Detik</option>
+                  <option :value="30">30 Detik</option>
+                  <option :value="45">45 Detik</option>
+                  <option :value="60">60 Detik</option>
+                  <option :value="0">Tanpa Timer</option>
+                </select>
+              </div>
+
               <div class="inline-flex rounded-xl p-1 bg-slate-100 gap-1">
                 <button
                   type="button"
@@ -277,16 +294,25 @@
                 <textarea
                   v-model="opt.optionText"
                   rows="2"
-                  :placeholder="`Ketik teks jawaban ${opt.optionLabel}...`"
+                  :placeholder="activeQuestion.options.length <= 2 ? `Bebas ketik teks pilihan ${opt.optionLabel} (misal: Setuju / Tidak Setuju, atau Benar / Salah)...` : `Ketik teks jawaban ${opt.optionLabel}...`"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 bg-slate-50/50 focus:bg-white focus:border-[#1E40AF] focus:outline-none"
                 ></textarea>
 
-                <input
-                  v-model="opt.feedbackText"
-                  type="text"
-                  placeholder="Penjelasan singkat setelah siswa memilih ini (opsional)..."
-                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200/80 text-xs text-slate-600 bg-slate-50/30 focus:bg-white focus:border-[#1E40AF] focus:outline-none"
-                />
+                <div class="space-y-2">
+                  <input
+                    v-model="opt.impactTitle"
+                    type="text"
+                    placeholder="Label status (misal: Jawaban Tepat / Respon Positif)"
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-200/80 text-xs font-bold text-slate-700 bg-slate-50/40 focus:bg-white focus:border-[#1E40AF] focus:outline-none"
+                    title="Judul status yang tampil saat siswa memilih opsi ini"
+                  />
+                  <input
+                    v-model="opt.feedbackText"
+                    type="text"
+                    placeholder="Penjelasan feedback singkat (opsional)..."
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-200/80 text-xs text-slate-600 bg-slate-50/30 focus:bg-white focus:border-[#1E40AF] focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -482,6 +508,7 @@ interface FormScenarioItem {
   title: string
   characterName: string
   situationText: string
+  timeLimit: number
   options: FormOptionItem[]
 }
 
@@ -544,6 +571,7 @@ const createDefaultQuestion = (num: number, optionCount: 2 | 4 = 4): FormScenari
     title: `Soal ${num}`,
     characterName: 'Situasi Sekolah',
     situationText: '',
+    timeLimit: 30,
     options,
   }
 }
@@ -630,6 +658,7 @@ const openEditEditor = (mod: any, startQuestionIdx = 0) => {
       title: sc.title || `Soal ${sIdx + 1}`,
       characterName: sc.characterName || sc.character_name || 'Situasi Sekolah',
       situationText: sc.situationText || sc.situation_text || '',
+      timeLimit: sc.timeLimit ?? sc.time_limit ?? 30,
       options: mappedOpts.length > 0 ? mappedOpts : [createDefaultOption('A', true), createDefaultOption('B', false)],
     }
   })
@@ -708,7 +737,9 @@ const markAsCorrectAnswer = (targetIdx: number) => {
     const isTarget = i === targetIdx
     o.isRecommended = isTarget
     o.impactType = isTarget ? 'de_escalation' : 'escalation'
-    o.impactTitle = isTarget ? 'Jawaban Tepat' : 'Kurang Tepat'
+    if (!o.impactTitle || o.impactTitle === 'Jawaban Tepat' || o.impactTitle === 'Kurang Tepat' || o.impactTitle === 'Respon') {
+      o.impactTitle = isTarget ? 'Jawaban Tepat' : 'Kurang Tepat'
+    }
     o.scoreDelta = isTarget ? 100 : 0
   })
 }
@@ -746,13 +777,14 @@ const saveModule = async () => {
         characterName: sc.characterName.trim() || 'Situasi Sekolah',
         situationText: sc.situationText.trim(),
         order: sIdx + 1,
+        timeLimit: Number(sc.timeLimit ?? 30),
         options: sc.options.map((o, oIdx) => ({
           id: o.id,
           optionLabel: String.fromCharCode(65 + oIdx),
           optionText: o.optionText.trim() || `Pilihan ${String.fromCharCode(65 + oIdx)}`,
           feedbackText: o.feedbackText.trim() || (o.isRecommended ? 'Jawaban tepat!' : 'Kurang tepat, coba perhatikan respon yang lebih empatis.'),
           impactType: o.isRecommended ? 'de_escalation' : 'escalation',
-          impactTitle: o.isRecommended ? 'Jawaban Tepat' : 'Kurang Tepat',
+          impactTitle: o.impactTitle.trim() || (o.isRecommended ? 'Jawaban Tepat' : 'Kurang Tepat'),
           isRecommended: Boolean(o.isRecommended),
           scoreDelta: o.isRecommended ? 100 : 0,
         })),

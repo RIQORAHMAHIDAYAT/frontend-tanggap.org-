@@ -315,8 +315,19 @@
               : 'bg-[#F0F5FF] text-slate-900'
           ]"
         >
-          <div class="px-4 sm:px-8 pt-4 sm:pt-6 flex items-center justify-between gap-4 shrink-0">
-            <div class="flex flex-wrap items-center gap-2.5">
+          <div
+            v-if="!showScoreScreen && questionTimeLimit > 0"
+            class="w-full h-2.5 bg-blue-200/70 shrink-0"
+          >
+            <div
+              class="h-full transition-all duration-1000 ease-linear"
+              :class="timeLeft <= 5 ? 'bg-rose-600' : timeLeft <= 10 ? 'bg-amber-500' : 'bg-[#1E40AF]'"
+              :style="{ width: `${timerProgressPercent}%` }"
+            ></div>
+          </div>
+
+          <div class="px-4 sm:px-8 pt-3 sm:pt-4 flex items-center justify-between gap-3 shrink-0">
+            <div class="flex flex-wrap items-center gap-2">
               <span
                 class="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-extrabold tracking-tight shadow-sm"
                 :class="showScoreScreen ? 'bg-white text-[#1C368D]' : 'bg-[#1C368D] text-white'"
@@ -324,7 +335,7 @@
                 tanggap.org
               </span>
               <span
-                class="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold"
+                class="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold hidden sm:inline-block"
                 :class="showScoreScreen ? 'bg-white/15 text-white border border-white/20' : 'bg-white text-[#1C368D] border border-blue-200 shadow-2xs'"
               >
                 {{ activeSimulation.title }}
@@ -337,17 +348,19 @@
               </span>
             </div>
 
-            <button
-              @click="closeSimulation"
-              type="button"
-              class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
-              :class="showScoreScreen ? 'bg-white/15 hover:bg-white/25 text-white border border-white/20' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-xs'"
-              title="Keluar dari Kuis"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div class="flex items-center gap-2.5 shrink-0">
+              <button
+                @click="closeSimulation"
+                type="button"
+                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
+                :class="showScoreScreen ? 'bg-white/15 hover:bg-white/25 text-white border border-white/20' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-xs'"
+                title="Keluar dari Kuis"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div
@@ -390,62 +403,86 @@
               </div>
             </div>
 
-            <div class="mt-10 text-center">
+            <div v-if="saveQuizError" class="mt-4 max-w-md w-full bg-rose-600/90 border border-rose-300/40 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-xl text-center">
+              {{ saveQuizError }}
+            </div>
+
+            <div class="mt-8 text-center">
               <button
                 type="button"
                 :disabled="isSubmitting"
                 class="text-lg sm:text-xl font-extrabold text-white/95 hover:text-white tracking-wide drop-shadow-sm cursor-pointer transition-transform active:scale-95"
               >
-                {{ isSubmitting ? 'Menyimpan skor...' : 'Ketuk untuk melanjutkan' }}
+                {{ isSubmitting ? 'Menyimpan skor ke server...' : saveQuizError ? 'Ketuk untuk coba simpan lagi' : 'Ketuk untuk melanjutkan' }}
               </button>
             </div>
           </div>
 
           <div
             v-else-if="currentQuestion"
-            class="flex-1 flex flex-col justify-center max-w-5xl w-full mx-auto px-4 sm:px-8 py-4 sm:py-6 gap-5 sm:gap-6"
+            class="w-full max-w-5xl mx-auto px-3.5 sm:px-8 py-3 sm:py-4 my-auto flex flex-col gap-3 sm:gap-4"
           >
-            <div class="bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl border border-white/60 text-center space-y-3">
-              <div class="flex items-center justify-center gap-2">
-                <span class="px-3 py-1 rounded-full bg-blue-50 text-[#1E40AF] text-xs font-extrabold uppercase tracking-wider">
+            <div v-if="questionTimeLimit > 0" class="flex justify-center">
+              <div
+                class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 shadow-lg flex flex-col items-center justify-center transition-all"
+                :class="[
+                  timeLeft <= 5
+                    ? 'bg-rose-600 border-white text-white animate-pulse scale-105'
+                    : timeLeft <= 10
+                      ? 'bg-amber-400 border-white text-amber-950'
+                      : 'bg-white border-[#1E40AF] text-[#1C368D]'
+                ]"
+              >
+                <span class="text-xl sm:text-2xl font-black leading-none">{{ timeLeft }}</span>
+                <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider opacity-80 mt-0.5">detik</span>
+              </div>
+            </div>
+
+            <div class="bg-white text-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xl border border-blue-100 text-center space-y-2.5">
+              <div class="flex flex-wrap items-center justify-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1E40AF] text-[11px] sm:text-xs font-extrabold uppercase tracking-wider">
                   {{ currentQuestion.characterName || `Soal ${currentQuestionIndex + 1}` }}
                 </span>
                 <span
                   v-if="currentQuestion.title"
-                  class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold"
+                  class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] sm:text-xs font-bold"
                 >
                   {{ currentQuestion.title }}
                 </span>
               </div>
 
-              <p class="text-lg sm:text-2xl md:text-[26px] font-extrabold text-slate-900 leading-snug max-w-3xl mx-auto">
+              <p class="text-base sm:text-xl md:text-2xl font-extrabold text-slate-900 leading-snug max-w-3xl mx-auto">
                 {{ currentQuestion.situationText }}
               </p>
             </div>
 
             <div
-              v-if="selectedOptionForCurrent"
+              v-if="selectedOptionForCurrent || isTimeUp"
               class="rounded-2xl p-4 sm:p-5 shadow-xl border backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
               :class="[
-                isOptionCorrect(selectedOptionForCurrent)
+                selectedOptionForCurrent && isOptionCorrect(selectedOptionForCurrent)
                   ? 'bg-emerald-600/95 border-emerald-400 text-white'
                   : 'bg-rose-600/95 border-rose-400 text-white'
               ]"
             >
               <div class="space-y-1 flex-1">
                 <div class="flex items-center gap-2 font-extrabold text-sm sm:text-base">
-                  <svg v-if="isOptionCorrect(selectedOptionForCurrent)" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <svg v-if="selectedOptionForCurrent && isOptionCorrect(selectedOptionForCurrent)" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   <svg v-else class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <span>
-                    {{ isOptionCorrect(selectedOptionForCurrent) ? `Tepat! (+${lastEarnedPoints} Poin)` : 'Kurang Tepat!' }}
+                  <span v-if="isTimeUp">
+                    Waktu Habis! (0 Poin)
+                  </span>
+                  <span v-else-if="selectedOptionForCurrent">
+                    {{ selectedOptionForCurrent.impactTitle || (isOptionCorrect(selectedOptionForCurrent) ? 'Tepat!' : 'Kurang Tepat!') }}
+                    <template v-if="isOptionCorrect(selectedOptionForCurrent)"> (+{{ lastEarnedPoints }} Poin)</template>
                   </span>
                 </div>
                 <p class="text-xs sm:text-sm text-white/95 leading-relaxed">
-                  {{ selectedOptionForCurrent.feedbackText }}
+                  {{ isTimeUp ? 'Waktu menjawab habis. Perhatikan jawaban yang ditandai hijau di bawah untuk pembelajaran.' : selectedOptionForCurrent?.feedbackText }}
                 </p>
               </div>
 
@@ -461,28 +498,21 @@
               </button>
             </div>
 
-            <div
-              class="grid gap-3.5 sm:gap-4"
-              :class="[
-                (currentQuestion.options?.length || 0) <= 2
-                  ? 'grid-cols-1 sm:grid-cols-2'
-                  : 'grid-cols-1 sm:grid-cols-2'
-              ]"
-            >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <button
                 v-for="(opt, idx) in currentQuestion.options"
                 :key="opt.id"
                 @click="chooseOption(opt)"
                 type="button"
-                :disabled="Boolean(selectedOptionForCurrent)"
-                class="relative rounded-2xl p-5 sm:p-6 text-left text-white font-bold shadow-lg transition-all flex items-center gap-4 min-h-[88px] sm:min-h-[108px]"
+                :disabled="Boolean(selectedOptionForCurrent) || isTimeUp"
+                class="relative rounded-2xl p-3.5 sm:p-5 text-left text-white font-bold shadow-lg transition-all flex items-center gap-3.5 sm:gap-4 min-h-[64px] sm:min-h-[92px]"
                 :class="[
                   getKahootCardClass(idx, currentQuestion.options.length),
-                  selectedOptionForCurrent
-                    ? (selectedOptionForCurrent.id === opt.id
+                  (selectedOptionForCurrent || isTimeUp)
+                    ? (selectedOptionForCurrent?.id === opt.id
                         ? 'ring-4 ring-white scale-[1.01]'
                         : isOptionCorrect(opt)
-                          ? 'ring-3 ring-emerald-300 opacity-95'
+                          ? 'ring-4 ring-emerald-400 opacity-95'
                           : 'opacity-40 cursor-not-allowed')
                     : 'cursor-pointer active:translate-y-1'
                 ]"
@@ -502,14 +532,11 @@
                   </svg>
                 </div>
 
-                <span
-                  class="flex-1 leading-snug"
-                  :class="(currentQuestion.options?.length || 0) <= 2 ? 'text-base sm:text-xl text-center pr-8' : 'text-sm sm:text-base'"
-                >
+                <span class="flex-1 leading-snug text-sm sm:text-base">
                   {{ opt.optionText }}
                 </span>
 
-                <div v-if="selectedOptionForCurrent && (selectedOptionForCurrent.id === opt.id || isOptionCorrect(opt))" class="shrink-0">
+                <div v-if="(selectedOptionForCurrent || isTimeUp) && (selectedOptionForCurrent?.id === opt.id || isOptionCorrect(opt))" class="shrink-0">
                   <svg v-if="isOptionCorrect(opt)" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
@@ -598,7 +625,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 import { api, isMockMode } from '../../services/api'
 
@@ -619,6 +646,7 @@ interface ScenarioItem {
   situationText: string
   characterName: string
   order: number
+  timeLimit?: number
   options: ScenarioOption[]
 }
 
@@ -706,19 +734,34 @@ const myRank = ref<number | null>(null)
 const activeSimulation = ref<GamificationModuleItem | null>(null)
 const currentQuestionIndex = ref(0)
 const selectedOptionForCurrent = ref<ScenarioOption | null>(null)
-const quizAnswersList = ref<{ scenarioId: number; optionId: number }[]>([])
+const quizAnswersList = ref<{ scenarioId: number; optionId: number | null }[]>([])
 const quizScore = ref(0)
 const quizCorrectCount = ref(0)
 const currentStreak = ref(0)
 const lastEarnedPoints = ref(0)
 const showScoreScreen = ref(false)
 const isSubmitting = ref(false)
+const saveQuizError = ref('')
+const hasSavedQuiz = ref(false)
+const timeLeft = ref(30)
+const isTimeUp = ref(false)
+let timerInterval: ReturnType<typeof setInterval> | null = null
 
 const quizTotalQuestions = computed(() => activeSimulation.value?.scenarios?.length || 0)
 
 const currentQuestion = computed(() => {
   if (!activeSimulation.value?.scenarios || activeSimulation.value.scenarios.length === 0) return null
   return activeSimulation.value.scenarios[currentQuestionIndex.value] || null
+})
+
+const questionTimeLimit = computed(() => {
+  if (!currentQuestion.value) return 0
+  return currentQuestion.value.timeLimit ?? 30
+})
+
+const timerProgressPercent = computed(() => {
+  if (questionTimeLimit.value <= 0) return 0
+  return Math.max(0, Math.min(100, Math.round((timeLeft.value / questionTimeLimit.value) * 100)))
 })
 
 const answeredCount = computed(() => {
@@ -824,6 +867,41 @@ const loadGamificationData = async () => {
   }
 }
 
+const stopQuestionTimer = () => {
+  if (timerInterval) {
+    clearInterval(timerInterval)
+    timerInterval = null
+  }
+}
+
+const startQuestionTimer = () => {
+  stopQuestionTimer()
+  isTimeUp.value = false
+  const limit = questionTimeLimit.value
+  if (limit <= 0) {
+    timeLeft.value = 0
+    return
+  }
+  timeLeft.value = limit
+  timerInterval = setInterval(() => {
+    if (timeLeft.value > 1) {
+      timeLeft.value--
+    } else {
+      timeLeft.value = 0
+      stopQuestionTimer()
+      if (!selectedOptionForCurrent.value && !isTimeUp.value && currentQuestion.value) {
+        isTimeUp.value = true
+        currentStreak.value = 0
+        lastEarnedPoints.value = 0
+        quizAnswersList.value.push({
+          scenarioId: currentQuestion.value.id,
+          optionId: null,
+        })
+      }
+    }
+  }, 1000)
+}
+
 const startSimulation = (mod: GamificationModuleItem) => {
   if (!mod.scenarios || mod.scenarios.length === 0) return
   activeSimulation.value = mod
@@ -835,10 +913,73 @@ const startSimulation = (mod: GamificationModuleItem) => {
   currentStreak.value = 0
   lastEarnedPoints.value = 0
   showScoreScreen.value = false
+  saveQuizError.value = ''
+  hasSavedQuiz.value = false
+  startQuestionTimer()
+}
+
+const applyLocalProgressUpdate = () => {
+  if (!activeSimulation.value) return
+  const targetIdx = modules.value.findIndex(m => m.id === activeSimulation.value?.id)
+  if (targetIdx !== -1) {
+    const existing = modules.value[targetIdx]
+    const bestScore = Math.max(existing.progress?.score || 0, quizScore.value)
+    const bestCorrect = Math.max(existing.progress?.correctCount || 0, quizCorrectCount.value)
+    modules.value[targetIdx] = {
+      ...existing,
+      isCompleted: true,
+      progress: {
+        isCompleted: true,
+        score: bestScore,
+        correctCount: bestCorrect,
+        totalQuestions: quizTotalQuestions.value,
+      },
+    }
+  }
+  const doneCount = modules.value.filter(m => m.isCompleted).length
+  const totalCount = modules.value.length
+  const sumScore = modules.value.reduce((acc, m) => acc + (m.progress?.score || 0), 0)
+  summary.value = {
+    ...summary.value,
+    totalModules: totalCount,
+    completedCount: doneCount,
+    progressPercent: totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0,
+    totalScore: sumScore,
+  }
+}
+
+const submitQuizToBackend = async () => {
+  if (!activeSimulation.value || isSubmitting.value) return
+  isSubmitting.value = true
+  saveQuizError.value = ''
+
+  applyLocalProgressUpdate()
+
+  try {
+    const rawUser = localStorage.getItem('tanggap_user')
+    const parsedUser = rawUser ? JSON.parse(rawUser) : null
+    const userId = parsedUser?.id ?? null
+
+    if (!isMockMode()) {
+      await api.post(`gamification/modules/${activeSimulation.value.id}/submit`, {
+        answers: quizAnswersList.value,
+        userId,
+      })
+    }
+
+    hasSavedQuiz.value = true
+    await loadGamificationData()
+  } catch (err: any) {
+    console.error('Gagal menyimpan hasil kuis:', err)
+    saveQuizError.value = err?.data?.message || err?.message || 'Gagal menyinkronkan skor ke server.'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const chooseOption = (opt: ScenarioOption) => {
-  if (selectedOptionForCurrent.value || !currentQuestion.value) return
+  if (selectedOptionForCurrent.value || isTimeUp.value || !currentQuestion.value) return
+  stopQuestionTimer()
   selectedOptionForCurrent.value = opt
 
   quizAnswersList.value.push({
@@ -858,44 +999,32 @@ const chooseOption = (opt: ScenarioOption) => {
   }
 }
 
-const goToNextQuestion = () => {
+const goToNextQuestion = async () => {
+  stopQuestionTimer()
   if (currentQuestionIndex.value + 1 >= quizTotalQuestions.value) {
     showScoreScreen.value = true
+    await submitQuizToBackend()
   } else {
     currentQuestionIndex.value++
     selectedOptionForCurrent.value = null
     lastEarnedPoints.value = 0
+    startQuestionTimer()
   }
 }
 
 const closeSimulation = () => {
+  stopQuestionTimer()
   activeSimulation.value = null
   showScoreScreen.value = false
 }
 
 const finishAndSaveQuiz = async () => {
-  if (!activeSimulation.value || isSubmitting.value) return
-  isSubmitting.value = true
-
-  try {
-    const rawUser = localStorage.getItem('tanggap_user')
-    const userId = rawUser ? JSON.parse(rawUser).id : null
-
-    if (!isMockMode()) {
-      await api.post(`gamification/modules/${activeSimulation.value.id}/submit`, {
-        answers: quizAnswersList.value,
-        userId,
-      })
-    }
-
-    await loadGamificationData()
-    closeSimulation()
-  } catch (err) {
-    console.error('Gagal menyimpan hasil kuis:', err)
-    closeSimulation()
-  } finally {
-    isSubmitting.value = false
+  if (isSubmitting.value) return
+  if (!hasSavedQuiz.value) {
+    await submitQuizToBackend()
+    if (saveQuizError.value) return
   }
+  closeSimulation()
 }
 
 const isConflictQuizOpen = ref(false)
@@ -974,5 +1103,9 @@ const calculateAndSaveConflictStyle = async () => {
 
 onMounted(() => {
   loadGamificationData()
+})
+
+onUnmounted(() => {
+  stopQuestionTimer()
 })
 </script>

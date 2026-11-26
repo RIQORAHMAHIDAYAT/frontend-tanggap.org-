@@ -1,15 +1,160 @@
 <template>
   <div>
-    <!-- STATE 0: Belum Masuk Kode (Matching asesment belum masuk kode.png) -->
     <DashboardLayout v-if="!hasSchoolCode">
-      <div class="bg-white rounded-3xl md:rounded-[32px] p-8 sm:p-12 md:p-16 border border-slate-200/80 shadow-xs min-h-[460px] md:min-h-[520px] flex items-center justify-center">
-        <p class="text-slate-800 text-base sm:text-lg md:text-[19px] text-center leading-relaxed max-w-3xl font-normal">
-          Masukkan kode yang diberikan oleh sekolah dan ikuti assessment skill resolusi konflik dengan cermat. Klik 
-          <router-link to="/dashboard" class="text-[#1E40AF] font-bold hover:underline inline-block mx-1">
-            disini
-          </router-link> 
-          untuk memasukkan kode.
-        </p>
+      <div class="space-y-5 sm:space-y-6 select-none">
+
+        <div class="bg-white rounded-3xl p-6 sm:p-8 md:px-10 md:py-8 border border-slate-200/80 shadow-xs">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8">
+            <div class="w-full md:w-7/12 text-center md:text-left space-y-3">
+              <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1C368D] leading-tight">
+                Pengukuran Skill Resolusi Konflik
+              </h1>
+
+              <div class="flex justify-center md:hidden py-1">
+                <svg class="w-48 h-auto select-none" viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="160" cy="130" r="110" fill="#EFF6FF" />
+                  <path d="M62 175C58 142 78 118 104 126C95 152 78 170 62 175Z" fill="#93C5FD" opacity="0.65" />
+                  <path d="M48 140C52 110 74 94 94 106C82 128 65 136 48 140Z" fill="#60A5FA" opacity="0.55" />
+                  <path d="M258 175C262 142 242 118 216 126C225 152 242 170 258 175Z" fill="#93C5FD" opacity="0.65" />
+                  <path d="M272 140C268 110 246 94 226 106C238 128 255 136 272 140Z" fill="#60A5FA" opacity="0.55" />
+                  <rect x="98" y="42" width="124" height="172" rx="14" fill="#FFFFFF" stroke="#93C5FD" stroke-width="3" />
+                  <rect x="130" y="30" width="60" height="22" rx="6" fill="#60A5FA" />
+                  <circle cx="160" cy="37" r="3" fill="#FFFFFF" />
+                  <path d="M114 78L119 83L127 74" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <rect x="136" y="75" width="68" height="7" rx="3.5" fill="#93C5FD" />
+                  <path d="M114 106L119 111L127 102" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <rect x="136" y="103" width="68" height="7" rx="3.5" fill="#93C5FD" />
+                  <path d="M114 134L119 139L127 130" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <rect x="136" y="131" width="52" height="7" rx="3.5" fill="#93C5FD" />
+                  <path d="M114 162L119 167L127 158" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <rect x="136" y="159" width="44" height="7" rx="3.5" fill="#93C5FD" />
+                  <circle cx="222" cy="176" r="38" fill="#1E40AF" />
+                  <circle cx="222" cy="176" r="42" stroke="#FFFFFF" stroke-width="4" />
+                  <rect x="207" y="172" width="30" height="24" rx="5" fill="#FFFFFF" />
+                  <path d="M213 172V164C213 159.029 217.029 155 222 155C226.971 155 231 159.029 231 164V172" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+                  <circle cx="222" cy="182" r="2.5" fill="#1E40AF" />
+                  <rect x="220.8" y="183" width="2.4" height="6" rx="1.2" fill="#1E40AF" />
+                </svg>
+              </div>
+
+              <p class="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
+                Melalui pengukuran keterampilan resolusi konflik, melalui evaluasi diri dan kelompok untuk memantau efektivitas program.
+              </p>
+            </div>
+
+            <div class="hidden md:flex md:w-5/12 justify-end items-center">
+              <svg class="w-56 lg:w-64 h-auto select-none" viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="160" cy="130" r="110" fill="#EFF6FF" />
+                <path d="M62 175C58 142 78 118 104 126C95 152 78 170 62 175Z" fill="#93C5FD" opacity="0.65" />
+                <path d="M48 140C52 110 74 94 94 106C82 128 65 136 48 140Z" fill="#60A5FA" opacity="0.55" />
+                <path d="M258 175C262 142 242 118 216 126C225 152 242 170 258 175Z" fill="#93C5FD" opacity="0.65" />
+                <path d="M272 140C268 110 246 94 226 106C238 128 255 136 272 140Z" fill="#60A5FA" opacity="0.55" />
+                <rect x="98" y="42" width="124" height="172" rx="14" fill="#FFFFFF" stroke="#93C5FD" stroke-width="3" />
+                <rect x="130" y="30" width="60" height="22" rx="6" fill="#60A5FA" />
+                <circle cx="160" cy="37" r="3" fill="#FFFFFF" />
+                <path d="M114 78L119 83L127 74" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="136" y="75" width="68" height="7" rx="3.5" fill="#93C5FD" />
+                <path d="M114 106L119 111L127 102" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="136" y="103" width="68" height="7" rx="3.5" fill="#93C5FD" />
+                <path d="M114 134L119 139L127 130" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="136" y="131" width="52" height="7" rx="3.5" fill="#93C5FD" />
+                <path d="M114 162L119 167L127 158" stroke="#1E40AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="136" y="159" width="44" height="7" rx="3.5" fill="#93C5FD" />
+                <circle cx="222" cy="176" r="38" fill="#1E40AF" />
+                <circle cx="222" cy="176" r="42" stroke="#FFFFFF" stroke-width="4" />
+                <rect x="207" y="172" width="30" height="24" rx="5" fill="#FFFFFF" />
+                <path d="M213 172V164C213 159.029 217.029 155 222 155C226.971 155 231 159.029 231 164V172" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+                <circle cx="222" cy="182" r="2.5" fill="#1E40AF" />
+                <rect x="220.8" y="183" width="2.4" height="6" rx="1.2" fill="#1E40AF" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-xs space-y-7 sm:space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-start">
+
+            <div class="md:col-span-7 flex items-start gap-4 sm:gap-5">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#EEF4FF] text-[#1E40AF] flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd" />
+                </svg>
+              </div>
+
+              <div class="space-y-2.5 flex-1">
+                <h2 class="text-base sm:text-lg font-extrabold text-[#1C368D]">
+                  Assessment Belum Dapat Diakses
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md">
+                  Untuk mengikuti assessment, kamu perlu bergabung ke kelas terlebih dahulu. Masukkan kode kelas yang diberikan oleh guru atau sekolahmu.
+                </p>
+                <div class="pt-1.5">
+                  <router-link
+                    to="/dashboard"
+                    class="inline-flex items-center gap-2 bg-[#1E40AF] hover:bg-blue-800 active:scale-95 text-white font-bold px-6 py-3 rounded-xl shadow-sm transition-all text-xs sm:text-sm"
+                  >
+                    <span>Gabung kelas</span>
+                    <span>→</span>
+                  </router-link>
+                </div>
+              </div>
+            </div>
+
+            <div class="md:col-span-5 border-t border-slate-200/80 pt-6 md:pt-0 md:border-t-0 md:border-l md:pl-8 space-y-4">
+              <h3 class="text-sm sm:text-base font-extrabold text-[#1C368D]">
+                Kenapa perlu bergabung kelas?
+              </h3>
+
+              <div class="space-y-3.5">
+                <div class="flex items-center gap-3.5">
+                  <div class="w-9 h-9 rounded-full bg-[#EEF4FF] text-[#1E40AF] flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 01-1.875-1.875V8.625zM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 013 19.875v-6.75z" />
+                    </svg>
+                  </div>
+                  <span class="text-xs sm:text-sm text-slate-600 font-medium leading-snug">
+                    Mengakses semua fitur pembelajaran.
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3.5">
+                  <div class="w-9 h-9 rounded-full bg-[#EEF4FF] text-[#1E40AF] flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
+                    </svg>
+                  </div>
+                  <span class="text-xs sm:text-sm text-slate-600 font-medium leading-snug">
+                    Mendapatkan pendampingan dari guru.
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3.5">
+                  <div class="w-9 h-9 rounded-full bg-[#EEF4FF] text-[#1E40AF] flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <span class="text-xs sm:text-sm text-slate-600 font-medium leading-snug">
+                    Data perkembanganmu lebih terpantau.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="bg-[#F0F5FF] rounded-2xl p-4 sm:p-5 border border-blue-100/80 flex items-center gap-3.5 sm:gap-4">
+            <div class="w-9 h-9 rounded-full bg-white text-[#1E40AF] border border-blue-200/70 flex items-center justify-center shrink-0 shadow-2xs">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Assessment hanya dapat diakses oleh siswa yang sudah bergabung dalam kelas. Jika kamu sudah memiliki kode kelas, pastikan kode tersebut benar dan aktif.
+            </p>
+          </div>
+        </div>
+
       </div>
     </DashboardLayout>
 
@@ -295,7 +440,7 @@ const checkSchoolStatus = () => {
   }
 
   const saved = localStorage.getItem('tanggap_school_code')
-  hasSchoolCode.value = Boolean(saved && saved.trim().length >= 6)
+  hasSchoolCode.value = Boolean(saved && saved.trim().length >= 3)
 }
 
 // Sinkronkan step dengan query URL agar tombol Back browser & tombol Kembali selalu akurat

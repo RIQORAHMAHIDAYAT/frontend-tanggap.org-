@@ -4,7 +4,7 @@
       <!-- Title & Subtitle Section -->
       <header class="space-y-2">
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-          Pengjuan Kerja Sama
+          Pengajuan Kerja Sama
         </h1>
         <p class="text-slate-600 text-sm sm:text-base md:text-lg">
           Kelola permohonan sekolah atau guru yang masuk melalui formulir kerja sama.

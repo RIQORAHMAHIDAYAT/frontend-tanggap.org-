@@ -81,7 +81,7 @@ const menuItems = [
   { label: 'Manajemen Kelas', path: '/dashboard_admin/manajemen-kelas' },
   { label: 'Manajemen Assessment', path: '/dashboard_admin/manajemen-assessment' },
   { label: 'Monitoring Assessment', path: '/dashboard_admin/monitoring-assessment' },
-  { label: 'Gamifikasi', path: '/dashboard_admin/manajemen-gamifikasi' },
+  { label: 'Manajemen Gamifikasi', path: '/dashboard_admin/manajemen-gamifikasi' },
   { label: 'Manajemen Konten', path: '/dashboard_admin/manajemen-konten' }
 ]
 

@@ -265,7 +265,7 @@
       >
         <div
           v-if="showJoinClassModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-xs"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
           @click.self="showJoinClassModal = false"
         >
           <div class="bg-white rounded-[32px] sm:rounded-[36px] max-w-4xl w-full p-6 sm:p-10 md:p-12 shadow-2xl border border-slate-100/90 relative flex flex-col md:flex-row items-center justify-between gap-8 text-left select-none overflow-hidden">
